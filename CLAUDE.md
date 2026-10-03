@@ -8,7 +8,7 @@ A photo calendar built around one reusable element, `src/photo-calendar/`. See `
 - Comment the code: a header on every file saying what it is for, and a short doc comment on each exported function, hook and component.
 - Keep the calendar modular and exportable: everything it needs lives inside `src/photo-calendar/`, and other code imports it only through `src/photo-calendar/index.js`.
 - All Write-With-Nature glass code stays inside `src/photo-calendar/wwn-glass/`, imported only through its `index.js`.
-- Keep `typegpu` pinned at 0.12.4 (`@typegpu/sdf` and `@typegpu/noise` at 0.12.0). 0.12.6 renders the glass panel black.
+- Keep the typegpu packages pinned exactly: `typegpu` 0.12.4, `@typegpu/sdf` and `@typegpu/noise` 0.12.0, `unplugin-typegpu` 0.12.3 (the versions Write-With-Nature uses). `typegpu` 0.12.6 renders the glass panel black, and `unplugin-typegpu` 0.12.4 demands 0.12.6, which breaks `npm ci`.
 - PWA and hosting: the app builds with relative URLs (`base: './'`) so it works on a GitHub Pages project path. `public/sw.js` has placeholders that `vite.config.js` fills at build time; do not hard-code asset names in it.
 - Layout responds to the calendar's own width (container queries in `src/photo-calendar/styles/`), not the viewport. The day view is the exception: it is a portal, so it uses viewport media queries.
 - Never run commands that change git history or push unless asked. Commit messages carry no AI co-author or attribution trailers.

@@ -23,7 +23,7 @@ Colours and spacing are CSS variables on `.pc-root` (`styles/base.css`).
 ## Move it into another project
 
 1. Copy this folder.
-2. Install `react`, `react-dom`, `typegpu@0.12.4`, `@typegpu/sdf@0.12.0`, `@typegpu/noise@0.12.0`.
+2. Install `react`, `react-dom`, `typegpu@0.12.4`, `@typegpu/sdf@0.12.0`, `@typegpu/noise@0.12.0`, and (dev) `unplugin-typegpu@0.12.3`.
 3. Add `unplugin-typegpu/vite` to `vite.config.js`, **before** the React plugin: the glass shaders are compiled by it.
 4. Load the `Playfair Display` and `DM Mono` fonts (the page in this repo does it from Google Fonts).
 5. If the page colour changes after load, call `setPaperColor('#...')` so the glass refracts the right colour.

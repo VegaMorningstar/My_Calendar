@@ -27,7 +27,7 @@ Icons are generated from `public/icons/icon.svg` with `npm run icons` (needs Chr
 `.github/workflows/pages.yml` builds and deploys on every push to `main`. One-time setup:
 
 1. In the repo on GitHub: **Settings, Pages, Build and deployment, Source: GitHub Actions**.
-2. Push to `main`. The site appears at `https://rahul-mirewa.github.io/My_Callendar/`.
+2. Push to `main`. The site appears at `https://vegamorningstar.github.io/My_Calendar/`.
 
 The build uses relative URLs (`base: './'`), so it works from that project path, from a custom domain, or from any folder, with nothing to configure. To preview the production build locally: `npm run build && npm run preview`.
 

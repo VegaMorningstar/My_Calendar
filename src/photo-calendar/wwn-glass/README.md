@@ -56,5 +56,5 @@ package (a workspace package or a git submodule) that both repos import, with
 
 ## Version pin
 
-`typegpu` must stay at 0.12.4 (with `@typegpu/sdf` and `@typegpu/noise` at 0.12.0,
+`typegpu` must stay at 0.12.4 (with `@typegpu/sdf` and `@typegpu/noise` at 0.12.0 and `unplugin-typegpu` at 0.12.3,
 as in WWN). 0.12.6 renders the panel shader black.
