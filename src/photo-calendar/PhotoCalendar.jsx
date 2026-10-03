@@ -5,11 +5,12 @@
  *   <PhotoCalendar photos={['photos/sunset_2026-10-03.webp', ...]} />
  *
  * `photos` is a list of URLs whose file names end in YYYY-MM-DD (or YYYYMMDD),
- * or of { src, date: 'YYYY-MM-DD' } objects. This component only wires the
+ * or of { src, date: 'YYYY-MM-DD', full? } objects. `full` is an optional
+ * full-size URL for the full-screen viewer, when `src` is a small preview. This component only wires the
  * pieces together; the work lives in components/, hooks/ and lib/.
  *
  * Props
- *   photos        photo URLs or { src, date } objects
+ *   photos        photo URLs or { src, date, full? } objects
  *   initialDate   Date whose month opens first (default: today)
  *   weekStartsOn  0 = Sunday (default) ... 6 = Saturday
  *   rotateMs      average time each photo stays up on a multi-photo day
@@ -23,7 +24,7 @@ import MonthView from './components/MonthView.jsx'
 import YearView from './components/YearView.jsx'
 import useCalendarView from './hooks/useCalendarView.js'
 import usePageInk from './hooks/usePageInk.js'
-import { MONTHS, countInMonth, dateKey, groupByDate } from './lib/dates.js'
+import { MONTHS, countInMonth, dateKey, fullSources, groupByDate } from './lib/dates.js'
 import { PANEL_FALLBACK } from './lib/glass-config.js'
 import './styles/base.css'
 
@@ -37,6 +38,7 @@ export default function PhotoCalendar({
   const panelRef = useRef(null)
   const pageInk = usePageInk()
   const byDate = useMemo(() => groupByDate(photos), [photos])
+  const fullBySrc = useMemo(() => fullSources(photos), [photos])
 
   /** The day open in the full-screen view, as { year, month, day }, or null. */
   const [openDay, setOpenDay] = useState(null)
@@ -90,6 +92,7 @@ export default function PhotoCalendar({
         <DayDetail
           date={openDay}
           srcs={byDate.get(dateKey(openDay.year, openDay.month, openDay.day)) ?? []}
+          fullBySrc={fullBySrc}
           pageInk={pageInk}
           onClose={() => setOpenDay(null)}
         />

@@ -1,0 +1,35 @@
+/* The import strip under the calendar. Text colour comes from --lib-ink (adaptive). */
+.lib-bar {
+  --lib-ink: 28, 26, 16;
+  --lib-teal: 70, 170, 164;
+  --lib-burgundy: 128, 28, 58;
+  width: min(980px, 100%);
+  margin-top: 16px;
+  display: grid; justify-items: center; gap: 8px;
+  font-family: 'DM Mono', ui-monospace, monospace; text-align: center;
+  color: rgb(var(--lib-ink));
+}
+.lib-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+
+.lib-btn {
+  appearance: none; cursor: pointer; font: inherit; font-size: .82rem; letter-spacing: .06em;
+  min-height: 44px; padding: 0 20px; border-radius: 22px; /* 44px is the minimum comfortable touch target */
+  color: rgb(var(--lib-ink)); border: 1px solid rgba(255,255,255,.7);
+  background: linear-gradient(145deg, rgba(255,255,255,.55), rgba(255,255,255,.12));
+  box-shadow: -2px -2px 6px rgba(255,255,255,.6), 3px 4px 10px rgba(90,64,28,.16), inset 1px 1px 3px rgba(255,255,255,.7);
+  -webkit-tap-highlight-color: transparent; transition: transform .15s, opacity .15s;
+}
+.lib-btn:active { transform: scale(.96); }
+.lib-btn:disabled { opacity: .55; cursor: progress; }
+.lib-btn:focus-visible { outline: 2px solid rgba(var(--lib-teal), .9); outline-offset: 2px; }
+.lib-primary {
+  background: linear-gradient(145deg, rgba(var(--lib-teal), .42), rgba(var(--lib-teal), .16));
+  border-color: rgba(var(--lib-teal), .55);
+}
+.lib-danger {
+  background: linear-gradient(145deg, rgba(var(--lib-burgundy), .3), rgba(var(--lib-burgundy), .1));
+  border-color: rgba(var(--lib-burgundy), .4);
+}
+
+.lib-status { margin: 0; font-size: .78rem; opacity: .75; }
+.lib-note { margin: 0; font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; opacity: .45; }

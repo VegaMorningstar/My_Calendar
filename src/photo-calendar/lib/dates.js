@@ -65,6 +65,17 @@ export function groupByDate(photos) {
   return map
 }
 
+/**
+ * Map from a photo's displayed URL to its full-size URL, for photos given as
+ * { src, full, date }. Lets the grid use small previews while the full-screen
+ * viewer loads the original. Photos without `full` are simply absent.
+ */
+export function fullSources(photos) {
+  const map = new Map()
+  for (const p of photos) if (typeof p !== 'string' && p.full) map.set(p.src, p.full)
+  return map
+}
+
 /** Number of photos on the days of one month. */
 export function countInMonth(byDate, year, month) {
   return monthCells(year, month).reduce(

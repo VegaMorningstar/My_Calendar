@@ -12,6 +12,7 @@ export { default as YearView } from './components/YearView.jsx'
 export { default as DayDetail } from './components/DayDetail.jsx'
 export { default as CalendarHeader } from './components/CalendarHeader.jsx'
 export { default as useCalendarView } from './hooks/useCalendarView.js'
+export { default as usePageInk } from './hooks/usePageInk.js'
 
 // Helpers
 export { groupByDate, parsePhotoDate, monthCells } from './lib/dates.js'

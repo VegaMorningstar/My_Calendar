@@ -11,6 +11,16 @@ npm run dev        # http://127.0.0.1:5173
 
 `npm run dev` first rebuilds `public/photos/manifest.json` from the files in `public/photos/`. Photos are matched to days by a date at the end of the file name, for example `harbour_2026-10-03.webp` (`YYYY-MM-DD` or `YYYYMMDD`). The bundled photos are samples borrowed from Write-With-Nature.
 
+## Add your own photos
+
+Tap **Choose photos** under the calendar. The system photo picker opens and you choose which photos to add (in the picker, the Albums tab lets you open Favourites and select them all). Each photo is placed on the day it was taken, read from its EXIF capture date. A photo with no capture date, such as a screenshot, uses the file's date instead and the app tells you so. Picking the same photo twice is ignored.
+
+- **Everything stays on the device.** Photos are saved in the browser's own storage (IndexedDB) on your phone. Nothing is uploaded, and the import code makes no network requests. The site's code comes from GitHub Pages; your photos never do.
+- **Install first, then import.** An installed home-screen app and Safari keep separate storage on iPhone, so add photos from inside the installed app.
+- **Sample photos disappear** as soon as you add your own, and come back if you tap **Remove my photos** (which only deletes this app's copies, never your Photos library).
+- **Limits:** iOS can clear a web app's storage if the phone is very low on space, or if you delete the app or clear website data. Keep the originals in Photos. Importing is manual: new photos need another visit to **Add more photos**.
+- Code: `src/photo-library/` (storage, date reading, previews, the button strip). Grid cells use small previews; the full-screen viewer loads the original.
+
 ## Install it as an app (PWA)
 
 The calendar is a progressive web app: installable, full-screen, and usable offline.
@@ -49,6 +59,7 @@ The layout responds to the calendar's own width rather than the screen's, using 
 
 ```
 src/photo-calendar/     the whole element, self-contained (see its README)
+src/photo-library/      picking photos, reading their dates, storing them on the device
 src/App.jsx             demo page: loads the manifest and renders the calendar
 public/photos/          sample photos
 scripts/gen-manifest.mjs

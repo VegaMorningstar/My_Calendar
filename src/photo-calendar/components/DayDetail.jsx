@@ -17,11 +17,12 @@ import '../styles/detail.css'
 
 /**
  * @param {{year:number, month:number, day:number}} date  the day to show
- * @param {string[]} srcs          the day's photos
+ * @param {string[]} srcs          the day's photos (previews, if there are any)
+ * @param {Map<string,string>} [fullBySrc]  preview URL -> full-size URL for the viewer
  * @param {{ink:string, halo:string}} pageInk  adaptive text colours for the page
  * @param {Function} onClose       () => void
  */
-export default function DayDetail({ date, srcs, pageInk, onClose }) {
+export default function DayDetail({ date, srcs, fullBySrc, pageInk, onClose }) {
   const { year, month, day } = date
   const sheetRef = useRef(null)
   /** Index of the photo open full screen, or null for the grid. */
@@ -105,7 +106,7 @@ export default function DayDetail({ date, srcs, pageInk, onClose }) {
         </div>
       </div>
       {viewing !== null && (
-        <PhotoViewer srcs={srcs} index={viewing} onIndex={setViewing} onClose={() => setViewing(null)} />
+        <PhotoViewer srcs={srcs.map(s => fullBySrc?.get(s) ?? s)} index={viewing} onIndex={setViewing} onClose={() => setViewing(null)} />
       )}
     </div>,
     document.body,

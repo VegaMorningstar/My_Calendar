@@ -23,3 +23,6 @@ body {
 @media (min-width: 900px) {
   .stage { place-items: center; padding-top: 32px; padding-bottom: 32px; }
 }
+
+/* The calendar and the import strip stack in one centred column */
+.stage-column { width: min(980px, 100%); display: flex; flex-direction: column; align-items: center; }
