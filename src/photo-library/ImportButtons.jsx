@@ -1,7 +1,7 @@
 /**
- * The button for adding the user's own photos, meant for the top left of the
- * page, plus the toast that reports what happened (for removing as well). The
- * remove button lives under the calendar, in LibraryNote.
+ * The two small buttons under the calendar, Import photos (Add more photos once
+ * there are some) and Remove photos, side by side, plus the toast that reports
+ * what happened.
  *
  * "Import photos" opens the system photo picker, so the user decides exactly
  * which photos to add. Nothing is read until they pick. Photos are stored on
@@ -20,7 +20,7 @@ const TOAST_MS = 3000
  * @param {{ink:string, halo:string}} [ink]  adaptive text colours from the calendar
  */
 export default function ImportButtons({ library, ink }) {
-  const { photos, progress, lastResult, addFiles } = library
+  const { photos, progress, lastResult, addFiles, removeAll } = library
   const input = useRef(null)
   const busy = progress !== null
   const hasOwn = photos.length > 0
@@ -42,13 +42,22 @@ export default function ImportButtons({ library, ink }) {
     if (files.length) addFiles(files)
   }
 
+  const onRemove = () => {
+    if (window.confirm(`Remove the ${photos.length} photos you added from this app? Your Photos library is not affected.`)) removeAll()
+  }
+
   return (
     <div className="lib-toolbar" style={ink ? { '--lib-ink': ink.ink } : undefined}>
       <input ref={input} type="file" accept="image/*" multiple hidden onChange={onPick} />
 
-      <button type="button" className="lib-btn lib-primary" onClick={() => input.current.click()} disabled={busy}>
+      <button type="button" className="lib-btn lib-small lib-primary" onClick={() => input.current.click()} disabled={busy}>
         {hasOwn ? 'Add more photos' : 'Import photos'}
       </button>
+      {hasOwn && (
+        <button type="button" className="lib-btn lib-small lib-danger" onClick={onRemove} disabled={busy}>
+          Remove photos
+        </button>
+      )}
 
       <Toast text={toastText} open={toastOpen} />
     </div>

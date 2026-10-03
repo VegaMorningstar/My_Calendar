@@ -19,13 +19,10 @@ body {
     max(10px, env(safe-area-inset-left));
 }
 
-/* The import buttons sit at the top left of the screen, above the calendar */
-.stage-toolbar { align-self: flex-start; margin-bottom: 14px; }
-
-/* The calendar and the note under it stack in one centred column */
+/* The calendar, its buttons and the note stack in one centred column */
 .stage-column { width: min(980px, 100%); display: flex; flex-direction: column; align-items: center; }
 
 @media (min-width: 900px) {
-  /* On larger screens the calendar is centred in the space left below the buttons */
+  /* On larger screens the column is centred vertically */
   .stage-column { margin-block: auto; }
 }

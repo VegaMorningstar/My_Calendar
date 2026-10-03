@@ -1,6 +1,6 @@
 /**
- * The demo page: the import buttons at the top left, the photo calendar below,
- * and a short note under it.
+ * The demo page: the photo calendar, the buttons for adding and removing photos
+ * under it, and a short note.
  *
  * The calendar shows whatever photos the user has imported from their device.
  */
@@ -13,11 +13,9 @@ export default function App() {
 
   return (
     <main className="stage">
-      <div className="stage-toolbar">
-        <ImportButtons library={library} ink={ink} />
-      </div>
       <div className="stage-column">
         <PhotoCalendar photos={library.photos} />
+        <ImportButtons library={library} ink={ink} />
         <LibraryNote library={library} ink={ink} />
       </div>
     </main>
