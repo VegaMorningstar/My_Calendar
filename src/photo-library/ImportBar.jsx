@@ -1,7 +1,7 @@
 /**
  * The strip under the calendar for adding the user's own photos.
  *
- * "Choose photos" opens the system photo picker, so the user decides exactly
+ * "Import photos" opens the system photo picker, so the user decides exactly
  * which photos to add. Nothing is read until they pick. Photos are stored on
  * this device only.
  */
@@ -34,7 +34,7 @@ export default function ImportBar({ library, ink }) {
 
       <div className="lib-actions">
         <button type="button" className="lib-btn lib-primary" onClick={() => input.current.click()} disabled={busy}>
-          {hasOwn ? 'Import photos' : 'Choose photos'}
+          {hasOwn ? 'Add more photos' : 'Import photos'}
         </button>
         {hasOwn && (
           <button type="button" className="lib-btn lib-danger" onClick={onRemove} disabled={busy}>
@@ -50,7 +50,7 @@ export default function ImportBar({ library, ink }) {
             ? summary(lastResult)
             : hasOwn
               ? `${photos.length} photos from your library`
-              : 'No photos yet. Choose some from your library to fill the calendar.'}
+              : 'No photos yet. Import some from your library to fill the calendar.'}
       </p>
       <p className="lib-note">Photos stay on this device. Nothing is uploaded.</p>
     </div>
