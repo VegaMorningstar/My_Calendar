@@ -22,4 +22,4 @@ Turn the calendar into an iOS app that reads the Photos library through PhotoKit
 ### Other open items
 - Dedicated cleanup so Write-With-Nature and this repo share one copy of the glass code (a shared package) instead of two. Details in `src/photo-calendar/wwn-glass/README.md`.
 - Test the glass against other page background colours.
-- Photo loading: manual import from the photo picker is done. Still open: hands-free sync of the Favourites album (Shortcuts automation, or the native iOS app above), and removing single photos.
+- Photo loading: manual import from the photo picker is done, and the Write-With-Nature sample photos have been removed. Still open: hands-free sync of the Favourites album (Shortcuts automation, or the native iOS app above), and removing single photos.

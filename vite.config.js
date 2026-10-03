@@ -25,7 +25,6 @@ function walk(dir, root = dir) {
 /**
  * Fills the service worker's placeholders after the build: the app shell file
  * list to precache, and a version hash of it so every deploy gets a fresh cache.
- * Photos are left out; the worker caches those as they are viewed.
  */
 function pwaPrecache() {
   let outDir = 'dist'
@@ -35,7 +34,7 @@ function pwaPrecache() {
     configResolved(config) { outDir = config.build.outDir },
     writeBundle() {
       const files = walk(outDir)
-        .filter(f => f !== 'sw.js' && !f.startsWith('photos/'))
+        .filter(f => f !== 'sw.js')
         .sort()
       const version = createHash('sha1')
         .update(files.map(f => f + statSync(join(outDir, f)).size).join('|'))

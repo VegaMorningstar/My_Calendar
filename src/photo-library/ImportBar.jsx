@@ -50,7 +50,7 @@ export default function ImportBar({ library, ink }) {
             ? summary(lastResult)
             : hasOwn
               ? `${photos.length} photos from your library`
-              : 'Showing sample photos. Choose some of yours to fill the calendar.'}
+              : 'No photos yet. Choose some from your library to fill the calendar.'}
       </p>
       <p className="lib-note">Photos stay on this device. Nothing is uploaded.</p>
     </div>

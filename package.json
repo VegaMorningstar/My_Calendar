@@ -4,9 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "photos": "node scripts/gen-manifest.mjs",
-    "dev": "npm run photos && vite",
-    "build": "npm run photos && vite build",
+    "dev": "vite",
+    "build": "vite build",
     "preview": "vite preview",
     "icons": "node scripts/gen-icons.mjs"
   },

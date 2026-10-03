@@ -9,7 +9,7 @@ npm install
 npm run dev        # http://127.0.0.1:5173
 ```
 
-`npm run dev` first rebuilds `public/photos/manifest.json` from the files in `public/photos/`. Photos are matched to days by a date at the end of the file name, for example `harbour_2026-10-03.webp` (`YYYY-MM-DD` or `YYYYMMDD`). The bundled photos are samples borrowed from Write-With-Nature.
+The calendar starts empty. Use **Choose photos** under it to add photos from your device (see below). The calendar component itself can also take a list of photo URLs whose file names end in a date, for example `harbour_2026-10-03.webp`.
 
 ## Add your own photos
 
@@ -17,7 +17,7 @@ Tap **Choose photos** under the calendar. The system photo picker opens and you 
 
 - **Everything stays on the device.** Photos are saved in the browser's own storage (IndexedDB) on your phone. Nothing is uploaded, and the import code makes no network requests. The site's code comes from GitHub Pages; your photos never do.
 - **Install first, then import.** An installed home-screen app and Safari keep separate storage on iPhone, so add photos from inside the installed app.
-- **Sample photos disappear** as soon as you add your own, and come back if you tap **Remove my photos** (which only deletes this app's copies, never your Photos library).
+- **Remove my photos** deletes this app's copies only, never your Photos library.
 - **Limits:** iOS can clear a web app's storage if the phone is very low on space, or if you delete the app or clear website data. Keep the originals in Photos. Importing is manual: new photos need another visit to **Add more photos**.
 - Code: `src/photo-library/` (storage, date reading, previews, the button strip). Grid cells use small previews; the full-screen viewer loads the original.
 
@@ -28,7 +28,7 @@ The calendar is a progressive web app: installable, full-screen, and usable offl
 - **iPhone / iPad (Safari):** Share, then "Add to Home Screen".
 - **Android / desktop Chrome and Edge:** use the install icon in the address bar, or the menu's "Install app".
 
-How it works: `public/manifest.webmanifest` describes the app, `public/sw.js` is the service worker, and `src/pwa/register.js` registers it (production builds only). Every built file is precached, and the photo list plus up to 150 photos are cached at install, so after one online visit the whole calendar works offline. Each deploy gets a new cache version automatically, and the old one is removed.
+How it works: `public/manifest.webmanifest` describes the app, `public/sw.js` is the service worker, and `src/pwa/register.js` registers it (production builds only). Every built file is precached, so after one online visit the app opens offline, and photos you imported are already on the device. Each deploy gets a new cache version automatically, and the old one is removed.
 
 Icons are generated from `public/icons/icon.svg` with `npm run icons` (needs Chrome installed).
 
@@ -40,8 +40,6 @@ Icons are generated from `public/icons/icon.svg` with `npm run icons` (needs Chr
 2. Push to `main`. The site appears at `https://vegamorningstar.github.io/My_Calendar/`.
 
 The build uses relative URLs (`base: './'`), so it works from that project path, from a custom domain, or from any folder, with nothing to configure. To preview the production build locally: `npm run build && npm run preview`.
-
-New photos: add the files to `public/photos/` (named with their date), run `npm run photos` (the build does it too), commit and push.
 
 ## Screen sizes
 
@@ -61,8 +59,8 @@ The layout responds to the calendar's own width rather than the screen's, using 
 src/photo-calendar/     the whole element, self-contained (see its README)
 src/photo-library/      picking photos, reading their dates, storing them on the device
 src/App.jsx             demo page: loads the manifest and renders the calendar
-public/photos/          sample photos
-scripts/gen-manifest.mjs
+public/                 manifest, service worker, icons
+scripts/gen-icons.mjs
 ```
 
 The glass comes from Write-With-Nature and lives in `src/photo-calendar/wwn-glass/` behind a single entry point. See `src/photo-calendar/README.md` and `src/photo-calendar/wwn-glass/README.md`.

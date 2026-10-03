@@ -5,9 +5,6 @@
  *   in at build time by the `pwa-precache` plugin in vite.config.js (the
  *   placeholder is replaced in dist/sw.js), and the cache name carries a hash of
  *   it, so each deploy gets a fresh cache and the old one is deleted.
- * - Photos: the list and up to MAX_WARM photos are cached at install, so a first
- *   visit already works offline; others are cached the first time they are seen.
- * - photos/manifest.json: network first, so new photos show up when online.
  * - Pages: network first, falling back to the cached app shell when offline.
  * - Google Fonts: stale-while-revalidate.
  *
@@ -17,38 +14,16 @@
 const VERSION = '__SW_VERSION__'
 const PRECACHE = '__PRECACHE_LIST__'
 const SHELL_CACHE = `shell-${VERSION}`
-const PHOTO_CACHE = 'photos-v1' // survives deploys; photos rarely change
 const FONT_CACHE = 'fonts-v1'
-
-// Upper bound on photos fetched up front. A large library should not be downloaded
-// just by opening the page, so beyond this the worker only caches photos as viewed.
-const MAX_WARM = 150
 
 const scope = self.registration.scope // always ends with '/'
 const urlOf = path => new URL(path, scope).href
-
-/** Best effort: cache the photo list and the first MAX_WARM photos. Never fails the install. */
-async function warmPhotos() {
-  try {
-    const cache = await caches.open(PHOTO_CACHE)
-    const manifestUrl = urlOf('photos/manifest.json')
-    const response = await fetch(manifestUrl, { cache: 'no-cache' })
-    if (!response.ok) return
-    cache.put(manifestUrl, response.clone())
-    const photos = (await response.json()).slice(0, MAX_WARM)
-    await Promise.allSettled(photos.map(async p => {
-      const url = urlOf(p)
-      if (!(await cache.match(url))) await cache.add(url)
-    }))
-  } catch { /* offline at install, or no photos: nothing to warm */ }
-}
 
 self.addEventListener('install', event => {
   const list = Array.isArray(PRECACHE) ? PRECACHE : []
   event.waitUntil(
     caches.open(SHELL_CACHE)
       .then(cache => cache.addAll(['./', ...list].map(urlOf)))
-      .then(warmPhotos)
       .then(() => self.skipWaiting()),
   )
 })
@@ -57,7 +32,8 @@ self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k.startsWith('shell-') && k !== SHELL_CACHE).map(k => caches.delete(k)),
+        // Old app versions, and the sample-photo cache from before photos were imported on-device
+        keys.filter(k => (k.startsWith('shell-') && k !== SHELL_CACHE) || k === 'photos-v1').map(k => caches.delete(k)),
       ))
       .then(() => self.clients.claim()),
   )
@@ -111,18 +87,6 @@ self.addEventListener('fetch', event => {
   // Page loads
   if (request.mode === 'navigate') {
     event.respondWith(networkFirst(request, SHELL_CACHE, urlOf('./')))
-    return
-  }
-
-  // The photo list: always try for a fresh one
-  if (url.pathname.endsWith('/photos/manifest.json')) {
-    event.respondWith(networkFirst(request, PHOTO_CACHE))
-    return
-  }
-
-  // The photos themselves
-  if (url.pathname.includes('/photos/')) {
-    event.respondWith(cacheFirst(request, PHOTO_CACHE))
     return
   }
 
