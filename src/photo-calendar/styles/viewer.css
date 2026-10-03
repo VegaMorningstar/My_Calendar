@@ -1,0 +1,54 @@
+/*
+ * Full-screen photo viewer: one photo fitted to the screen on black, with
+ * previous / next, a counter and a close button. Opens from the day view's grid.
+ */
+.pc-viewer {
+  position: fixed; inset: 0; z-index: 1100;
+  display: grid; place-items: center;
+  background: rgba(8, 7, 5, .94);
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  animation: pc-fade .22s ease both;
+  touch-action: pan-y pinch-zoom; /* horizontal drags are ours (swipe), vertical stay native */
+  user-select: none; -webkit-user-select: none;
+}
+@keyframes pc-fade { from { opacity: 0; } }
+
+/* Fit to screen: never larger than the viewport, never cropped, keeps its proportions */
+.pc-viewer-img {
+  max-width: 100vw; max-height: 100vh; max-height: 100dvh;
+  width: auto; height: auto; object-fit: contain;
+  /* Leave room for the notch and home indicator when installed */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  box-sizing: border-box;
+  animation: pc-fade .25s ease both;
+}
+
+.pc-viewer-btn {
+  position: absolute; z-index: 1; appearance: none; cursor: pointer; font: inherit;
+  width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 1.4rem; line-height: 1; color: #fff;
+  background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.28);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s, transform .15s;
+}
+.pc-viewer-btn:hover { background: rgba(255,255,255,.26); }
+.pc-viewer-btn:active { transform: scale(.94); }
+.pc-viewer-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.pc-viewer-close {
+  top: max(14px, env(safe-area-inset-top)); right: max(14px, env(safe-area-inset-right));
+  background: rgba(128, 28, 58, .55); border-color: rgba(255,170,190,.4); /* burgundy, like the day view's close */
+}
+.pc-viewer-prev, .pc-viewer-next { top: 50%; margin-top: -22px; }
+.pc-viewer-prev { left: max(14px, env(safe-area-inset-left)); }
+.pc-viewer-next { right: max(14px, env(safe-area-inset-right)); }
+
+.pc-viewer-count {
+  position: absolute; bottom: max(16px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%);
+  padding: 4px 12px; border-radius: 999px; font-family: var(--pc-mono); font-size: .72rem; letter-spacing: .12em;
+  color: rgba(255,255,255,.85); background: rgba(255,255,255,.12);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+
+/* On touch screens, swiping replaces the side arrows */
+@media (hover: none) { .pc-viewer-prev, .pc-viewer-next { display: none; } }

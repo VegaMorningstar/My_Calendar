@@ -1,0 +1,68 @@
+/*
+ * Day dialog: a full-screen veil with a glass sheet holding the day's details
+ * and every photo taken that day. Rendered in a portal, so it carries its own
+ * copy of the variables from base.css via the shared .pc-overlay selector.
+ */
+.pc-overlay {
+  position: fixed; inset: 0; z-index: 1000;
+  display: grid; place-items: center;
+  padding: clamp(10px, 3vw, 40px);
+  /* A veil in the opposite tone to the ink: pale over a light page, dark over a dark one */
+  background: rgba(var(--pc-hi), .5);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1); backdrop-filter: blur(14px) saturate(1.1);
+  animation: pc-fade .28s ease both;
+}
+@keyframes pc-fade { from { opacity: 0; } }
+@keyframes pc-rise { from { opacity: 0; transform: translateY(14px) scale(.97); } }
+
+/* The sheet is the glass; the scroll area inside it is separate so the glass canvas does not scroll. */
+.pc-sheet {
+  position: relative; isolation: isolate; outline: none;
+  width: min(1100px, 100%); max-height: 100%;
+  display: flex; flex-direction: column;
+  border-radius: 34px;
+  background: linear-gradient(125deg, rgba(255,255,255,.46) 0%, rgba(255,255,255,.10) 36%, rgba(255,255,255,.26) 100%);
+  border: 1px solid rgba(255,255,255,.6);
+  box-shadow: 0 24px 70px rgba(40,28,10,.28), inset 1.5px 1.5px 7px rgba(255,255,255,.75);
+  animation: pc-rise .38s cubic-bezier(.2,.8,.2,1) both;
+}
+.pc-sheet-scroll {
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: clamp(18px, 3vw, 36px);
+  /* keep the glass's rounded corners clean while scrolling */
+  border-radius: inherit;
+}
+
+.pc-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: clamp(14px, 2.4vw, 26px); }
+.pc-detail-dow {
+  margin: 0; font-family: var(--pc-serif); font-weight: 600; line-height: 1;
+  font-size: clamp(2.2rem, 6vw, 3.8rem); color: rgba(var(--pc-ink), .82);
+  text-shadow: 0 1.5px 0 rgba(var(--pc-hi), .85), 0 -1px 0 rgba(var(--pc-ink), .25);
+}
+.pc-detail-date {
+  margin: 8px 0 0; font-family: var(--pc-serif); font-style: italic;
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem); color: rgba(var(--pc-ink), .6);
+  text-shadow: 0 1px 0 rgba(var(--pc-hi), .8);
+}
+.pc-detail-meta {
+  margin: 10px 0 0; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(var(--pc-ink), .46); text-shadow: 0 1px 0 rgba(var(--pc-hi), .8);
+}
+
+/* The day's photos as a grid of square thumbnails, like the Photos app's album view */
+.pc-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px; }
+.pc-thumb {
+  appearance: none; padding: 0; border: 0; cursor: pointer; position: relative; overflow: hidden;
+  aspect-ratio: 1; border-radius: 6px; background: rgba(var(--pc-ink), .1);
+  -webkit-tap-highlight-color: transparent;
+  animation: pc-rise .5s cubic-bezier(.2,.8,.2,1) both;
+}
+.pc-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; transition: transform .25s ease; }
+.pc-thumb:hover img { transform: scale(1.04); }
+.pc-thumb:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; }
+
+@media (max-width: 560px) {
+  .pc-sheet { border-radius: 24px; }
+  .pc-gallery { grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .pc-thumb { border-radius: 3px; }
+}

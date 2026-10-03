@@ -1,0 +1,87 @@
+/* Month view: weekday row, day grid and day cells. */
+
+/* ── Weekday row + grid ───────────────────────────────────────────────── */
+.pc-weekdays, .pc-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--pc-gap); }
+.pc-weekdays { margin-bottom: 8px; }
+.pc-weekdays span {
+  text-align: center; font-size: .66rem; letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(var(--pc-ink), .45); text-shadow: 0 1px 0 rgba(var(--pc-hi), .8);
+}
+
+
+/* ── Day cells ────────────────────────────────────────────────────────── */
+.pc-day {
+  position: relative; aspect-ratio: 1; min-width: 0;
+  border-radius: var(--pc-radius); overflow: hidden;
+  font: inherit; color: inherit; padding: 0; text-align: left;
+}
+.pc-blank { aspect-ratio: 1; }
+
+/* No photo: transparent, drawn as a groove cut into the glass. */
+.pc-empty {
+  background: transparent;
+  border: 1px solid rgba(var(--pc-ink), .16);
+  box-shadow: 1px 1px 0 rgba(var(--pc-hi), .75), inset 1px 1px 2px rgba(var(--pc-ink), .10);
+}
+.pc-empty .pc-num {
+  position: absolute; top: 8px; left: 10px;
+  font-family: var(--pc-serif); font-size: clamp(.9rem, 2vw, 1.25rem);
+  color: rgba(var(--pc-ink), .55); text-shadow: 0 1px 0 rgba(var(--pc-hi), .85), 0 -1px 0 rgba(var(--pc-ink), .18);
+}
+.pc-empty .pc-dow {
+  position: absolute; bottom: 8px; left: 10px;
+  font-size: .58rem; letter-spacing: .16em; text-transform: uppercase;
+  color: rgba(var(--pc-ink), .34); text-shadow: 0 1px 0 rgba(var(--pc-hi), .8);
+}
+
+/* Photo: a window in the slab, bevelled like the groove around it. */
+.pc-photo {
+  border: 1px solid rgba(255,255,255,.55); background: rgba(var(--pc-ink), .08);
+  box-shadow: 1px 1px 0 rgba(255,255,255,.7), inset 0 0 0 1px rgba(var(--pc-ink), .12), 0 3px 10px rgba(90,64,28,.16);
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+button.pc-photo { appearance: none; }
+button.pc-photo:focus-visible { outline: 2px solid rgba(var(--pc-teal), .85); outline-offset: 2px; }
+.pc-photo img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 0; transition: opacity .8s ease; user-select: none;
+}
+.pc-photo img.on { opacity: 1; }
+/* A hairline rim; no scrim, since the text colour adapts to the photo instead. */
+.pc-photo::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18), inset 1px 1px 6px rgba(255,255,255,.18);
+}
+.pc-photo .pc-num, .pc-photo .pc-dow, .pc-photo .pc-badge {
+  position: absolute; z-index: 1; transition: color .8s ease, text-shadow .8s ease, background-color .8s ease;
+}
+.pc-photo .pc-num {
+  top: 7px; left: 10px; font-family: var(--pc-serif); font-size: clamp(.9rem, 2vw, 1.25rem);
+  color: rgb(var(--num-ink, 246, 241, 226)); text-shadow: 0 0 4px rgba(var(--num-halo, 28, 26, 16), .55);
+}
+.pc-photo .pc-dow {
+  bottom: 7px; left: 10px; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase;
+  color: rgb(var(--dow-ink, 246, 241, 226)); text-shadow: 0 0 4px rgba(var(--dow-halo, 28, 26, 16), .55);
+}
+/* Photo count, shown on hover (or keyboard focus) instead of dots. */
+.pc-photo .pc-badge {
+  right: 7px; bottom: 6px; padding: 2px 7px; border-radius: 999px;
+  font-size: .56rem; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
+  color: rgb(var(--badge-ink, 246, 241, 226));
+  background: rgba(var(--badge-halo, 28, 26, 16), .28);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; transform: translateY(3px); pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease, color .8s ease, background-color .8s ease;
+}
+.pc-photo:hover .pc-badge, .pc-photo:focus-visible .pc-badge { opacity: 1; transform: none; }
+
+.pc-today { box-shadow: 0 0 0 2px rgba(var(--pc-teal), .65), 1px 1px 0 rgba(255,255,255,.7); }
+
+/* Narrow containers: tighter text, and the weekday name inside each cell goes (the header row has it) */
+@container pc (max-width: 640px) {
+  .pc-dow { display: none; }
+  .pc-photo .pc-badge { display: none; }
+  .pc-empty .pc-num, .pc-photo .pc-num { top: 5px; left: 7px; font-size: .95rem; }
+  .pc-weekdays span { font-size: .56rem; letter-spacing: .08em; }
+}
+

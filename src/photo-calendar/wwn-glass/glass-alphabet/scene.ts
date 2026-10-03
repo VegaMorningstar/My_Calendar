@@ -1,0 +1,705 @@
+/**
+ * TypeGPU's liquid glass, once per tile.
+ *
+ * The shader body is theirs, by way of our own overlay.ts - calculateWeights,
+ * applyTint, sampleWithChromaticAberration and the sampling in the fragment
+ * function come from
+ * TypeGPU/apps/typegpu-docs/src/examples/simple/liquid-glass/index.ts.
+ *
+ * Four things are ours, each marked OURS below:
+ *
+ *   1. Their SDF is a single rounded box; ours is the union of however many
+ *      tiles the caller asks for, which is their minimum. One loop over a
+ *      uniform array gives every tile the same lens in one draw call. The loop
+ *      has to carry `dir` and the glow along with the distance, since with a
+ *      union the fragment must use the values belonging to whichever tile
+ *      actually won.
+ *   2. The letters live in their own texture rather than in the backdrop. Two
+ *      reasons: the backdrop is sampled at a mip level to blur the glass body,
+ *      which turns a 15px letter to mush, and a separate texture can be given
+ *      its own dispersion so the letter fringes like the word under the jelly.
+ *      It carries a mask in its alpha and takes its colour from a uniform, so
+ *      the three chromatic samples produce real fringing on the glyph edges
+ *      rather than three copies of a coloured bitmap.
+ *   3. Refraction is converted out of box space before it is added to uv.
+ *      Theirs adds a box-space offset straight to uv, which on a canvas that is
+ *      not square displaces horizontally and vertically by different numbers of
+ *      pixels. Their demo is square enough not to care; a wide grid is not.
+ *   4. Emission from residual wobble energy, as on the jelly - full strength
+ *      inside the tile and decaying outside it, so a pressed tile both brightens
+ *      and throws light into the gaps around it.
+ *
+ * ── Shared, and easy to break from a distance ─────────────────────────────
+ *
+ * Three components run this shader: GlassAlphabet, GlassTitle (the masthead)
+ * and GlassButtons (the toolbar and the compose button). They differ only in
+ * what they paint into the two backdrops and how many boxes they ask for.
+ *
+ * So a change here is a change to all three, and the compiler will not tell
+ * you. setParams takes a plain object: a field a caller does not pass is
+ * undefined, `undefined / 255` is NaN, and a NaN written into a uniform does
+ * not dim a colour or tint it oddly - it takes the entire fragment out. The
+ * component renders nothing at all.
+ *
+ * That has already happened once. The adaptive ink added fields here and
+ * updated two of the three callers; the masthead wrote NaN and vanished from
+ * production, and it was invisible in review because the fallback images were
+ * hidden behind it and no automated check can run this shader at all.
+ *
+ * So, when adding a parameter:
+ *   - give it a default in setParams, the way the ink fields have one, so a
+ *     caller that knows nothing about it keeps working;
+ *   - or update all three callers in the same change and say so in the
+ *     message.
+ *
+ * And note what cannot catch this for you: `npm run build` passes, tsc passes,
+ * and headless Chrome advertises WebGPU and then fails to hand over an adapter,
+ * so every screenshot of this shader is blank whether or not it works. The only
+ * verification is a human looking at a real GPU. Ask for one.
+ *
+ * Everything reaching setTiles and setParams is in box space: canvas heights,
+ * with x scaled by the aspect so corners come out circular. GlassAlphabet.jsx
+ * converts from pixels, which is the only sane unit to tune a 46px tile in.
+ */
+import { sdRoundedBox2d } from '@typegpu/sdf';
+import { tgpu, common, d, std, type TgpuRoot } from 'typegpu';
+
+export const TILE_COUNT = 26;
+
+/** The letter texture's default size, matched by the canvas that feeds it. */
+export const LETTER_TEX_W = 1024;
+export const LETTER_TEX_H = 512;
+
+/**
+ * Default backdrop size. Textures here are a fixed size for the life of the
+ * pipeline: the shader captures its view when it is built, so recreating one on
+ * resize would leave the compiled pipeline holding a view of a destroyed
+ * texture. Sampling is in uv space, so a stretch on upload undoes itself
+ * geometrically - but not in detail, which is why callers should pass a size
+ * matching their canvas rather than take this square one.
+ */
+const TEX_SIZE = 1024;
+
+export type TileGlassOptions = {
+  /** How many boxes the union covers. Baked into the uniform array and the
+   *  shader's loop, so it is fixed for the life of the pipeline. */
+  tileCount?: number;
+  /** Size of the overlay texture - the letters here, the corner glyphs on the
+   *  masthead. Match the canvas feeding it to its aspect or the upload
+   *  stretches and the shader squeezes it back, losing detail on the way. */
+  maskW?: number;
+  maskH?: number;
+  /** Size of the backdrop texture. Match it to the canvas's aspect: this is
+   *  where the refracted content lives, and a square texture fed from a wide
+   *  canvas throws away horizontal detail before the shader ever reads it. */
+  paperW?: number;
+  paperH?: number;
+};
+
+const Params = d.struct({
+  radius: d.f32,
+  start: d.f32,
+  end: d.f32,
+  chromaticStrength: d.f32,
+  refractionStrength: d.f32,
+  blur: d.f32,
+  edgeFeather: d.f32,
+  edgeBlurMultiplier: d.f32,
+  tintStrength: d.f32,
+  tintColor: d.vec3f,
+  chromaticFalloff: d.f32,
+  edgeCurve: d.f32,
+  // OURS
+  bodyChromatic: d.f32,
+  bodyDepth: d.f32,
+  letterBlur: d.f32,
+  letterColor: d.vec3f,
+  // OURS: the ink used where the backdrop is bright, and the luminance band
+  // the glyph crosses over from one to the other in. The fluid cursor is
+  // multiplied into the paper, so a dark trail passing under the grid can take
+  // the page out from under a 20px letter of near-black ink entirely.
+  letterColorLight: d.vec3f,
+  inkLumLo: d.f32,
+  inkLumHi: d.f32,
+  inkSampleLevel: d.f32,
+  glowStrength: d.f32,
+  glowHalo: d.f32,
+  // How much of the glow is shaped by the letters rather than by the lens.
+  // 0 keeps the original behaviour - lit right through the body and spilling
+  // past the rim. 1 confines it to a bloom around the glyphs, inside the
+  // glass, which is what a control that wants attention without shouting
+  // needs: the light never gets near the canvas border, so the border can
+  // never be what shapes it.
+  glowInk: d.f32,
+  // Which mip the bloom is read from. Higher is a wider, softer spread of the
+  // same letters; too low and it is a second copy of the glyph.
+  glowInkLevel: d.f32,
+  glowColor: d.vec3f,
+  // Unit vector toward the light, in screen space with y downward like uv.
+  // Built on the CPU from an azimuth and an elevation, which are what a person
+  // can actually reason about.
+  lightDir: d.vec3f,
+  specularStrength: d.f32,
+  specularPower: d.f32,
+  specularColor: d.vec3f,
+});
+
+export type SceneParams = {
+  radius: number;
+  start: number;
+  end: number;
+  chromaticStrength: number;
+  refractionStrength: number;
+  blur: number;
+  edgeFeather: number;
+  edgeBlurMultiplier: number;
+  tintStrength: number;
+  tintR: number;
+  tintG: number;
+  tintB: number;
+  chromaticFalloff: number;
+  edgeCurve: number;
+  bodyChromatic: number;
+  bodyDepth: number;
+  letterBlur: number;
+  letterR: number;
+  letterG: number;
+  letterB: number;
+  /**
+   * The ink for a dark backdrop, and the band it is crossed over in. Optional
+   * - leave them out and the light ink is the dark one, which is to say the
+   * glyph is written in one colour whatever is behind it, as it was before
+   * any of this existed. The masthead does exactly that: its "letters" are
+   * photographs, not type, and it has no contrast problem to solve.
+   */
+  letterLightR?: number;
+  letterLightG?: number;
+  letterLightB?: number;
+  inkLumLo?: number;
+  inkLumHi?: number;
+  inkSampleLevel?: number;
+  glowStrength: number;
+  glowHalo: number;
+  /** 0 lights the whole lens, 1 blooms around the letters only. Default 0. */
+  glowInk?: number;
+  /** Mip the bloom is read from. Default 3. */
+  glowInkLevel?: number;
+  glowR: number;
+  glowG: number;
+  glowB: number;
+  lightAzimuth: number;
+  lightElevation: number;
+  specularStrength: number;
+  specularPower: number;
+  specR: number;
+  specG: number;
+  specB: number;
+};
+
+const Weights = d.struct({
+  inside: d.f32,
+  ring: d.f32,
+  outside: d.f32,
+});
+
+const TintParams = d.struct({
+  color: d.vec3f,
+  strength: d.f32,
+});
+
+export async function setupTileGlass(
+  root: TgpuRoot,
+  context: GPUCanvasContext,
+  paperCanvas: HTMLCanvasElement,
+  letterCanvas: HTMLCanvasElement,
+  options: TileGlassOptions = {},
+) {
+  // Fixed for the life of the pipeline: the uniform array's length and the
+  // shader's loop bound are both compile-time, so changing the count means a new
+  // scene rather than a new uniform.
+  const COUNT = options.tileCount ?? TILE_COUNT;
+  const maskW = options.maskW ?? LETTER_TEX_W;
+  const maskH = options.maskH ?? LETTER_TEX_H;
+  const paperW = options.paperW ?? TEX_SIZE;
+  const paperH = options.paperH ?? TEX_SIZE;
+
+  /** xy = centre in box space, zw = half-extents in box space. */
+  const Tiles = d.arrayOf(d.vec4f, COUNT);
+  /** x = glow, from residual wobble energy. The rest is padding. */
+  const Glows = d.arrayOf(d.vec4f, COUNT);
+  /**
+   * xyz = this tile's own tint, w = its strength. A negative strength means
+   * the tile has no opinion and takes the scene's tint, which is what every
+   * tile in a grid of identical glass does - the override exists for a row
+   * where one button is not the same colour as the others.
+   */
+  const Tints = d.arrayOf(d.vec4f, COUNT);
+
+  const makeTexture = (w: number, h: number) =>
+    root
+      .createTexture({
+        size: [w, h, 1],
+        // 6 levels: the blur reads an explicit mip level, so the chain has to
+        // exist for anything above zero to have somewhere to come from
+        format: 'rgba8unorm',
+        mipLevelCount: 6,
+      })
+      .$usage('sampled', 'render');
+
+  const paperTexture = makeTexture(paperW, paperH);
+  // OURS: the letters get a 2:1 texture, and their canvas is drawn at exactly
+  // that size. Both matter for sharpness. A square texture fed from a grid twice
+  // as wide as it is tall stretches the glyphs 2x vertically on upload and the
+  // shader squeezes them back on the way out - two resamples, and the second
+  // undoes the first only in geometry, not in the detail lost to the first.
+  // 8 columns by 4 rows is close to 2:1 whatever the tile size, since both
+  // dimensions scale together, so this stays right across the size slider.
+  const letterTexture = makeTexture(maskW, maskH);
+  const paperView = paperTexture.createView();
+  const letterView = letterTexture.createView();
+
+  const sampler = root.createSampler({
+    magFilter: 'linear',
+    minFilter: 'linear',
+    mipmapFilter: 'linear',
+  });
+
+  const shapeScaleUniform = root.createUniform(d.vec2f, d.vec2f(1, 1));
+
+  const tilesUniform = root.createUniform(
+    Tiles,
+    Array.from({ length: COUNT }, () => d.vec4f(0.5, 0.5, 0.02, 0.02)),
+  );
+  const glowsUniform = root.createUniform(
+    Glows,
+    Array.from({ length: COUNT }, () => d.vec4f(0, 0, 0, 0)),
+  );
+  const tintsUniform = root.createUniform(
+    Tints,
+    Array.from({ length: COUNT }, () => d.vec4f(0, 0, 0, -1)),
+  );
+
+  const paramsUniform = root.createUniform(Params, {
+    radius: 0.02,
+    start: 0.02,
+    end: 0.04,
+    chromaticStrength: 0.02,
+    refractionStrength: 0.1,
+    blur: 1.2,
+    edgeFeather: 2,
+    edgeBlurMultiplier: 0.7,
+    tintStrength: 0.05,
+    tintColor: d.vec3f(0.58, 0.44, 0.96),
+    chromaticFalloff: 1,
+    edgeCurve: 1,
+    bodyChromatic: 0.01,
+    bodyDepth: 0.05,
+    letterBlur: 0,
+    letterColor: d.vec3f(0.11, 0.1, 0.06),
+    letterColorLight: d.vec3f(0.96, 0.94, 0.88),
+    inkLumLo: 0.3,
+    inkLumHi: 0.55,
+    inkSampleLevel: 4,
+    glowStrength: 0,
+    glowHalo: 0.03,
+    glowColor: d.vec3f(0.68, 0.85, 0.45),
+    lightDir: d.vec3f(0, -0.57, 0.82),
+    specularStrength: 0,
+    specularPower: 40,
+    specularColor: d.vec3f(1, 1, 1),
+  });
+
+  // ── theirs, unchanged ───────────────────────────────────────────────────────
+  const calculateWeights = (sdfDist: number, start: number, end: number, featherUV: number) => {
+    'use gpu';
+    const inside = 1 - std.smoothstep(start - featherUV, start + featherUV, sdfDist);
+    const outside = std.smoothstep(end - featherUV, end + featherUV, sdfDist);
+    const ring = std.max(0, 1 - inside - outside);
+    return Weights({ inside, ring, outside });
+  };
+
+  const applyTint = (color: d.v3f, tint: d.Infer<typeof TintParams>) => {
+    'use gpu';
+    return std.mix(d.vec4f(color, 1), d.vec4f(tint.color, 1), tint.strength);
+  };
+
+  const sampleWithChromaticAberration = (
+    tex: d.texture2d<d.F32>,
+    samp: d.sampler,
+    uv: d.v2f,
+    offset: number,
+    dir: d.v2f,
+    level: number,
+  ) => {
+    'use gpu';
+    const samples = d.arrayOf(d.vec3f, 3)();
+    for (const i of tgpu.unroll(std.range(3))) {
+      const channelOffset = dir * (d.f32(i) - 1) * offset;
+      // OURS: textureSampleLevel, where theirs is textureSampleBias. A bias is
+      // added to a level the hardware derives from the uv derivatives, and this
+      // texture is nearly always read across fewer pixels than it has texels -
+      // so a blur of zero was still coming back from a mip a full step down, and
+      // no setting could ask for the sharpest one. An explicit level says what
+      // is meant, and the slider drives it directly.
+      samples[i] = std.textureSampleLevel(tex, samp, uv - channelOffset, level).rgb;
+    }
+    return d.vec3f(samples[0].x, samples[1].y, samples[2].z);
+  };
+  // ── end theirs ──────────────────────────────────────────────────────────────
+
+  /**
+   * OURS: the same three-index split, against a coverage mask instead of colour.
+   * The letter texture carries only alpha, so what comes back is how much of the
+   * glyph each channel sees - mixing the letter colour through that gives real
+   * fringing on the glyph's edges rather than three tinted copies of it.
+   *
+   * textureSampleLevel, not textureSampleBias. Bias is added to a level the
+   * hardware derives from the uv derivatives, and a 1024-wide texture read
+   * across a canvas narrower than that is a minification - so even at bias zero
+   * the glyph was coming back from a mip below the sharpest one. An explicit
+   * level says what we actually mean, and the slider drives it directly.
+   */
+  const sampleMaskWithChromaticAberration = (
+    tex: d.texture2d<d.F32>,
+    samp: d.sampler,
+    uv: d.v2f,
+    offset: number,
+    dir: d.v2f,
+    level: number,
+  ) => {
+    'use gpu';
+    const samples = d.arrayOf(d.f32, 3)();
+    for (const i of tgpu.unroll(std.range(3))) {
+      const channelOffset = dir * (d.f32(i) - 1) * offset;
+      samples[i] = std.textureSampleLevel(tex, samp, uv - channelOffset, level).w;
+    }
+    return d.vec3f(samples[0], samples[1], samples[2]);
+  };
+
+  const fragmentShader = tgpu.fragmentFn({
+    in: { uv: d.vec2f },
+    out: d.vec4f,
+  })(({ uv }) => {
+    // Box space: canvas heights, x widened by the aspect so the space is
+    // isotropic and a square tile is square.
+    const p = uv.mul(shapeScaleUniform.$);
+
+    // OURS: union of the tiles. Carry the winning tile's direction and glow as
+    // well as its distance - with one box theirs is the only direction there is,
+    // but here every tile refracts outward from its own centre.
+    let sdfDist = d.f32(1e6);
+    let dir = d.vec2f(0, 1);
+    let glow = d.f32(0);
+    let ownTint = d.vec4f(0, 0, 0, -1);
+
+    for (const i of std.range(COUNT)) {
+      const tile = tilesUniform.$[i];
+      const half = d.vec2f(tile.z, tile.w);
+      const rel = p.sub(d.vec2f(tile.x, tile.y));
+      const dist = sdRoundedBox2d(rel, half, paramsUniform.$.radius);
+
+      // Theirs, per tile. Guarded against the exact centre, where the vector is
+      // zero and normalize returns NaN - the weights discard that pixel, but a
+      // NaN survives multiplication by zero and would punch a hole in it.
+      const raw = rel.mul(d.vec2f(half.y, half.x));
+      const dirI = raw.div(std.max(std.length(raw), 1e-6));
+
+      const closer = dist < sdfDist;
+      sdfDist = std.select(sdfDist, dist, closer);
+      dir = std.select(dir, dirI, closer);
+      glow = std.select(glow, glowsUniform.$[i].x, closer);
+      ownTint = std.select(ownTint, tintsUniform.$[i], closer);
+    }
+
+    const normalizedDist =
+      (sdfDist - paramsUniform.$.start) / (paramsUniform.$.end - paramsUniform.$.start);
+
+    const texDim = std.textureDimensions(paperView.$, 0);
+    const featherUV = paramsUniform.$.edgeFeather / std.max(texDim.x, texDim.y);
+    const weights = calculateWeights(sdfDist, paramsUniform.$.start, paramsUniform.$.end, featherUV);
+
+    // OURS: an exponent on the ring's displacement ramp. Theirs is linear across
+    // the band, which is a flat chamfer - the surface tilts at a constant rate
+    // from the body to the rim. A rounded lip does not: its normal barely turns
+    // near the body and then sweeps fast at the outer edge, so the view through
+    // it stays still and then compresses hard. Above 1 gives that fillet; below
+    // 1 front-loads the bend into a dome. 1 is theirs exactly.
+    //
+    // Saturated before the power for the same reason the fringe ramp is:
+    // normalizedDist runs negative inside the ring, and a fractional exponent on
+    // a negative base is not a number. The weights discard that region, but a
+    // NaN survives multiplication by zero and would punch a hole through it.
+    const edgeRamp = std.saturate(normalizedDist) ** paramsUniform.$.edgeCurve;
+
+    // OURS: dir is a unit vector in box space, and uv is not - on a canvas wider
+    // than it is tall, adding one to the other displaces further horizontally
+    // than vertically. Dividing by the shape scale converts back, so the
+    // strength is a distance in canvas heights like every other param here.
+    const ringUv = uv.add(
+      dir.mul(paramsUniform.$.refractionStrength * edgeRamp).div(shapeScaleUniform.$),
+    );
+
+    // Their ramp: no fringing at the inner edge of the ring, most at the outer.
+    // Saturate before the power - normalizedDist runs negative inside the ring
+    // and past 1 outside it, and a fractional exponent on a negative base is not
+    // a number. The weights discard those regions anyway.
+    const ringOffset =
+      paramsUniform.$.chromaticStrength *
+      std.saturate(normalizedDist) ** paramsUniform.$.chromaticFalloff;
+
+    // OURS: the body disperses too, the way the jelly's does. Strongest against
+    // the tile's own edge and fading to nothing at its centre - a slab of glass
+    // splits light where you look through it at an angle, not head on.
+    const bodyOffset =
+      paramsUniform.$.bodyChromatic *
+      std.saturate(1 + sdfDist / std.max(paramsUniform.$.bodyDepth, 1e-4));
+
+    const paperBody = sampleWithChromaticAberration(
+      paperView.$, sampler.$, uv, bodyOffset, dir, paramsUniform.$.blur,
+    );
+    const paperRing = sampleWithChromaticAberration(
+      paperView.$, sampler.$, ringUv, ringOffset, dir,
+      paramsUniform.$.blur * paramsUniform.$.edgeBlurMultiplier,
+    );
+
+    // OURS: the letters at their own bias - zero by default, so the glyph stays
+    // sharp while the page behind it blurs. Sampling both out of one texture is
+    // what made them mush.
+    const maskBody = sampleMaskWithChromaticAberration(
+      letterView.$, sampler.$, uv, bodyOffset, dir, paramsUniform.$.letterBlur,
+    );
+    const maskRing = sampleMaskWithChromaticAberration(
+      letterView.$, sampler.$, ringUv, ringOffset, dir, paramsUniform.$.letterBlur,
+    );
+
+    // OURS: which ink the glyph is written in, decided by what is behind it.
+    //
+    // Read from a coarse mip rather than at this pixel. Per-pixel would be
+    // exact and free - paperBody is already the backdrop right here - but a
+    // letter straddling the edge of a dark fluid trail would then be written
+    // in two inks at once, which on a 20px glyph reads as a fault rather than
+    // an effect. A level partway up the chain is a local average instead, near
+    // enough one answer per tile, and it damps the flicker that a moving trail
+    // would otherwise drive through the threshold.
+    const behind = std.textureSampleLevel(
+      paperView.$, sampler.$, uv, paramsUniform.$.inkSampleLevel,
+    ).rgb;
+    const behindLum = std.dot(behind, d.vec3f(0.2126, 0.7152, 0.0722));
+    // Smoothstepped across a band, not switched at a threshold: a step would
+    // snap the whole grid over as a trail drifted past.
+    const ink = std.mix(
+      paramsUniform.$.letterColorLight,
+      paramsUniform.$.letterColor,
+      std.smoothstep(paramsUniform.$.inkLumLo, paramsUniform.$.inkLumHi, behindLum),
+    );
+
+    const bodyColor = std.mix(paperBody, ink, maskBody);
+    const ringColor = std.mix(paperRing, ink, maskRing);
+
+    // The winning tile's own tint if it has one, the scene's if it does not.
+    const tintIsOwn = ownTint.w >= 0;
+    const tint = TintParams({
+      color: std.select(
+        paramsUniform.$.tintColor,
+        d.vec3f(ownTint.x, ownTint.y, ownTint.z),
+        tintIsOwn,
+      ),
+      strength: std.select(paramsUniform.$.tintStrength, ownTint.w, tintIsOwn),
+    });
+
+    const tintedBlur = applyTint(bodyColor, tint);
+    const tintedRing = applyTint(ringColor, tint);
+
+    // Their third term is the untouched background at weights.outside. Between
+    // tiles that would paint our reconstruction of the page over the real page,
+    // so the outside weight becomes transparency and the gaps show the real DOM.
+    // Premultiplied, matching the canvas mode.
+    const cover = std.saturate(weights.inside + weights.ring);
+    const glass = tintedBlur.rgb.mul(weights.inside).add(tintedRing.rgb.mul(weights.ring));
+
+    // OURS: emission from residual wobble energy, as the jelly does it. Full
+    // strength anywhere inside the lens and decaying outside it, so one term is
+    // both the tile brightening and the light it throws into the gaps.
+    const haloLens =
+      std.exp(-std.max(sdfDist - paramsUniform.$.end, 0) / std.max(paramsUniform.$.glowHalo, 1e-5));
+
+    // OURS: the same light, shaped by the letters instead of the lens. A coarse
+    // mip of the glyph texture is the letters' own light spread out rather than
+    // a second copy of them, and multiplying by `inside` keeps every bit of it
+    // within the glass - so it cannot reach the rim, the gap past it, or the
+    // canvas border, and the border can never be the thing shaping it.
+    //
+    // Read from w. This texture carries the glyphs in alpha and nothing in
+    // rgb - which is why sampleMaskWithChromaticAberration takes .w too, and
+    // why reading .r here returns a uniform zero and no glow at all.
+    // The wide read minus the sharp one: light spilling out from the letters
+    // rather than sitting on them. Laid straight on, the bloom peaks exactly
+    // where the glyph is and washes the ink out - the word goes the colour of
+    // the light and stops being easy to read, which is the opposite of what
+    // lighting it is for.
+    const inkWide =
+      std.textureSampleLevel(letterView.$, sampler.$, uv, paramsUniform.$.glowInkLevel).w;
+    const inkSharp = std.textureSampleLevel(letterView.$, sampler.$, uv, 0).w;
+    const inkBloom = std.saturate(inkWide - inkSharp * 0.9) * weights.inside;
+
+    const halo =
+      std.mix(haloLens, inkBloom, paramsUniform.$.glowInk) *
+      glow * paramsUniform.$.glowStrength;
+
+    // OURS: a lit highlight, which the ring gives us almost for free. The bevel
+    // already has an implied surface - flat across the body, rolling over to
+    // vertical by the outer rim - so its normal is the tilt `edgeRamp` describes
+    // swung along `dir`, the same outward direction the refraction uses. That
+    // makes the highlight and the bending agree about the shape of the glass,
+    // which is what stops it reading as a decal.
+    //
+    // Blinn-Phong against an orthographic view: the body's normal points
+    // straight at the camera, so it only catches a light nearly overhead, while
+    // somewhere on the bevel the normal bisects light and view exactly and lights
+    // up. Moving the light sweeps that band around the tile.
+    const theta = edgeRamp * 1.5707964;
+    const normal = d.vec3f(
+      dir.x * std.sin(theta),
+      dir.y * std.sin(theta),
+      std.cos(theta),
+    );
+    const halfVector = std.normalize(paramsUniform.$.lightDir.add(d.vec3f(0, 0, 1)));
+    const specular =
+      std.saturate(std.dot(normal, halfVector)) ** std.max(paramsUniform.$.specularPower, 1) *
+      paramsUniform.$.specularStrength * cover;
+
+    return d.vec4f(
+      glass
+        .add(paramsUniform.$.glowColor.mul(halo))
+        .add(paramsUniform.$.specularColor.mul(specular)),
+      std.saturate(cover + halo),
+    );
+  });
+
+  const pipeline = root.createRenderPipeline({
+    vertex: common.fullScreenTriangle,
+    fragment: fragmentShader,
+  });
+
+  let frameId = 0;
+  let onFrame: (() => void) | null = null;
+
+  function render() {
+    frameId = requestAnimationFrame(render);
+    try {
+      onFrame?.();
+      paperTexture.write(paperCanvas, { fit: 'stretch' });
+      paperTexture.generateMipmaps();
+      letterTexture.write(letterCanvas, { fit: 'stretch' });
+      letterTexture.generateMipmaps();
+      pipeline.withColorAttachment({ view: context }).draw(3);
+    } catch (e) {
+      console.error('[GlassAlphabet] render error:', e);
+    }
+  }
+  frameId = requestAnimationFrame(render);
+
+  return {
+    /** Called at the top of each frame, to repaint the backdrop canvases. */
+    set beforeFrame(fn: (() => void) | null) {
+      onFrame = fn;
+    },
+    /**
+     * Aspect correction. Pass the canvas's CSS size; every distance in the tiles
+     * and params is then measured in canvas heights.
+     */
+    setShapeScale(w: number, h: number) {
+      shapeScaleUniform.write(d.vec2f(h > 0 ? w / h : 1, 1));
+    },
+    /**
+     * The whole array, every frame. Not writePartial - that is a buffer method,
+     * and calling it on a uniform throws from inside the render loop where the
+     * only sign of it is a silent black canvas.
+     */
+    setTiles(
+      tiles: {
+        cx: number;
+        cy: number;
+        hx: number;
+        hy: number;
+        glow: number;
+        /** This tile's own tint. Omit it to take the scene's. */
+        tint?: { r: number; g: number; b: number; strength: number };
+      }[],
+    ) {
+      tilesUniform.write(
+        tiles.map(t => d.vec4f(t.cx, t.cy, Math.max(t.hx, 0.0005), Math.max(t.hy, 0.0005))),
+      );
+      glowsUniform.write(tiles.map(t => d.vec4f(t.glow, 0, 0, 0)));
+      tintsUniform.write(
+        tiles.map(t =>
+          t.tint
+            ? d.vec4f(t.tint.r, t.tint.g, t.tint.b, t.tint.strength)
+            : d.vec4f(0, 0, 0, -1),
+        ),
+      );
+    },
+    /**
+     * WARNING: three components call this, and a field one of them does not
+     * pass arrives as undefined. `undefined / 255` is NaN, and a NaN in a
+     * uniform blanks the whole fragment rather than shifting a colour - the
+     * component draws nothing and nothing in the build or the types complains.
+     * Any field added here wants a default, as the ink ones below have.
+     * See the header for the time this took the masthead off production.
+     */
+    setParams(p: SceneParams) {
+      paramsUniform.write({
+        radius: p.radius,
+        start: p.start,
+        end: p.end,
+        chromaticStrength: p.chromaticStrength,
+        refractionStrength: p.refractionStrength,
+        blur: p.blur,
+        edgeFeather: p.edgeFeather,
+        edgeBlurMultiplier: p.edgeBlurMultiplier,
+        tintStrength: p.tintStrength,
+        tintColor: d.vec3f(p.tintR, p.tintG, p.tintB),
+        chromaticFalloff: Math.max(p.chromaticFalloff ?? 1, 0.05),
+        edgeCurve: Math.max(p.edgeCurve ?? 1, 0.05),
+        bodyChromatic: p.bodyChromatic,
+        bodyDepth: Math.max(p.bodyDepth, 1e-4),
+        letterBlur: p.letterBlur,
+        letterColor: d.vec3f(p.letterR / 255, p.letterG / 255, p.letterB / 255),
+        // Falling back to the dark ink rather than to nothing. A caller that
+        // does not know about these would otherwise write undefined/255 -
+        // NaN - into the uniform, and a NaN here does not degrade the colour,
+        // it takes the whole fragment out. That is what blanked the masthead.
+        letterColorLight: d.vec3f(
+          (p.letterLightR ?? p.letterR) / 255,
+          (p.letterLightG ?? p.letterG) / 255,
+          (p.letterLightB ?? p.letterB) / 255,
+        ),
+        inkLumLo: p.inkLumLo ?? 0.3,
+        inkLumHi: p.inkLumHi ?? 0.55,
+        inkSampleLevel: p.inkSampleLevel ?? 4,
+        glowStrength: p.glowStrength,
+        glowHalo: Math.max(p.glowHalo, 1e-5),
+        glowInk: p.glowInk ?? 0,
+        glowInkLevel: p.glowInkLevel ?? 3,
+        glowColor: d.vec3f(p.glowR / 255, p.glowG / 255, p.glowB / 255),
+        // Azimuth is measured on screen with 90 straight down from the top, and
+        // y grows downward in uv - so a light "from above" has a negative y.
+        lightDir: (() => {
+          const a = (p.lightAzimuth * Math.PI) / 180;
+          const e = (p.lightElevation * Math.PI) / 180;
+          return d.vec3f(
+            Math.cos(e) * Math.cos(a),
+            -Math.cos(e) * Math.sin(a),
+            Math.sin(e),
+          );
+        })(),
+        specularStrength: p.specularStrength,
+        specularPower: Math.max(p.specularPower, 1),
+        specularColor: d.vec3f(p.specR / 255, p.specG / 255, p.specB / 255),
+      });
+    },
+    onCleanup() {
+      cancelAnimationFrame(frameId);
+    },
+  };
+}
