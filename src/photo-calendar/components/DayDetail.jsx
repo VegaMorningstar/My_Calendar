@@ -15,6 +15,7 @@ import { createPortal } from 'react-dom'
 import { GlassButtons, LiquidGlassPanel, PANEL_GLASS, usePanelGlass } from '../wwn-glass/index.js'
 import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, photoCountLabel } from '../lib/dates.js'
 import PhotoViewer from './PhotoViewer.jsx'
+import usePageInk from '../hooks/usePageInk.js'
 import { BURGUNDY_TINT, CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
@@ -26,15 +27,16 @@ const SWIPE_PX = 70
  * @param {{year:number, month:number, day:number}} date  the day to show
  * @param {string[]} srcs          the day's photos (previews, if there are any)
  * @param {Map<string,string>} [fullBySrc]  preview URL -> full-size URL for the viewer
- * @param {{ink:string, halo:string}} pageInk  adaptive text colours for the page
  * @param {boolean}  hasPrev       an earlier date with photos exists
  * @param {boolean}  hasNext       a later date with photos exists
  * @param {Function} onStep        (delta:-1|1) => void, go to the previous / next such date
  * @param {Function} onClose       () => void
  */
-export default function DayDetail({ date, srcs, fullBySrc, pageInk, hasPrev, hasNext, onStep, onClose }) {
+export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onStep, onClose }) {
   const { year, month, day } = date
   const sheetRef = useRef(null)
+  // Text colours follow what is behind the sheet, which is not what is behind the calendar
+  const pageInk = usePageInk(sheetRef)
   const scrollRef = useRef(null)
   /** Index of the photo open full screen, or null for the grid. */
   const [viewing, setViewing] = useState(null)
@@ -120,7 +122,7 @@ export default function DayDetail({ date, srcs, fullBySrc, pageInk, hasPrev, has
   return createPortal(
     <div
       className="pc-overlay"
-      style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo }}
+      style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo, '--pc-veil': pageInk.veil }}
       // Only a press on the veil itself counts as "clicking away", not one inside the sheet
       onMouseDown={e => { if (e.target === e.currentTarget && performance.now() - viewerClosedAt.current > 500) onClose() }}
     >

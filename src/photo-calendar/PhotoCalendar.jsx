@@ -36,7 +36,7 @@ export default function PhotoCalendar({
   className = '',
 }) {
   const panelRef = useRef(null)
-  const pageInk = usePageInk()
+  const pageInk = usePageInk(panelRef) // text colours follow what is behind the panel
   const byDate = useMemo(() => groupByDate(photos), [photos])
   const fullBySrc = useMemo(() => fullSources(photos), [photos])
 
@@ -72,7 +72,7 @@ export default function PhotoCalendar({
     <section
       className={`pc-root ${className}`}
       aria-label="Photo calendar"
-      style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo }}
+      style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo, '--pc-veil': pageInk.veil }}
     >
       <div className="pc-panel" ref={panelRef}>
         <LiquidGlassPanel params={PANEL_GLASS} />
@@ -110,7 +110,6 @@ export default function PhotoCalendar({
           hasNext={openPos >= 0 && openPos < photoDays.length - 1}
           onStep={stepDay}
           fullBySrc={fullBySrc}
-          pageInk={pageInk}
           onClose={() => setOpenDay(null)}
         />
       )}

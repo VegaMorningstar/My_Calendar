@@ -17,6 +17,6 @@ export { liquidGlass } from './liquid-glass.js'
 // WWN's glyph material, which carries the adaptive-ink band the calendar reuses
 export { MATERIAL_DEFAULTS } from './glass-alphabet/constants.ts'
 
-// The "paper" contract: the page colour the glass refracts. In WWN these come
-// from its theme; here they come from the small stand-in in theme.js.
-export { paperColor, setPaperColor, syncPaperFromBody, onPaperChange } from './theme.js'
+// The "paper" contract: the page colour (or photo) the glass refracts. In WWN these
+// come from its theme; here they come from the small stand-ins in theme.js and stars.js.
+export { paperColor, setPaperColor, setBackgroundImage, getBackgroundImage, syncPaperFromBody, onPaperChange } from './theme.js'

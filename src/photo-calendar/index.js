@@ -17,5 +17,9 @@ export { default as usePageInk } from './hooks/usePageInk.js'
 // Helpers
 export { groupByDate, parsePhotoDate, monthCells } from './lib/dates.js'
 
-// Tell the glass what colour the page is, if it changes after load
-export { setPaperColor } from './wwn-glass/index.js'
+// The glass kit: WWN's glass pieces, for building other UI that matches the calendar
+// (the settings gear and menu use these)
+export { GlassButtons, LiquidGlassPanel, PANEL_GLASS, usePanelGlass, BUTTON_MATERIAL } from './wwn-glass/index.js'
+
+// Tell the glass what the page behind it looks like, if that changes after load
+export { setPaperColor, setBackgroundImage } from './wwn-glass/index.js'

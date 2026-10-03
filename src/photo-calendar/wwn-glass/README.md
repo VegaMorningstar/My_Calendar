@@ -26,8 +26,11 @@ is self-contained.
    with the page colour. The files call `tokens()` and `theme()` for that.
    - `liquid-glass/backdrop.js`, `glass-alphabet/backdrop.js` and
      `glass-buttons/GlassButtons.jsx` import `../theme.js`.
-2. `stars.js`: the night-sky drawing used by the dark theme. Only
-   `liquid-glass/backdrop.js` imports it, and the calendar never turns it on.
+2. `stars.js`: the night-sky drawing used by WWN's dark theme. Only
+   `liquid-glass/backdrop.js` imports it. In the calendar this stand-in draws the
+   page's wallpaper instead (turned on by `setBackgroundImage`), so the glass
+   refracts the wallpaper through WWN's own hook, with no change to its files.
+   Inside WWN you would not need this: its own stars file stays as it is.
 
 The calendar also needs a way to ask "what colour is the page, and tell me when
 it changes". That is the `paper` part of the contract below.
@@ -36,7 +39,7 @@ it changes". That is the `paper` part of the contract below.
 
 `LiquidGlassPanel`, `PANEL_GLASS`, `usePanelGlass`, `GlassButtons`,
 `BUTTON_MATERIAL`, `liquidGlass`, `MATERIAL_DEFAULTS`, and the paper functions
-`paperColor()`, `setPaperColor(css)`, `syncPaperFromBody()`, `onPaperChange(fn)`.
+`paperColor()`, `setPaperColor(css)`, `setBackgroundImage(image, averageCss)`, `getBackgroundImage()`, `syncPaperFromBody()`, `onPaperChange(fn)`.
 
 ## Using the calendar inside WWN without duplicating this code
 

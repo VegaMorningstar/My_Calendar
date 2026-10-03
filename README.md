@@ -9,17 +9,23 @@ npm install
 npm run dev        # http://127.0.0.1:5173
 ```
 
-The calendar starts empty. Use **Import photos** under it to add photos from your device (see below). The calendar component itself can also take a list of photo URLs whose file names end in a date, for example `harbour_2026-10-03.webp`.
+The calendar starts empty. Tap the **gear** at the top left, then **Import photos**, to add photos from your device (see below). The calendar component itself can also take a list of photo URLs whose file names end in a date, for example `harbour_2026-10-03.webp`.
 
 ## Add your own photos
 
-Tap **Import photos** under the calendar. The system photo picker opens and you choose which photos to add (in the picker, the Albums tab lets you open Favourites and select them all). Each photo is placed on the day it was taken, read from its EXIF capture date. A photo with no capture date, such as a screenshot, uses the file's date instead. How many photos were added, skipped or unreadable shows in a toast that disappears after three seconds. Picking the same photo twice is ignored.
+Tap the **gear** at the top left, then **Import photos**. The system photo picker opens and you choose which photos to add (in the picker, the Albums tab lets you open Favourites and select them all). Each photo is placed on the day it was taken, read from its EXIF capture date. A photo with no capture date, such as a screenshot, uses the file's date instead. How many photos were added, skipped or unreadable shows in a toast that disappears after three seconds. Picking the same photo twice is ignored.
 
 - **Everything stays on the device.** Photos are saved in the browser's own storage (IndexedDB) on your phone. Nothing is uploaded, and the import code makes no network requests. The site's code comes from GitHub Pages; your photos never do.
 - **Install first, then import.** An installed home-screen app and Safari keep separate storage on iPhone, so add photos from inside the installed app.
-- **Remove photos**, next to the import button, deletes this app's copies only, never your Photos library.
+- **Remove photos**, in the same gear menu, deletes this app's copies only, never your Photos library.
 - **Limits:** iOS can clear a web app's storage if the phone is very low on space, or if you delete the app or clear website data. Keep the originals in Photos. Importing is manual: new photos need another visit to **Add more photos**.
 - Code: `src/photo-library/` (storage, date reading, previews, the button strip). Grid cells use small previews; the full-screen viewer loads the original.
+
+## Wallpaper
+
+The calendar sits on a wallpaper. By default it is a frosted wash of purple, blue, orange and yellow, drawn by the app (`src/photo-library/default-wallpaper.js`). In the gear menu, **Set wallpaper** opens the photo picker and uses the photo you choose instead (**Change wallpaper** once one is set), and **Reset wallpaper** brings the default back. The wallpaper is shrunk to screen size and kept on the device like the photos.
+
+The glass refracts the wallpaper, using Write-With-Nature's liquid glass, so it bends and blurs whatever is behind it. All text adapts to how dark the wallpaper is directly behind it: light text over dark areas, dark text over light areas, chosen separately for the calendar, the day view, the gear menu and the note under the calendar. A soft wash over the glass keeps text readable on busy photos.
 
 ## Install it as an app (PWA)
 

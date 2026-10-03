@@ -12,6 +12,9 @@ A photo calendar built around one reusable element, `src/photo-calendar/`. See `
 - PWA and hosting: the app builds with relative URLs (`base: './'`) so it works on a GitHub Pages project path. `public/sw.js` has placeholders that `vite.config.js` fills at build time; do not hard-code asset names in it.
 - Layout responds to the calendar's own width (container queries in `src/photo-calendar/styles/`), not the viewport. The day view is the exception: it is a portal, so it uses viewport media queries.
 - Imported photos live only in IndexedDB on the device (`src/photo-library/`). Never add code that uploads them. Dates come from the EXIF string as written (no timezone conversion); keep `reviveValues: false` and do not combine it with `pick` (exifr 7.1.3 throws).
+- Wallpaper: the frosted default (`default-wallpaper.js`) and any photo the user picks go through one path. The page shows it (`.app-wallpaper`), `setBackgroundImage` hands it to the glass, and the glass draws it through the `wwn-glass/stars.js` stand-in (WWN's backdrop painter calls `drawStars` after filling the paper). Do not edit the copied WWN files to add it.
+- Text colours: use `usePageInk(ref)` with a ref to the element the text sits in, so the ink follows the brightness directly behind it. Do not hard-code text colours over glass or photos.
+- The gear and its menu use WWN glass through the calendar's glass kit (`photo-calendar/index.js`): `GlassButtons` for the gear, `LiquidGlassPanel` for the menu. Match that physics for any new glass element, and do not build look-alikes in CSS.
 - Never run commands that change git history or push unless asked. Commit messages carry no AI co-author or attribution trailers.
 
 ## Ideas backlog

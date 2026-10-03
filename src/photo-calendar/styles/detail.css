@@ -25,6 +25,12 @@
 
 @keyframes pc-rise { from { opacity: 0; transform: translateY(14px) scale(.97); } }
 
+/* The same readability veil as the calendar panel (see base.css) */
+.pc-sheet::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+  background: rgba(var(--pc-hi), var(--pc-veil, 0));
+}
+
 /* The sheet is the glass; the scroll area inside it is separate so the glass canvas does not scroll. */
 .pc-sheet {
   position: relative; isolation: isolate; outline: none;

@@ -2,7 +2,9 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 body {
-  background: #e7dcc8; /* beige: the glass gets tested against other colours later */
+  /* Shows for the instant before the default wallpaper is drawn, so there is no beige flash */
+  background: linear-gradient(135deg, #b99bf5 0%, #8fbaff 38%, #ffb27a 70%, #ffdc70 100%);
+  background-attachment: fixed;
   min-height: 100vh;
   min-height: 100dvh; /* the visible height on iOS, with the Safari toolbar showing */
   -webkit-tap-highlight-color: transparent;
@@ -19,7 +21,18 @@ body {
     max(10px, env(safe-area-inset-left));
 }
 
-/* The calendar, its buttons and the note stack in one centred column */
+/* The wallpaper: fixed to the viewport so the page scrolls over it, and the glass refracts the same crop */
+.app-wallpaper {
+  position: fixed; inset: 0; z-index: -1;
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  animation: wallpaper-in .6s ease both;
+}
+@keyframes wallpaper-in { from { opacity: 0; } }
+
+/* The gear sits at the top left, above the calendar */
+.stage-toolbar { align-self: flex-start; margin-bottom: 12px; position: relative; z-index: 5; }
+
+/* The calendar and the note stack in one centred column */
 .stage-column { width: min(980px, 100%); display: flex; flex-direction: column; align-items: center; }
 
 @media (min-width: 900px) {

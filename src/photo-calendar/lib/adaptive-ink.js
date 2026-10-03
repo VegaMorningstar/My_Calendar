@@ -8,7 +8,7 @@
  * so this applies the same rule to a luminance we measure: the page colour for
  * text on the glass, a sampled region of the photo for text on a photo.
  */
-import { paperColor, MATERIAL_DEFAULTS } from '../wwn-glass/index.js'
+import { getBackgroundImage, paperColor, MATERIAL_DEFAULTS } from '../wwn-glass/index.js'
 
 const m = MATERIAL_DEFAULTS
 const DARK = [m.letterR, m.letterG, m.letterB]
@@ -91,4 +91,59 @@ export function photoLuma(src) {
     }))
   }
   return cache.get(key)
+}
+
+// ── Luminance of what is behind a piece of the UI ───────────────────────────────
+// The wallpaper is fixed to the viewport and cover-fitted, so a low-resolution
+// copy of the viewport is enough to read the brightness under any rectangle.
+
+/** Width in px of the sampled copy of the viewport; the height follows the aspect ratio. */
+const SAMPLE_W = 96
+let viewportSample = { key: '', w: 0, h: 0, data: null }
+
+/** Pixels of the wallpaper as it appears in the viewport, cover-fitted, at low resolution. */
+function sampleViewport(image) {
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const key = `${image.src}|${vw}x${vh}`
+  if (viewportSample.key === key) return viewportSample
+  const w = SAMPLE_W
+  const h = Math.max(1, Math.round((SAMPLE_W * vh) / vw))
+  const canvas = document.createElement('canvas')
+  canvas.width = w
+  canvas.height = h
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  const scale = Math.max(w / image.naturalWidth, h / image.naturalHeight)
+  const dw = image.naturalWidth * scale
+  const dh = image.naturalHeight * scale
+  ctx.drawImage(image, (w - dw) / 2, (h - dh) / 2, dw, dh)
+  viewportSample = { key, w, h, data: ctx.getImageData(0, 0, w, h).data }
+  return viewportSample
+}
+
+/**
+ * Brightness (0 to 1) of what is directly behind `rect` (a viewport rectangle).
+ * With a wallpaper, that is the average over the part of the photo under the
+ * rectangle; without one, it is the page colour. With no rectangle, the whole screen.
+ */
+export function backdropLuma(rect) {
+  const image = getBackgroundImage()
+  if (!image || !image.naturalWidth) return cssColorLuma(paperColor())
+  const { w, h, data } = sampleViewport(image)
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const x0 = Math.max(0, Math.floor(((rect?.left ?? 0) / vw) * w))
+  const x1 = Math.min(w, Math.max(x0 + 1, Math.ceil(((rect?.right ?? vw) / vw) * w)))
+  const y0 = Math.max(0, Math.floor(((rect?.top ?? 0) / vh) * h))
+  const y1 = Math.min(h, Math.max(y0 + 1, Math.ceil(((rect?.bottom ?? vh) / vh) * h)))
+  let sum = 0
+  let n = 0
+  for (let y = y0; y < y1; y++) {
+    for (let x = x0; x < x1; x++) {
+      const o = (y * w + x) * 4
+      sum += luma(data[o], data[o + 1], data[o + 2])
+      n++
+    }
+  }
+  return n ? sum / n : cssColorLuma(paperColor())
 }

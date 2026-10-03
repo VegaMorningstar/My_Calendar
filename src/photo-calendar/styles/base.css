@@ -51,6 +51,17 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/*
+ * Readability veil. Over a photo background the glass shows a blurred copy of the
+ * photo, which can be busy; a soft wash in the tone opposite the text keeps the
+ * text readable. --pc-veil is 0 on a plain page. It sits above the glass canvas
+ * (same z-index, later in the tree) and below the content.
+ */
+.pc-panel::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+  background: rgba(var(--pc-hi), var(--pc-veil, 0)); transition: background .5s ease;
+}
+
 /* ── Header ───────────────────────────────────────────────────────────── */
 .pc-head {
   display: flex; align-items: center; justify-content: space-between; gap: 16px;

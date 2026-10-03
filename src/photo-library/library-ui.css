@@ -1,38 +1,61 @@
-/* The two buttons and the note under the calendar. Text colour is --lib-ink (adaptive). */
-.lib-toolbar, .lib-footer {
+/* The gear and its menu (top left), and the note under the calendar.
+   Text colour is --lib-ink and the menu wash is --lib-hi (both adaptive). */
+.lib-settings, .lib-footer {
   --lib-ink: 28, 26, 16;
+  --lib-hi: 255, 255, 255;
   --lib-teal: 70, 170, 164;
   --lib-burgundy: 128, 28, 58;
   font-family: 'DM Mono', ui-monospace, monospace;
   color: rgb(var(--lib-ink));
 }
 
-/* ── Buttons ── */
-.lib-toolbar { width: min(980px, 100%); margin-top: 16px; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; }
-
-.lib-btn {
-  appearance: none; cursor: pointer; font: inherit; font-size: .82rem; letter-spacing: .06em;
-  min-height: 44px; padding: 0 20px; border-radius: 22px; /* 44px is the comfortable touch target */
-  color: rgb(var(--lib-ink)); border: 1px solid rgba(255,255,255,.7);
+/* ── Gear: a WWN glass tile (GlassButtons). .lib-gear is only its no-WebGPU fallback. ── */
+.lib-settings { position: relative; display: inline-block; }
+.lib-gear-slot { line-height: 0; margin: -8px 0 -8px -4px; /* GlassButtons pads its canvas; this tucks the gear toward the corner without clipping it */ }
+.lib-gear {
+  appearance: none; cursor: pointer; border-radius: 50%; padding: 0; font-size: 1.3rem; line-height: 1;
+  display: grid; place-items: center; color: rgb(var(--lib-ink));
+  border: 1px solid rgba(255,255,255,.7);
   background: linear-gradient(145deg, rgba(255,255,255,.55), rgba(255,255,255,.12));
   box-shadow: -2px -2px 6px rgba(255,255,255,.6), 3px 4px 10px rgba(90,64,28,.16), inset 1px 1px 3px rgba(255,255,255,.7);
-  -webkit-tap-highlight-color: transparent; transition: transform .15s, opacity .15s;
-}
-.lib-btn:active { transform: scale(.96); }
-.lib-btn:disabled { opacity: .55; cursor: progress; }
-.lib-btn:focus-visible { outline: 2px solid rgba(var(--lib-teal), .9); outline-offset: 2px; }
-.lib-primary {
-  background: linear-gradient(145deg, rgba(var(--lib-teal), .42), rgba(var(--lib-teal), .16));
-  border-color: rgba(var(--lib-teal), .55);
-}
-/* Both buttons use this smaller size */
-.lib-small { min-height: 34px; padding: 0 14px; border-radius: 17px; font-size: .72rem; }
-.lib-danger {
-  background: linear-gradient(145deg, rgba(var(--lib-burgundy), .3), rgba(var(--lib-burgundy), .1));
-  border-color: rgba(var(--lib-burgundy), .4);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  -webkit-tap-highlight-color: transparent;
 }
 
+/* ── Menu: a WWN liquid glass panel with the items on top ── */
+.lib-menu-wrap {
+  position: absolute; z-index: 60; top: calc(100% + 4px); left: 0; min-width: 230px; border-radius: 22px;
+  /* The shadow lives here: the glass hook clears the shadow of the panel inside */
+  box-shadow: 0 14px 40px rgba(60, 40, 15, .22);
+  animation: lib-menu-in .22s cubic-bezier(.2,.8,.2,1) both; transform-origin: top left;
+}
+@keyframes lib-menu-in { from { opacity: 0; transform: translateY(-6px) scale(.96); } }
+.lib-menu {
+  position: relative; isolation: isolate; /* the glass canvas sits at z-index -1 inside this */
+  display: grid; gap: 2px; padding: 8px; border-radius: 22px;
+  /* CSS look for the no-WebGPU fallback; the glass hook clears it when WebGPU runs */
+  background: rgba(var(--lib-hi), .5); border: 1px solid rgba(255,255,255,.7);
+}
+/* The same readability veil as the calendar panel: a soft wash over a photo wallpaper */
+.lib-menu::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+  background: rgba(var(--lib-hi), var(--lib-veil, 0));
+}
+
+.lib-item {
+  appearance: none; cursor: pointer; font: inherit; font-size: .82rem; letter-spacing: .04em;
+  min-height: 44px; padding: 0 16px; border: 0; border-radius: 14px; text-align: left;
+  color: rgb(var(--lib-ink)); background: transparent;
+  -webkit-tap-highlight-color: transparent; transition: background .15s;
+}
+.lib-item:hover { background: rgba(var(--lib-teal), .22); }
+.lib-item:active { background: rgba(var(--lib-teal), .34); }
+.lib-item:disabled { opacity: .5; cursor: progress; }
+.lib-item:focus-visible { outline: 2px solid rgba(var(--lib-teal), .9); outline-offset: -2px; }
+.lib-item-danger { color: rgb(var(--lib-burgundy)); }
+.lib-item-danger:hover { background: rgba(var(--lib-burgundy), .16); }
+
 /* ── Note under the calendar ── */
-.lib-footer { width: min(980px, 100%); margin-top: 10px; display: grid; justify-items: center; gap: 10px; text-align: center; }
+.lib-footer { width: min(980px, 100%); margin-top: 16px; display: grid; justify-items: center; gap: 6px; text-align: center; }
 .lib-hint { margin: 0; font-size: .78rem; opacity: .75; }
 .lib-note { margin: 0; max-width: 520px; font-size: .72rem; line-height: 1.45; opacity: .55; }
