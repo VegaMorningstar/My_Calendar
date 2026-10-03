@@ -45,6 +45,7 @@ wwn-glass/            Write-With-Nature glass code behind one entry point (own R
 ## Behaviour notes
 
 - **Random rotation:** each day draws its own random start and jittered waits, so photos never change in unison.
+- **Glass edge:** `usePanelEdge(ref)` keeps the glass rim a fixed few pixels thick (inside the panel's padding) and corrects the corner radius, so the rim never overlaps the content and the glass corner matches the panel.
 - **Glass kit:** `index.js` also exports `GlassButtons`, `LiquidGlassPanel`, `PANEL_GLASS`, `usePanelGlass`, `BUTTON_MATERIAL`, so other UI (the settings gear and menu) can use the same glass.
 - **Adaptive ink:** `usePageInk(ref)` measures the wallpaper under the element it is given, so each block of text follows what is directly behind it.
 - **Adaptive ink (photos and glass):** text colour follows WWN's rule (luminance of what is behind, smoothstepped between a dark and a light ink). Text on photos uses a narrower band, because photo patches are rarely cleanly light or dark.

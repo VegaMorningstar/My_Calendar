@@ -32,13 +32,15 @@
 @keyframes lib-menu-in { from { opacity: 0; transform: translateY(-6px) scale(.96); } }
 .lib-menu {
   position: relative; isolation: isolate; /* the glass canvas sits at z-index -1 inside this */
-  display: grid; gap: 2px; padding: 8px; border-radius: 22px;
+  display: grid; gap: 2px; padding: 8px;
+  /* The glass shader adds its rim width (--pc-edge) to the radius; take it off so the corner is 22px */
+  border-radius: calc(22px - var(--pc-edge, 0px));
   /* CSS look for the no-WebGPU fallback; the glass hook clears it when WebGPU runs */
   background: rgba(var(--lib-hi), .5); border: 1px solid rgba(255,255,255,.7);
 }
 /* The same readability veil as the calendar panel: a soft wash over a photo wallpaper */
 .lib-menu::after {
-  content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+  content: ''; position: absolute; inset: 0; border-radius: 22px; z-index: -1; pointer-events: none;
   background: rgba(var(--lib-hi), var(--lib-veil, 0));
 }
 

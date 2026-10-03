@@ -27,7 +27,7 @@
 
 /* The same readability veil as the calendar panel (see base.css) */
 .pc-sheet::after {
-  content: ''; position: absolute; inset: 0; border-radius: inherit; z-index: -1; pointer-events: none;
+  content: ''; position: absolute; inset: 0; border-radius: var(--pc-panel-r); z-index: -1; pointer-events: none;
   background: rgba(var(--pc-hi), var(--pc-veil, 0));
 }
 
@@ -36,7 +36,8 @@
   position: relative; isolation: isolate; outline: none;
   width: min(1100px, 100%); max-height: 100%;
   display: flex; flex-direction: column;
-  border-radius: 34px;
+  --pc-panel-r: 34px; /* the glass corner; the box takes the rim width off, see base.css */
+  border-radius: calc(var(--pc-panel-r) - var(--pc-edge, 0px));
   background: linear-gradient(125deg, rgba(255,255,255,.46) 0%, rgba(255,255,255,.10) 36%, rgba(255,255,255,.26) 100%);
   border: 1px solid rgba(255,255,255,.6);
   box-shadow: 0 24px 70px rgba(40,28,10,.28), inset 1.5px 1.5px 7px rgba(255,255,255,.75);
@@ -78,7 +79,7 @@
 .pc-thumb:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; }
 
 @media (max-width: 560px) {
-  .pc-sheet { border-radius: 24px; }
+  .pc-sheet { --pc-panel-r: 24px; }
   .pc-gallery { grid-template-columns: repeat(3, 1fr); gap: 2px; }
   .pc-thumb { border-radius: 3px; }
 }

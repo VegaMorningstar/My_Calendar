@@ -12,10 +12,11 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { GlassButtons, LiquidGlassPanel, PANEL_GLASS, usePanelGlass } from '../wwn-glass/index.js'
+import { GlassButtons, LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
 import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, photoCountLabel } from '../lib/dates.js'
 import PhotoViewer from './PhotoViewer.jsx'
 import usePageInk from '../hooks/usePageInk.js'
+import usePanelEdge from '../hooks/usePanelEdge.js'
 import { BURGUNDY_TINT, CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
@@ -37,6 +38,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   const sheetRef = useRef(null)
   // Text colours follow what is behind the sheet, which is not what is behind the calendar
   const pageInk = usePageInk(sheetRef)
+  const glassEdge = usePanelEdge(sheetRef)
   const scrollRef = useRef(null)
   /** Index of the photo open full screen, or null for the grid. */
   const [viewing, setViewing] = useState(null)
@@ -134,7 +136,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         aria-label={`${weekday} ${day} ${MONTHS[month]} ${year}`}
         tabIndex={-1}
       >
-        <LiquidGlassPanel params={PANEL_GLASS} />
+        <LiquidGlassPanel params={glassEdge} />
         <div
           className="pc-sheet-scroll"
           ref={scrollRef}

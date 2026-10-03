@@ -9,7 +9,7 @@
 // Glass surfaces and buttons (verbatim WWN code, WebGPU with a CSS fallback)
 export { default as LiquidGlassPanel } from './liquid-glass/LiquidGlassPanel.jsx'
 export { default as PANEL_GLASS } from './liquid-glass/panelPreset.js'
-export { default as usePanelGlass } from './hooks/usePanelGlass.js'
+export { default as usePanelGlass, glassSupported } from './hooks/usePanelGlass.js'
 export { default as GlassButtons } from './glass-buttons/GlassButtons.jsx'
 export { BUTTON_MATERIAL } from './glass-buttons/constants.ts'
 export { liquidGlass } from './liquid-glass.js'

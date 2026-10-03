@@ -15,6 +15,7 @@ A photo calendar built around one reusable element, `src/photo-calendar/`. See `
 - Wallpaper: the frosted default (`default-wallpaper.js`) and any photo the user picks go through one path. The page shows it (`.app-wallpaper`), `setBackgroundImage` hands it to the glass, and the glass draws it through the `wwn-glass/stars.js` stand-in (WWN's backdrop painter calls `drawStars` after filling the paper). Do not edit the copied WWN files to add it.
 - Text colours: use `usePageInk(ref)` with a ref to the element the text sits in, so the ink follows the brightness directly behind it. Do not hard-code text colours over glass or photos.
 - The gear and its menu use WWN glass through the calendar's glass kit (`photo-calendar/index.js`): `GlassButtons` for the gear, `LiquidGlassPanel` for the menu. Match that physics for any new glass element, and do not build look-alikes in CSS.
+- Glass panels: give every `LiquidGlassPanel` its params from `usePanelEdge(ref)` and set the panel's `border-radius` to `calc(var(--pc-panel-r) - var(--pc-edge, 0px))`. WWN sizes the rim as a fraction of height (thick on tall panels, overlapping content) and adds the rim to the corner radius; the hook fixes the rim in pixels, inside the padding, and publishes `--pc-edge` to compensate the corners.
 - Never run commands that change git history or push unless asked. Commit messages carry no AI co-author or attribution trailers.
 
 ## Ideas backlog

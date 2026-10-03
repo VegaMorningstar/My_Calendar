@@ -17,13 +17,14 @@
  *   className     extra class on the root element
  */
 import { useMemo, useRef, useState } from 'react'
-import { LiquidGlassPanel, PANEL_GLASS, usePanelGlass } from './wwn-glass/index.js'
+import { LiquidGlassPanel, usePanelGlass } from './wwn-glass/index.js'
 import CalendarHeader from './components/CalendarHeader.jsx'
 import DayDetail from './components/DayDetail.jsx'
 import MonthView from './components/MonthView.jsx'
 import YearView from './components/YearView.jsx'
 import useCalendarView from './hooks/useCalendarView.js'
 import usePageInk from './hooks/usePageInk.js'
+import usePanelEdge from './hooks/usePanelEdge.js'
 import { MONTHS, countInMonth, dateKey, fullSources, groupByDate } from './lib/dates.js'
 import { PANEL_FALLBACK } from './lib/glass-config.js'
 import './styles/base.css'
@@ -37,6 +38,7 @@ export default function PhotoCalendar({
 }) {
   const panelRef = useRef(null)
   const pageInk = usePageInk(panelRef) // text colours follow what is behind the panel
+  const glassEdge = usePanelEdge(panelRef) // a rim in pixels that stays clear of the date boxes
   const byDate = useMemo(() => groupByDate(photos), [photos])
   const fullBySrc = useMemo(() => fullSources(photos), [photos])
 
@@ -75,7 +77,7 @@ export default function PhotoCalendar({
       style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo, '--pc-veil': pageInk.veil }}
     >
       <div className="pc-panel" ref={panelRef}>
-        <LiquidGlassPanel params={PANEL_GLASS} />
+        <LiquidGlassPanel params={glassEdge} />
         <CalendarHeader view={view} isYear={isYear} photoCount={photoCount} onStep={go} onToggleZoom={toggleZoom} />
 
         {isYear ? (

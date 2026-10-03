@@ -12,7 +12,7 @@
  * decides exactly which photos to use, and everything is stored on the device.
  */
 import { useEffect, useRef, useState } from 'react'
-import { BUTTON_MATERIAL, GlassButtons, LiquidGlassPanel, PANEL_GLASS, usePageInk, usePanelGlass } from '../photo-calendar/index.js'
+import { BUTTON_MATERIAL, GlassButtons, LiquidGlassPanel, usePageInk, usePanelEdge, usePanelGlass } from '../photo-calendar/index.js'
 import Toast from './Toast.jsx'
 import './library-ui.css'
 
@@ -154,6 +154,7 @@ function summary({ added, skipped, failed, undated, removed }) {
 function GlassMenu({ children }) {
   const glassRef = useRef(null)
   usePanelGlass(glassRef, MENU_FALLBACK)
+  const glassEdge = usePanelEdge(glassRef) // a pixel-sized rim and matching corners, as on the calendar
   // The item text follows how dark the page is behind the menu
   const ink = usePageInk(glassRef)
   // The warning colour adapts as well: burgundy on light glass, a lighter rose on dark glass
@@ -164,7 +165,7 @@ function GlassMenu({ children }) {
       style={{ '--lib-ink': ink.ink, '--lib-hi': ink.halo, '--lib-veil': ink.veil, '--lib-burgundy': darkGlass ? '255, 150, 175' : '128, 28, 58' }}
     >
       <div className="lib-menu" ref={glassRef} role="menu">
-        <LiquidGlassPanel params={PANEL_GLASS} />
+        <LiquidGlassPanel params={glassEdge} />
         {children}
       </div>
     </div>
