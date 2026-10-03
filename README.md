@@ -9,15 +9,15 @@ npm install
 npm run dev        # http://127.0.0.1:5173
 ```
 
-The calendar starts empty. Use **Import photos** under it to add photos from your device (see below). The calendar component itself can also take a list of photo URLs whose file names end in a date, for example `harbour_2026-10-03.webp`.
+The calendar starts empty. Use **Import photos** at the top left to add photos from your device (see below). The calendar component itself can also take a list of photo URLs whose file names end in a date, for example `harbour_2026-10-03.webp`.
 
 ## Add your own photos
 
-Tap **Import photos** under the calendar. The system photo picker opens and you choose which photos to add (in the picker, the Albums tab lets you open Favourites and select them all). Each photo is placed on the day it was taken, read from its EXIF capture date. A photo with no capture date, such as a screenshot, uses the file's date instead and the app tells you so. Picking the same photo twice is ignored.
+Tap **Import photos** at the top left. The system photo picker opens and you choose which photos to add (in the picker, the Albums tab lets you open Favourites and select them all). Each photo is placed on the day it was taken, read from its EXIF capture date. A photo with no capture date, such as a screenshot, uses the file's date instead. How many photos were added, skipped or unreadable shows in a toast that disappears after three seconds. Picking the same photo twice is ignored.
 
 - **Everything stays on the device.** Photos are saved in the browser's own storage (IndexedDB) on your phone. Nothing is uploaded, and the import code makes no network requests. The site's code comes from GitHub Pages; your photos never do.
 - **Install first, then import.** An installed home-screen app and Safari keep separate storage on iPhone, so add photos from inside the installed app.
-- **Remove my photos** deletes this app's copies only, never your Photos library.
+- **Remove photos**, a small button under the calendar, deletes this app's copies only, never your Photos library.
 - **Limits:** iOS can clear a web app's storage if the phone is very low on space, or if you delete the app or clear website data. Keep the originals in Photos. Importing is manual: new photos need another visit to **Add more photos**.
 - Code: `src/photo-library/` (storage, date reading, previews, the button strip). Grid cells use small previews; the full-screen viewer loads the original.
 
@@ -49,7 +49,9 @@ The layout responds to the calendar's own width rather than the screen's, using 
 
 - Month pages with real calendar dates, stepped with the glass arrows or the arrow keys.
 - Days with photos show them, rotating at random times (never all at once). Hover for the photo count.
-- Click a day for a full-screen view with the date and every photo from that day. Close it with the burgundy X, Esc, or by clicking away.
+- Click a day for a full-screen view with the date and every photo from that day as a grid of thumbnails. Close it with the burgundy X, Esc, or by clicking away.
+- In that view, the left and right arrow keys, a swipe left or right, or the arrow buttons jump to the previous or next day that has photos.
+- Tap a thumbnail for the photo full screen, fitted to the screen. Gestures follow the iPhone Photos app: double-tap to zoom in (and again to zoom out), pinch to zoom, drag to pan, swipe left or right for the next photo, swipe down to close, tap once to hide the buttons. On a computer: double-click, trackpad pinch or Ctrl+scroll, `+` `-` `0`, and the arrow keys.
 - Zoom out to a full year with the year button (or Esc / `y`), then click a month to zoom back in.
 - Text adapts to the colour behind it, light on dark and dark on light, on the page and on photos.
 

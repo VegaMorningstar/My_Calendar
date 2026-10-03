@@ -59,10 +59,11 @@ export default function usePhotoLibrary() {
   }, [])
 
   const removeAll = useCallback(async () => {
+    const removed = photos.length
     await clearPhotos()
-    setLastResult(null)
+    setLastResult({ removed })
     setVersion(v => v + 1)
-  }, [])
+  }, [photos.length])
 
   return { photos, ready, progress, lastResult, addFiles, removeAll }
 }

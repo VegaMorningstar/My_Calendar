@@ -46,5 +46,6 @@ wwn-glass/            Write-With-Nature glass code behind one entry point (own R
 
 - **Random rotation:** each day draws its own random start and jittered waits, so photos never change in unison.
 - **Adaptive ink:** text colour follows WWN's rule (luminance of what is behind, smoothstepped between a dark and a light ink). Text on photos uses a narrower band, because photo patches are rarely cleanly light or dark.
-- **Day view:** a portal to `<body>`. Esc, the burgundy X or a click on the veil closes it, and focus returns to the day that opened it.
+- **Day view:** a portal to `<body>`. Esc, the burgundy X or a click on the veil closes it, and focus returns to the day that opened it. Arrow keys, a swipe or the arrow buttons step to the previous or next day that has photos (the month behind follows).
+- **Photo viewer:** zoom (double-tap, pinch, trackpad, `+` `-` `0`), pan, swipe between photos, swipe down to close, tap to hide the buttons. The transform is written straight to the element during a gesture, not through React state.
 - **Keys:** left and right arrows step, Esc or `y` zoom between month and year (paused while the day view is open).

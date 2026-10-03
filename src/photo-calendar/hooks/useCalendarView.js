@@ -37,6 +37,12 @@ export default function useCalendarView({ initialDate, enabled = true } = {}) {
   }
   const toggleZoom = () => zoom(view.mode === 'month' ? 'year' : 'month')
 
+  /** Show a particular month (month view), sliding the way the calendar moved. */
+  const goTo = (year, month) => {
+    setAnim(year * 12 + month >= view.y * 12 + view.m ? 'next' : 'prev')
+    setView({ y: year, m: month, mode: 'month' })
+  }
+
   // The key handler is bound once; a ref keeps it pointed at the latest closures.
   const latest = useRef({})
   latest.current = { go, toggleZoom, enabled }
@@ -52,5 +58,5 @@ export default function useCalendarView({ initialDate, enabled = true } = {}) {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  return { view, anim, isYear: view.mode === 'year', go, zoom, toggleZoom }
+  return { view, anim, isYear: view.mode === 'year', go, zoom, toggleZoom, goTo }
 }

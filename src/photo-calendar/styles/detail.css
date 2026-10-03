@@ -13,6 +13,16 @@
   animation: pc-fade .28s ease both;
 }
 @keyframes pc-fade { from { opacity: 0; } }
+/* A change of day slides the new one in from the side the user moved towards */
+@keyframes pc-slide-next { from { opacity: 0; transform: translateX(36px); } }
+@keyframes pc-slide-prev { from { opacity: 0; transform: translateX(-36px); } }
+.pc-day-content { animation-duration: .38s; animation-timing-function: cubic-bezier(.2,.8,.2,1); animation-fill-mode: both; }
+.pc-slide-next { animation-name: pc-slide-next; }
+.pc-slide-prev { animation-name: pc-slide-prev; }
+/* Horizontal swipes are read by the sheet; vertical drags still scroll the photos */
+.pc-sheet-scroll { touch-action: pan-y; }
+.pc-detail-actions { display: flex; align-items: flex-start; gap: 0; flex: none; }
+
 @keyframes pc-rise { from { opacity: 0; transform: translateY(14px) scale(.97); } }
 
 /* The sheet is the glass; the scroll area inside it is separate so the glass canvas does not scroll. */

@@ -10,9 +10,7 @@ body {
 .stage {
   min-height: 100vh;
   min-height: 100dvh;
-  display: grid;
-  /* Top-aligned on small screens, where the calendar fills the width; centred on larger ones */
-  place-items: start center;
+  display: flex; flex-direction: column; align-items: center;
   /* Keep clear of the notch, the home indicator and rounded corners when installed */
   padding:
     max(16px, env(safe-area-inset-top))
@@ -20,9 +18,14 @@ body {
     max(16px, env(safe-area-inset-bottom))
     max(10px, env(safe-area-inset-left));
 }
-@media (min-width: 900px) {
-  .stage { place-items: center; padding-top: 32px; padding-bottom: 32px; }
-}
 
-/* The calendar and the import strip stack in one centred column */
+/* The import buttons sit at the top left of the screen, above the calendar */
+.stage-toolbar { align-self: flex-start; margin-bottom: 14px; }
+
+/* The calendar and the note under it stack in one centred column */
 .stage-column { width: min(980px, 100%); display: flex; flex-direction: column; align-items: center; }
+
+@media (min-width: 900px) {
+  /* On larger screens the calendar is centred in the space left below the buttons */
+  .stage-column { margin-block: auto; }
+}

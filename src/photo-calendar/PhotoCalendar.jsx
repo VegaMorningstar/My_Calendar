@@ -43,7 +43,21 @@ export default function PhotoCalendar({
   /** The day open in the full-screen view, as { year, month, day }, or null. */
   const [openDay, setOpenDay] = useState(null)
   // Keyboard shortcuts pause while the day view is open
-  const { view, anim, isYear, go, zoom, toggleZoom } = useCalendarView({ initialDate, enabled: !openDay })
+  const { view, anim, isYear, go, zoom, toggleZoom, goTo } = useCalendarView({ initialDate, enabled: !openDay })
+
+  /** Every date that has photos, oldest first: the stops for the day view's previous / next. */
+  const photoDays = useMemo(() => [...byDate.keys()].sort(), [byDate])
+  const openKey = openDay && dateKey(openDay.year, openDay.month, openDay.day)
+  const openPos = openKey ? photoDays.indexOf(openKey) : -1
+
+  /** Moves the day view to the previous (-1) or next (+1) date that has photos, and the calendar behind it with it. */
+  const stepDay = delta => {
+    const key = photoDays[openPos + delta]
+    if (!key) return
+    const [year, month, day] = key.split('-').map(Number)
+    setOpenDay({ year, month: month - 1, day })
+    goTo(year, month - 1)
+  }
 
   // Hands the panel's surface to the WebGPU glass, or to WWN's CSS glass without it
   usePanelGlass(panelRef, PANEL_FALLBACK)
@@ -91,7 +105,10 @@ export default function PhotoCalendar({
       {openDay && (
         <DayDetail
           date={openDay}
-          srcs={byDate.get(dateKey(openDay.year, openDay.month, openDay.day)) ?? []}
+          srcs={byDate.get(openKey) ?? []}
+          hasPrev={openPos > 0}
+          hasNext={openPos >= 0 && openPos < photoDays.length - 1}
+          onStep={stepDay}
           fullBySrc={fullBySrc}
           pageInk={pageInk}
           onClose={() => setOpenDay(null)}
