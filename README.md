@@ -18,7 +18,7 @@ Tap **Choose photos** under the calendar. The system photo picker opens and you 
 - **Everything stays on the device.** Photos are saved in the browser's own storage (IndexedDB) on your phone. Nothing is uploaded, and the import code makes no network requests. The site's code comes from GitHub Pages; your photos never do.
 - **Install first, then import.** An installed home-screen app and Safari keep separate storage on iPhone, so add photos from inside the installed app.
 - **Remove my photos** deletes this app's copies only, never your Photos library.
-- **Limits:** iOS can clear a web app's storage if the phone is very low on space, or if you delete the app or clear website data. Keep the originals in Photos. Importing is manual: new photos need another visit to **Add more photos**.
+- **Limits:** iOS can clear a web app's storage if the phone is very low on space, or if you delete the app or clear website data. Keep the originals in Photos. Importing is manual: new photos need another visit to **Import photos**.
 - Code: `src/photo-library/` (storage, date reading, previews, the button strip). Grid cells use small previews; the full-screen viewer loads the original.
 
 ## Install it as an app (PWA)

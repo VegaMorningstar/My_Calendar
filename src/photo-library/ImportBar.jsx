@@ -34,7 +34,7 @@ export default function ImportBar({ library, ink }) {
 
       <div className="lib-actions">
         <button type="button" className="lib-btn lib-primary" onClick={() => input.current.click()} disabled={busy}>
-          {hasOwn ? 'Add more photos' : 'Choose photos'}
+          {hasOwn ? 'Import photos' : 'Choose photos'}
         </button>
         {hasOwn && (
           <button type="button" className="lib-btn lib-danger" onClick={onRemove} disabled={busy}>
