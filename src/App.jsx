@@ -61,6 +61,8 @@ function usePageBackdrop(wallpaper) {
       // can only show the plain page colour, whatever the page paints. So the wallpaper's last stretch
       // fades into that colour and the strip reads as part of the picture, not as a bar.
       const deficit = viewportDeficit()
+      // The day sheet's veil thins over the same stretch (see detail.css), so it does not end in a hard line either
+      document.documentElement.style.setProperty('--pc-fade', deficit >= 20 ? `${deficit + 60}px` : '0px')
       const fade = deficit >= 20
         ? `linear-gradient(to bottom, ${bottom.replace('rgb(', 'rgba(').replace(')', ', 0)')}, ${bottom}) 0 100% / 100% ${deficit + 60}px no-repeat, `
         : ''

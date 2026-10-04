@@ -15,10 +15,19 @@
     max(var(--pc-pad), env(safe-area-inset-right))
     max(var(--pc-pad), env(safe-area-inset-bottom))
     max(var(--pc-pad), env(safe-area-inset-left));
-  /* A veil in the opposite tone to the ink: pale over a light page, dark over a dark one */
+  animation: pc-fade .28s ease both;
+}
+/* A veil in the opposite tone to the ink: pale over a light page, dark over a dark one. It is its own layer
+   so its bottom edge can fade out: --pc-fade is set by the page (App.jsx) only when an installed iPhone app
+   is given a page shorter than the screen. Then the veil thins to nothing over the last stretch, the same
+   stretch where the wallpaper fades into the page colour, so no hard line separates the sheet's backdrop
+   from the plain strip below the page. Normally --pc-fade is 0 and the veil simply ends at the screen's edge. */
+.pc-overlay::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: rgba(var(--pc-hi), .5);
   -webkit-backdrop-filter: blur(14px) saturate(1.1); backdrop-filter: blur(14px) saturate(1.1);
-  animation: pc-fade .28s ease both;
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--pc-fade, 0px)), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--pc-fade, 0px)), transparent);
 }
 @keyframes pc-fade { from { opacity: 0; } }
 /* A change of day slides the new one in from the side the user moved towards */
