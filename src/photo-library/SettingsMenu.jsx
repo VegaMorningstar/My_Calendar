@@ -20,11 +20,16 @@ import './library-ui.css'
 const TOAST_MS = 3000
 
 /** The gear tile: WWN's toolbar button material at 44px, a comfortable touch size. */
-const GEAR_MATERIAL = { ...BUTTON_MATERIAL, size: 44, radius: 22, edge: 10, letterSize: 38 }
-/** U+2699 with the text-presentation selector, so it is a drawn glyph and not a colour emoji. */
-const GEAR_GLYPH = '\u2699\uFE0E'
+const GEAR_MATERIAL = { ...BUTTON_MATERIAL, size: 44, radius: 22, edge: 10 }
 
 /** Options for WWN's CSS glass, used only where WebGPU is missing. */
+/**
+ * The gear is a drawn icon laid over the glass tile, not a text glyph: the glyph is drawn by
+ * whatever font the device falls back to, and on iPhone that is larger than on a Mac and
+ * was clipped by the tile. A vector shape is the same everywhere.
+ */
+const GEAR_PATH = 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z'
+
 const MENU_FALLBACK = { scale: -60, chroma: 4, blur: 8, saturate: 1.25, aberrationIntensity: 4, elasticity: 0 }
 
 /**
@@ -35,6 +40,8 @@ export default function SettingsMenu({ library, wallpaper }) {
   const { photos, progress, lastResult, addFiles, removeAll } = library
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
+  const gearSlotRef = useRef(null)
+  const gearInk = usePageInk(gearSlotRef) // the icon's colour follows what is behind the gear
   const photoInput = useRef(null)
   const wallpaperInput = useRef(null)
   const busy = progress !== null || wallpaper.busy
@@ -98,15 +105,20 @@ export default function SettingsMenu({ library, wallpaper }) {
       <input ref={wallpaperInput} type="file" accept="image/*" hidden onChange={onWallpaper} />
 
       {/* The gear: a glass tile with WWN's springs. Its CSS fallback is .lib-gear. */}
-      <div className="lib-gear-slot">
+      <div className="lib-gear-slot" ref={gearSlotRef} style={{ '--lib-ink': gearInk.ink }}>
         <GlassButtons
           material={GEAR_MATERIAL}
           items={[{
-            key: 'settings', label: GEAR_GLYPH, title: 'Settings', width: GEAR_MATERIAL.size,
+            key: 'settings', label: '', title: 'Settings', width: GEAR_MATERIAL.size,
             onClick: () => setOpen(o => !o), fallbackClass: 'lib-gear',
             aria: { 'aria-haspopup': 'menu', 'aria-expanded': open },
           }]}
         />
+        {/* Centred over the tile; taps pass through to the tile underneath */}
+        <svg className="lib-gear-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" />
+          <path d={GEAR_PATH} />
+        </svg>
       </div>
 
       {open && (

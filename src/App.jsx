@@ -24,8 +24,11 @@ export default function App() {
         <div className="app-wallpaper" key={wallpaper.url} style={{ backgroundImage: `url("${wallpaper.url}")` }} />
       )}
       <div className="stage-column">
-        <PhotoCalendar photos={library.photos} />
-        <LibraryHint library={library} />
+        {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
+        <div className="stage-calendar">
+          <PhotoCalendar photos={library.photos} />
+          <LibraryHint library={library} />
+        </div>
       </div>
       <div className="stage-footer">
         <SettingsMenu library={library} wallpaper={wallpaper} />

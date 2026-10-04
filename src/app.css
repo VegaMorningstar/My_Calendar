@@ -30,12 +30,11 @@ body {
 @keyframes wallpaper-in { from { opacity: 0; } }
 
 /* The calendar and its hint stack in one centred column that takes the space between the gear and the info button */
-.stage-column { width: min(980px, 100%); flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; }
+.stage-column { width: min(980px, 100%); flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+/* Holds the calendar and positions its hint below it */
+.stage-calendar { position: relative; width: 100%; display: flex; justify-content: center; }
 
 /* The gear and the info button sit side by side at the bottom left */
 .stage-footer { align-self: flex-start; margin-top: 12px; position: relative; z-index: 5; display: flex; align-items: center; gap: 2px; }
 
-@media (min-width: 900px) {
-  /* On larger screens the calendar is centred vertically between the gear and the info button */
-  .stage-column { justify-content: center; }
-}
