@@ -1,6 +1,11 @@
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
-html, body { margin: 0; min-height: 100%; overscroll-behavior-x: none; /* a sideways swipe must not navigate back a page */ }
+/*
+ * The page itself never scrolls: it is exactly the screen, so there is no sideways wobble and no
+ * rubber-band at the top or bottom. .stage (below) is the scroll container, and only scrolls if the
+ * content is genuinely taller than the screen (a six-row month on a small phone).
+ */
+html, body, #root { margin: 0; height: 100%; overflow: hidden; overscroll-behavior: none; }
 /*
  * The page background lives on <html>, not <body>. The wallpaper is a fixed element behind the
  * content (z-index -1), and a background on <body> would paint over it. This gradient shows for
@@ -9,13 +14,12 @@ html, body { margin: 0; min-height: 100%; overscroll-behavior-x: none; /* a side
  */
 html { background: linear-gradient(135deg, #9cc6f7 0%, #c9defa 42%, #ffcaa6 78%, #ffbd94 100%); }
 body {
-  min-height: 100vh;
-  min-height: 100dvh; /* the visible height on iOS, with the Safari toolbar showing */
+  position: fixed; inset: 0; width: 100%;
   -webkit-tap-highlight-color: transparent;
 }
 .stage {
-  min-height: 100vh;
-  min-height: 100dvh;
+  height: 100%;
+  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
   display: flex; flex-direction: column; align-items: center;
   /* Keep clear of the notch, the home indicator and rounded corners when installed */
   padding:
@@ -25,7 +29,7 @@ body {
     max(10px, env(safe-area-inset-left));
 }
 
-/* The wallpaper: fixed to the viewport so the page scrolls over it, and the glass refracts the same crop.
+/* The wallpaper: fixed to the viewport, and the glass refracts the same crop.
    App.jsx makes it taller than the viewport (WALLPAPER_OVERSCAN_PX) so a short launch-time viewport on
    iPhone does not leave a bar at the bottom. */
 .app-wallpaper {
@@ -42,7 +46,7 @@ body {
 .stage-calendar { position: relative; width: 100%; display: flex; justify-content: center; }
 
 /* The gear and the info button sit side by side at the bottom left */
-.stage-footer { align-self: flex-start; margin-top: 12px; position: relative; z-index: 5; display: flex; align-items: center; gap: 2px; }
+.stage-footer { align-self: flex-start; max-width: 100%; margin-top: 12px; position: relative; z-index: 5; display: flex; align-items: center; gap: 2px; }
 
 
 /*

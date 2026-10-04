@@ -37,7 +37,8 @@ function subscribe(fn) {
   if (!bound) {
     bound = true
     window.addEventListener('resize', notifyAll)
-    window.addEventListener('scroll', notifyAll, { passive: true })
+    // Capture: the scrolling element is .stage, not the window, and scroll events do not bubble
+    window.addEventListener('scroll', notifyAll, { passive: true, capture: true })
     onPaperChange(notifyAll)
   }
   subscribers.add(fn)
