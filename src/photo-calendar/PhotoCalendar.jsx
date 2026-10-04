@@ -27,7 +27,7 @@ import usePageInk from './hooks/usePageInk.js'
 import usePanelEdge from './hooks/usePanelEdge.js'
 import useSwipeNav from './hooks/useSwipeNav.js'
 import useTrackpadSwipe from './hooks/useTrackpadSwipe.js'
-import { MONTHS, countInMonth, dateKey, fullSources, groupByDate } from './lib/dates.js'
+import { MONTHS, countInMonth, dateKey, fullSources, groupByDate, monthCells } from './lib/dates.js'
 import { PANEL_FALLBACK } from './lib/glass-config.js'
 import './styles/base.css'
 import './styles/compact.css'
@@ -82,7 +82,12 @@ export default function PhotoCalendar({
     <section
       className={`pc-root ${className}`}
       aria-label="Photo calendar"
-      style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo, '--pc-veil': pageInk.veil }}
+      style={{
+        '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo, '--pc-veil': pageInk.veil,
+        // Boxes are sized to the rows this month has; the year view is not limited by a box size at all
+        '--pc-rows': isYear ? 6 : Math.ceil(monthCells(view.y, view.m, weekStartsOn).length / 7),
+        ...(isYear ? { '--pc-tile-max': '9999px' } : null),
+      }}
     >
       <div className="pc-panel" ref={panelRef} {...swipe}>
         <LiquidGlassPanel params={glassEdge} />

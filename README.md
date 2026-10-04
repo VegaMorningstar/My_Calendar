@@ -70,7 +70,7 @@ The layout responds to the calendar's own width rather than the screen's, using 
 
 ## Phone on its side
 
-In landscape a phone is wide but short, so the calendar switches to a compact layout that fits the screen with no scrolling: a one-line header with smaller glass buttons, square date boxes sized to the height that is left (the panel is only as wide as seven of them), the gear and info button in a column on the left, the year view as six months across and two down, and a tighter day view. The date boxes are always square, with small gaps, so a photo shows as much of itself as possible. On any wide, short window (such as a laptop with a small browser window) the whole calendar narrows to keep six rows of square boxes within the height, instead of the boxes shrinking inside wide columns. The rules are in `src/photo-calendar/styles/compact.css` and `src/app.css`.
+In landscape a phone is wide but short, so the calendar switches to a compact layout that fits the screen with no scrolling: a one-line header with smaller glass buttons, square date boxes sized to the height that is left (the panel is only as wide as seven of them), the gear and info button in a column on the left, the year view as six months across and two down, and a tighter day view. The date boxes are always square, with small gaps, so a photo shows as much of itself as possible, and they are sized to the rows the month has, so a five-row month gets bigger boxes than a six-row one. On any wide, short window (such as a laptop with a small browser window) the whole calendar narrows to keep six rows of square boxes within the height, instead of the boxes shrinking inside wide columns. The rules are in `src/photo-calendar/styles/compact.css` and `src/app.css`.
 
 ## What it does
 

@@ -16,9 +16,11 @@
   --pc-radius: 10px;
   /* The shape of a date box: square, so a photo shows as much of itself as possible */
   --pc-tile-ratio: 1;
-  /* The biggest a square date box can be: six rows must fit the screen's height after the header, padding
-     and the buttons below (about 270px). */
-  --pc-tile-max: max(44px, calc((100dvh - 270px) / 6));
+  /* The biggest a square date box can be: the month's rows (--pc-rows, set by PhotoCalendar: four to six)
+     must fit the screen's height after the header, padding and the buttons below (about 254px, plus the gaps between the rows, plus --pc-extra-height: space the host page needs below the
+     calendar, such as a hint line). A five-row
+     month therefore gets bigger boxes than a six-row one. */
+  --pc-tile-max: max(44px, calc((100dvh - 254px - var(--pc-extra-height, 0px) - (var(--pc-rows, 6) - 1) * var(--pc-gap)) / var(--pc-rows, 6)));
   --pc-serif: 'Playfair Display', Georgia, serif;
   --pc-mono: 'DM Mono', ui-monospace, monospace;
 
@@ -29,7 +31,8 @@
 .pc-root {
   /* On a short window the calendar narrows so that its square date boxes still fit the height, rather
      than the boxes shrinking inside wide columns (seven boxes, six gaps, and the panel's padding). */
-  width: min(980px, 100%, calc(7 * var(--pc-tile-max) + 6 * var(--pc-gap) + 44px));
+  width: min(1400px, 100%, calc(7 * var(--pc-tile-max) + 6 * var(--pc-gap) + 44px));
+  transition: width .35s ease; /* a month with more or fewer rows eases to its size */
   /* The layout responds to the element's own width, not the screen's, so it
      also fits when embedded in a narrow column. */
   container: pc / inline-size;

@@ -98,8 +98,11 @@ export default function App() {
   // Declared after the effect above, so the glass already knows the wallpaper when this reads its colours
   const topColor = usePageBackdrop(wallpaper)
 
+  // While the calendar is empty, a hint line hangs under it; the calendar leaves room for that
+  const emptyLibrary = library.photos.length === 0 && library.progress === null
+
   return (
-    <main className="stage">
+    <main className="stage" style={{ '--pc-extra-height': emptyLibrary ? '56px' : '0px' }}>
       {underStatusBar && <div className="app-status-scrim" aria-hidden="true" />}
       {/* A thin strip in the wallpaper's top-edge colour, there for iOS to tint the status bar from.
           Only needed when the page cannot run under the bar; when it does, the strip would show as a band. */}
