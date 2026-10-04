@@ -85,11 +85,14 @@
 }
 .pc-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
 /* The month and the year button side by side. GlassButtons pads its canvas, so the slot tucks it in toward the text */
-.pc-title-row { display: flex; align-items: center; gap: 4px; }
-.pc-zoom { line-height: 0; flex: none; margin: -12px 0 -12px -6px; }
+.pc-title-row { --pc-month-size: clamp(1.9rem, 5vw, 3rem); display: flex; align-items: center; gap: 4px; }
+/* The year in the button sits on the same line as the month's letters: the button moves down by the
+   distance from the month's centre to its baseline (0.417 of its size), less the few px the digits sit
+   below the button's own centre. position: relative, so the layout does not change. */
+.pc-zoom { line-height: 0; flex: none; margin: -12px 0 -12px -6px; position: relative; top: calc(var(--pc-month-size) * 0.417 - 3.8px); }
 .pc-month {
   margin: 0; font-family: var(--pc-serif); font-weight: 600; letter-spacing: .02em;
-  font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1;
+  font-size: var(--pc-month-size, clamp(1.9rem, 5vw, 3rem)); line-height: 1;
   color: rgb(var(--pc-ink));
   text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); /* etched */
 }

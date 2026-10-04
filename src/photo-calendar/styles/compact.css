@@ -18,7 +18,7 @@
   /* One line: title on the left, buttons on the right (they are 54px tall with padding; tuck that in) */
   .pc-head { flex-wrap: nowrap; margin-bottom: 0; }
   .pc-title { width: auto; gap: 8px; }
-  .pc-month { font-size: 1.45rem; }
+  .pc-title-row { --pc-month-size: 1.45rem; }
   .pc-year { font-size: .95rem; }
   .pc-count { display: none; }
   .pc-nav { margin: -12px 0; }
