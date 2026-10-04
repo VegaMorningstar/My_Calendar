@@ -38,3 +38,18 @@ body {
 /* The gear and the info button sit side by side at the bottom left */
 .stage-footer { align-self: flex-start; margin-top: 12px; position: relative; z-index: 5; display: flex; align-items: center; gap: 2px; }
 
+
+/*
+ * The installed app runs under the iPhone status bar (see the status-bar-style meta tag in
+ * index.html). iOS draws that text in white, which a pale wallpaper would swallow, so a soft
+ * dark fade sits behind it. It exists only in the installed app; in a browser tab there is no
+ * status bar of ours to protect.
+ */
+.app-status-scrim { display: none; }
+@media (display-mode: standalone) {
+  .app-status-scrim {
+    display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 2; pointer-events: none;
+    height: calc(env(safe-area-inset-top) + 26px);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, .34), rgba(0, 0, 0, 0));
+  }
+}

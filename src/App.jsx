@@ -20,6 +20,7 @@ export default function App() {
 
   return (
     <main className="stage">
+      <div className="app-status-scrim" aria-hidden="true" />
       {wallpaper.url && (
         <div className="app-wallpaper" key={wallpaper.url} style={{ backgroundImage: `url("${wallpaper.url}")` }} />
       )}
