@@ -76,7 +76,7 @@
 
 /* The info button's CSS fallback (without WebGPU); the glass tile replaces it otherwise */
 .lib-info-btn {
-  appearance: none; cursor: pointer; border-radius: 18px; padding: 0 14px; font: italic .95rem 'Playfair Display', Georgia, serif;
+  appearance: none; cursor: pointer; border-radius: 18px; padding: 0 12px; font: italic .78rem 'Playfair Display', Georgia, serif;
   display: grid; place-items: center; color: rgb(var(--lib-ink));
   border: 1px solid rgba(255,255,255,.7);
   background: linear-gradient(145deg, rgba(255,255,255,.55), rgba(255,255,255,.12));

@@ -16,8 +16,8 @@ import './library-ui.css'
  * Display"), so a leading "italic" gives the word in italics with no change to WWN's code.
  * The italic face the page loads is weight 400.
  */
-const INFO_WIDTH = 66
-const INFO_MATERIAL = { ...BUTTON_MATERIAL, size: 36, radius: 18, edge: 8, letterSize: 17, letterWeight: 'italic 400' }
+const INFO_WIDTH = 54
+const INFO_MATERIAL = { ...BUTTON_MATERIAL, size: 36, radius: 18, edge: 8, letterSize: 13, letterWeight: 'italic 400' }
 
 const NOTE = 'Photos stay on this device and never leave your device. Removing them here does not affect your Photos library.'
 
