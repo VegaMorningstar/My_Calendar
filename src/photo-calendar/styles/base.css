@@ -94,7 +94,7 @@
   text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); /* etched */
 }
 .pc-year { font-family: var(--pc-serif); font-style: italic; font-size: clamp(1.1rem, 2.4vw, 1.5rem); color: rgba(var(--pc-ink), .9); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
-.pc-count { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(var(--pc-ink), .85); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
+.pc-count { font-family: var(--pc-serif); font-style: italic; font-size: clamp(.95rem, 2vw, 1.1rem); color: rgba(var(--pc-ink), .9); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
 
 .pc-nav { display: flex; align-items: center; gap: 10px; flex: none; }
 

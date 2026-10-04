@@ -26,6 +26,7 @@ import YearView from './components/YearView.jsx'
 import useCalendarView from './hooks/useCalendarView.js'
 import usePageInk from './hooks/usePageInk.js'
 import usePanelEdge from './hooks/usePanelEdge.js'
+import usePinchZoom from './hooks/usePinchZoom.js'
 import useSwipeNav from './hooks/useSwipeNav.js'
 import useTrackpadSwipe from './hooks/useTrackpadSwipe.js'
 import { MONTHS, countInMonth, dateKey, fullSources, groupByDate, monthCells } from './lib/dates.js'
@@ -70,6 +71,13 @@ export default function PhotoCalendar({
   // A finger swipe on a phone, a two-finger trackpad swipe on a laptop.
   const swipe = useSwipeNav(go)
   useTrackpadSwipe(panelRef, go) // the same on a laptop: a two-finger sideways swipe over the panel
+
+  // Pinching the panel zooms between month and year, the same as the year button: fingers together (or a
+  // trackpad pinch-in) goes out to the year, fingers apart goes back into the month
+  usePinchZoom(panelRef, direction => {
+    if (direction < 0 && !isYear) zoom('year')
+    else if (direction > 0 && isYear) zoom('month')
+  })
 
   // Hands the panel's surface to the WebGPU glass, or to WWN's CSS glass without it
   usePanelGlass(panelRef, PANEL_FALLBACK)

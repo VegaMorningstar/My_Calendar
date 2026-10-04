@@ -26,13 +26,18 @@ export default function useSwipeNav(onSwipe) {
   const callback = useRef(onSwipe)
   callback.current = onSwipe
 
+  const down = useRef(new Set()) // fingers currently on the element: two of them are a pinch, not a swipe
+
   return {
     onPointerDown: e => {
       if (e.pointerType === 'mouse') return
+      down.current.add(e.pointerId)
+      if (down.current.size > 1) { start.current = null; return }
       start.current = { x: e.clientX, y: e.clientY }
       swiped.current = false
     },
     onPointerUp: e => {
+      down.current.delete(e.pointerId)
       const from = start.current
       start.current = null
       if (!from) return
@@ -44,7 +49,7 @@ export default function useSwipeNav(onSwipe) {
       setTimeout(() => { swiped.current = false }, 400)
       callback.current(dx < 0 ? 1 : -1)
     },
-    onPointerCancel: () => { start.current = null },
+    onPointerCancel: e => { down.current.delete(e.pointerId); start.current = null },
     onClickCapture: e => {
       if (!swiped.current) return
       e.stopPropagation()
