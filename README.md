@@ -23,7 +23,7 @@ Tap the **gear** at the bottom left, then **Import photos**. The system photo pi
 
 ## Wallpaper
 
-The calendar sits on a wallpaper. By default it is a frosted wash of peach and light pastel blue, a ready-made image (`public/wallpaper/default.jpg`, drawn once by `npm run default-wallpaper`). In the gear menu, **Set wallpaper** opens the photo picker and uses the photo you choose instead (**Change wallpaper** once one is set), and **Reset wallpaper** brings the default back. The wallpaper is shrunk to screen size and kept on the device like the photos.
+The calendar sits on a wallpaper. By default it is a frosted wash of peach and light pastel blue, a ready-made image (`public/wallpaper/default.jpg`, drawn once by `npm run default-wallpaper`). In the gear menu, **Set wallpaper** opens the photo picker and uses the photo you choose instead (**Change wallpaper** once one is set), and **Reset wallpaper** brings the default back. The wallpaper is shrunk to screen size and kept on the device like the photos (your photo in the Photos app is never changed). It always fills the whole screen without being stretched: it is scaled until it covers, and whatever does not fit is cropped, so the sides of a square photo run off the edges.
 
 The glass refracts the wallpaper, using Write-With-Nature's liquid glass, so it bends and blurs whatever is behind it. All text adapts to how dark the wallpaper is directly behind it: light text over dark areas, dark text over light areas, chosen separately for the calendar, the day view, the gear menu and the note under the calendar. A soft wash over the glass keeps text readable on busy photos.
 

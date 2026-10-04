@@ -34,6 +34,7 @@ async function decoded(url) {
  * @returns {{
  *   url: string|null,          URL for the CSS background, or null while a custom one is still loading
  *   image: HTMLImageElement|null,  decoded image for the glass: the preview first, then the full one
+ *   fullImage: HTMLImageElement|null,  the full image once it has loaded, else null (what the page paints)
  *   averageCss: string|null,   the wallpaper's average colour (known from the first frame)
  *   isDefault: boolean,        true while the frosted default is showing
  *   busy: boolean,
@@ -116,5 +117,5 @@ export default function useWallpaper() {
   }, [])
 
   // Until the full image is ready, hand the glass the decoded preview
-  return { ...wallpaper, image: wallpaper.image ?? preview, busy, notice, setFromFile, clear }
+  return { ...wallpaper, fullImage: wallpaper.image, image: wallpaper.image ?? preview, busy, notice, setFromFile, clear }
 }

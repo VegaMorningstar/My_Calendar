@@ -3,7 +3,7 @@
  * wallpaper settings) with the info button beside it.
  *
  * The calendar shows whatever photos the user has imported from their device,
- * on top of the wallpaper they chose (or the plain page colour).
+ * on top of the wallpaper they chose (or the frosted default), which is painted on the page root.
  */
 import { useEffect, useState } from 'react'
 import { PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
@@ -27,32 +27,54 @@ function useRunsUnderStatusBar() {
 }
 
 /**
- * The colour along the top edge of the wallpaper, kept up to date. iOS 26 tints the status bar
- * from the page's top edge and from the theme-color tag, and since 26.1 it will not draw the
- * page behind the bar in a Home Screen app, so matching that edge is the best way to make the
- * bar blend in. Returns a CSS colour, and also writes it to the theme-color meta tag.
+ * Paints the wallpaper on the page itself (the root element's background) and keeps the colours
+ * around it in step. Returns the colour along the top edge of the wallpaper.
+ *
+ * Why the root background and not a fixed <div> behind the content: on iPhone, a Home Screen app
+ * can report a page height a little shorter than the screen, and a fixed element is cut off at
+ * that height, leaving a bar of plain colour along the bottom (and a taller element does not help,
+ * it is clipped). The root background is painted across the whole screen whatever that height is.
+ *
+ * The image is sized like CSS `cover` but over a box 120px taller than the viewport
+ * (WALLPAPER_OVERSCAN_PX), anchored at the top, which is exactly the crop the glass refracts. So a
+ * square photo fills the height, and its sides run off the edges: it is cropped, never stretched.
+ *
+ * Also writes the top edge's colour to the theme-color tag (iOS tints the status bar from it),
+ * and remembers both edge colours for the next launch's early paint (see index.html).
  */
-function useTopEdgeColor(wallpaper) {
-  const [color, setColor] = useState(null)
+function usePageBackdrop(wallpaper) {
+  const [topColor, setTopColor] = useState(null)
   useEffect(() => {
-    if (!wallpaper.image) return
-    const update = () => {
-      const next = topEdgeColor()
-      setColor(next)
-      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next)
-      // The page behind the wallpaper takes the bottom edge's colour, so anything the wallpaper
-      // does not reach (the screen is briefly taller than the page on launch) blends in, not white
+    const { url, fullImage } = wallpaper
+    if (!url || !fullImage?.naturalWidth) return
+    const apply = () => {
+      const viewportW = window.innerWidth
+      const boxH = window.innerHeight + WALLPAPER_OVERSCAN_PX
+      const scale = Math.max(viewportW / fullImage.naturalWidth, boxH / fullImage.naturalHeight)
+      const w = fullImage.naturalWidth * scale
+      const h = fullImage.naturalHeight * scale
+      const top = topEdgeColor()
       const bottom = bottomEdgeColor()
-      document.documentElement.style.background = bottom
-      // Remember both edge colours for a custom wallpaper, so the next launch can tint the status
-      // bar and the page behind the wallpaper before anything has loaded (see index.html)
-      if (!wallpaper.isDefault) rememberWallpaperEdges(next, bottom)
+      // The image, then the bottom edge's colour behind it for anything it does not reach
+      document.documentElement.style.background =
+        `url("${url}") ${(viewportW - w) / 2}px ${(boxH - h) / 2}px / ${w}px ${h}px no-repeat, ${bottom}`
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', top)
+      setTopColor(top)
+      if (!wallpaper.isDefault) rememberWallpaperEdges(top, bottom)
     }
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [wallpaper.image, wallpaper.averageCss])
-  return color
+    apply()
+    // The blurred preview that index.html painted first fades out, uncovering the sharp image
+    const early = document.getElementById('early-wallpaper')
+    let timer
+    if (early) {
+      early.style.transition = 'opacity .5s ease'
+      early.style.opacity = '0'
+      timer = setTimeout(() => early.remove(), 600)
+    }
+    window.addEventListener('resize', apply)
+    return () => { clearTimeout(timer); window.removeEventListener('resize', apply) }
+  }, [wallpaper.url, wallpaper.fullImage, wallpaper.averageCss]) // eslint-disable-line react-hooks/exhaustive-deps
+  return topColor
 }
 
 export default function App() {
@@ -65,15 +87,8 @@ export default function App() {
     setBackgroundImage(wallpaper.image, wallpaper.averageCss)
   }, [wallpaper.image, wallpaper.averageCss])
 
-  // Once the full wallpaper has faded in, drop the blurred preview that index.html painted first
-  useEffect(() => {
-    if (!wallpaper.url) return
-    const timer = setTimeout(() => document.getElementById('early-wallpaper')?.remove(), 900)
-    return () => clearTimeout(timer)
-  }, [wallpaper.url])
-
-  // Declared after the effect above, so the glass already knows the wallpaper when this reads it
-  const topColor = useTopEdgeColor(wallpaper)
+  // Declared after the effect above, so the glass already knows the wallpaper when this reads its colours
+  const topColor = usePageBackdrop(wallpaper)
 
   return (
     <main className="stage">
@@ -81,9 +96,6 @@ export default function App() {
       {/* A thin strip in the wallpaper's top-edge colour, there for iOS to tint the status bar from.
           Only needed when the page cannot run under the bar; when it does, the strip would show as a band. */}
       {!underStatusBar && topColor && <div className="app-top-strip" style={{ background: topColor }} aria-hidden="true" />}
-      {wallpaper.url && (
-        <div className="app-wallpaper" key={wallpaper.url} style={{ backgroundImage: `url("${wallpaper.url}")`, height: `calc(100% + ${WALLPAPER_OVERSCAN_PX}px)` }} />
-      )}
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
