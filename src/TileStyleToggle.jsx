@@ -1,7 +1,7 @@
 /**
  * The button at the bottom right that switches the date boxes between the liquid glass tiles and
  * the plain boxes. It is a Write-With-Nature glass tile like the gear and the info button, and
- * its word names the style being shown now. The choice is remembered on the device.
+ * its word names the style a press switches to (it says "flat" while the glass tiles show). The choice is remembered on the device.
  */
 import { useRef } from 'react'
 import { BUTTON_MATERIAL, GlassButtons, usePageInk } from './photo-calendar/index.js'
@@ -42,7 +42,7 @@ export default function TileStyleToggle({ glass, onChange }) {
         <GlassButtons
           material={TOGGLE_MATERIAL}
           items={[{
-            key: 'tile-style', label: glass ? 'glass' : 'flat', width: TOGGLE_WIDTH,
+            key: 'tile-style', label: glass ? 'flat' : 'glass', width: TOGGLE_WIDTH,
             title: glass ? 'Switch to plain date boxes' : 'Switch to glass date tiles',
             onClick: toggle, fallbackClass: 'lib-info-btn',
             aria: { 'aria-pressed': glass },
