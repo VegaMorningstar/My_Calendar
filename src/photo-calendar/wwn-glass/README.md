@@ -14,8 +14,13 @@ entry point, `index.js`. The calendar imports only from that file.
 | `liquid-glass.js` | `src/lib/liquid-glass.js` (the CSS/SVG fallback) |
 | `theme.js`, `stars.js` | **Not WWN code.** Small stand-ins, see below |
 
-The WWN files are copies. Apart from the import lines listed below, and the
-removal of em dashes from comments, they are unchanged.
+The WWN files are copies. Apart from the import lines listed below, the removal
+of em dashes from comments, and one local addition (below), they are unchanged.
+
+**Local addition:** an optional font family for the text drawn inside glass tiles.
+`glass-alphabet/backdrop.js` reads `style.family` and `glass-buttons/GlassButtons.jsx`
+passes `material.letterFamily`; both are marked `LOCAL CHANGE`. Left unset, the font is
+WWN's Playfair Display exactly as before.
 
 ## The two seams
 

@@ -107,7 +107,8 @@ export function createTileBackdrop() {
     letterCtx.clearRect(0, 0, letters.width, letters.height)
     letterCtx.save()
     letterCtx.scale(letters.width / rect.width, letters.height / rect.height)
-    letterCtx.font = `${style.weight} ${style.size}px 'Playfair Display', Georgia, serif`
+    // LOCAL CHANGE (calendar): an optional `style.family`; WWN's own font stays the default
+    letterCtx.font = `${style.weight} ${style.size}px ${style.family ?? "'Playfair Display', Georgia, serif"}`
     letterCtx.textAlign = 'center'
     letterCtx.textBaseline = 'middle'
     for (const g of glyphs) {

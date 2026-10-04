@@ -289,6 +289,7 @@ export default function GlassButtons({
             size: mm.letterSize,
             weight: mm.letterWeight,
             opacity: mm.letterOpacity,
+            family: mm.letterFamily, // LOCAL CHANGE (calendar): optional font family
           })
         }
 
