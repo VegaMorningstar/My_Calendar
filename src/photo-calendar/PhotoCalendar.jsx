@@ -14,6 +14,7 @@
  *   initialDate   Date whose month opens first (default: today)
  *   weekStartsOn  0 = Sunday (default) ... 6 = Saturday
  *   rotateMs      average time each photo stays up on a multi-photo day
+ *   liquidTiles   draw the date boxes as WWN liquid glass tiles (default true; CSS boxes without WebGPU)
  *   className     extra class on the root element
  */
 import { useMemo, useRef, useState } from 'react'
@@ -37,6 +38,7 @@ export default function PhotoCalendar({
   initialDate,
   weekStartsOn = 0,
   rotateMs = 5000,
+  liquidTiles = true,
   className = '',
 }) {
   const panelRef = useRef(null)
@@ -112,6 +114,7 @@ export default function PhotoCalendar({
             rotateMs={rotateMs}
             pageInk={pageInk}
             anim={anim}
+            liquidTiles={liquidTiles}
             onOpenDay={day => setOpenDay({ year: view.y, month: view.m, day })}
           />
         )}

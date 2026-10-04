@@ -17,7 +17,7 @@ entry point, `index.js`. The calendar imports only from that file.
 The WWN files are copies. Apart from the import lines listed below, the removal
 of em dashes from comments, and one local addition (below), they are unchanged.
 
-**Local addition:** an optional font family for the text drawn inside glass tiles.
+**Local additions:** (1) the tile shader's highlight is faded out over the flat body (`glass-alphabet/scene.ts`, marked `LOCAL CHANGE`), so only the bevel catches it and the middle of the glass stays clear. (2) An optional font family for the text drawn inside glass tiles.
 `glass-alphabet/backdrop.js` reads `style.family` and `glass-buttons/GlassButtons.jsx`
 passes `material.letterFamily`; both are marked `LOCAL CHANGE`. Left unset, the font is
 WWN's Playfair Display exactly as before.

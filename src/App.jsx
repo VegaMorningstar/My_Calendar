@@ -8,6 +8,7 @@
 import { useEffect, useState } from 'react'
 import { viewportDeficit } from './diagnostics.js'
 import { PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
+import TileStyleToggle, { initialGlassTiles } from './TileStyleToggle.jsx'
 import { LibraryHint, LibraryNote, SettingsMenu, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
 /**
@@ -89,6 +90,8 @@ export default function App() {
   const library = usePhotoLibrary()
   const underStatusBar = useRunsUnderStatusBar()
   const wallpaper = useWallpaper()
+  // Glass date tiles or the plain boxes; the button at the bottom right switches (see TileStyleToggle)
+  const [glassTiles, setGlassTiles] = useState(initialGlassTiles)
 
   // The glass refracts the wallpaper, not just the page colour, so it is told about it too
   useEffect(() => {
@@ -110,13 +113,14 @@ export default function App() {
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
-          <PhotoCalendar photos={library.photos} />
+          <PhotoCalendar photos={library.photos} liquidTiles={glassTiles} />
           <LibraryHint library={library} />
         </div>
       </div>
       <div className="stage-footer">
         <SettingsMenu library={library} wallpaper={wallpaper} />
         <LibraryNote />
+        <TileStyleToggle glass={glassTiles} onChange={setGlassTiles} />
       </div>
     </main>
   )

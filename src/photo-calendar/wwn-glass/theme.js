@@ -18,7 +18,9 @@ const state = {
   version: 0,
   tokens: {
     paperBase: bodyColour(),
-    fluidBlend: 'multiply',
+    // WWN draws its fluid cursor over the paper with this blend. The calendar has no fluid cursor; the same
+    // layer carries the day photos for the glass date tiles (glass-tiles/photoLayer.js), which must simply sit on top.
+    fluidBlend: 'source-over',
     paperGradients: false, // WWN's colour washes; this page is flat
     stars: false,
     buttonGlyph: null,

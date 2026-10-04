@@ -112,3 +112,25 @@
   .lib-note { padding: 8px 12px; }
   .lib-menu-wrap { bottom: calc(100% + 2px); }
 }
+
+/* ── The tile style button: a glass tile at the bottom right, level with the gear and the info button ── */
+.lib-style {
+  --lib-ink: 28, 26, 16; --lib-hi: 255, 255, 255;
+  margin-left: auto; flex: none;
+  font-family: 'DM Mono', ui-monospace, monospace; color: rgb(var(--lib-ink));
+}
+/* GlassButtons pads its canvas; this tucks the tile toward the corner without clipping it */
+.lib-style-slot { line-height: 0; margin: -8px 0 -8px 0; }
+
+/* A phone upright: three buttons and the note do not fit in one row, so the note opens as a card above them */
+@media (max-width: 560px) and (orientation: portrait) {
+  .lib-info { position: relative; }
+  .lib-note-wrap {
+    position: absolute; left: -36px; bottom: calc(100% + 10px); z-index: 8;
+    border-radius: 12px; background: rgba(var(--lib-hi), .78);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  }
+  .lib-note-open { box-shadow: 0 6px 18px rgba(60, 40, 15, .2); }
+  .lib-note { padding: 8px 12px; }
+  .lib-info { --lib-note-w: min(300px, calc(100vw - 40px)); }
+}

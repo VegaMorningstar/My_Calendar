@@ -1,6 +1,7 @@
 /** One month page: the weekday row above a grid of day cells. */
 import { useRef } from 'react'
 import DayCell from './DayCell.jsx'
+import GlassTileGrid from '../glass-tiles/GlassTileGrid.jsx'
 import usePageInk, { inkVars } from '../hooks/usePageInk.js'
 import { FULL_WEEKDAYS, MONTHS, WEEKDAYS, dateKey, monthCells, weekdayLabels } from '../lib/dates.js'
 import '../styles/month.css'
@@ -14,17 +15,18 @@ import '../styles/month.css'
  * @param {number} rotateMs       photo rotation interval for the cells
  * @param {*}      pageInk        passed through so photo text re-samples on a colour change
  * @param {string} anim           entry animation name, see useCalendarView
+ * @param {boolean} liquidTiles   draw the date boxes as WWN liquid glass tiles (falls back to CSS boxes without WebGPU)
  * @param {Function} onOpenDay    (day:number) => void
  */
-export default function MonthView({ year, month, weekStartsOn, byDate, todayKey, rotateMs, pageInk, anim, onOpenDay }) {
+export default function MonthView({ year, month, weekStartsOn, byDate, todayKey, rotateMs, pageInk, anim, liquidTiles, onOpenDay }) {
   return (
     <>
       <div className="pc-weekdays" aria-hidden="true">
         {weekdayLabels(weekStartsOn).map(w => <WeekdayLabel key={w} name={w} />)}
       </div>
 
-      {/* Keyed by month so every page change replays the entry animation */}
-      <div className={`pc-grid pc-in-${anim}`} key={`${year}-${month}`}>
+      {/* The grid stays mounted across months (its glass canvas is expensive to rebuild); animKey replays the entry animation */}
+      <GlassTileGrid className={`pc-grid pc-in-${anim}`} animKey={`${year}-${month}-${anim}`} enabled={liquidTiles}>
         {monthCells(year, month, weekStartsOn).map((day, i) => {
           if (day === null) return <div key={`blank-${i}`} className="pc-blank" />
           const key = dateKey(year, month, day)
@@ -43,7 +45,7 @@ export default function MonthView({ year, month, weekStartsOn, byDate, todayKey,
             />
           )
         })}
-      </div>
+      </GlassTileGrid>
     </>
   )
 }

@@ -566,7 +566,10 @@ export async function setupTileGlass(
     const halfVector = std.normalize(paramsUniform.$.lightDir.add(d.vec3f(0, 0, 1)));
     const specular =
       std.saturate(std.dot(normal, halfVector)) ** std.max(paramsUniform.$.specularPower, 1) *
-      paramsUniform.$.specularStrength * cover;
+      paramsUniform.$.specularStrength * cover *
+      // LOCAL CHANGE (calendar): nothing on the flat body. Without this the body, whose normal faces
+      // the viewer, still catches a faint sheen that frosts whatever is seen through the glass centre.
+      std.smoothstep(0.04, 0.3, edgeRamp);
 
     return d.vec4f(
       glass

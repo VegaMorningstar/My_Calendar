@@ -7,7 +7,9 @@
  * date and weekday, and its text colour follows the brightness of the wallpaper
  * directly behind that one box.
  */
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
+import { todayTint } from '../glass-tiles/GlassTileGrid.jsx'
+import { useGlassTile } from '../glass-tiles/tilesContext.js'
 import usePageInk, { namedInkVars } from '../hooks/usePageInk.js'
 import usePhotoRotation from '../hooks/usePhotoRotation.js'
 import usePhotoInk from '../hooks/usePhotoInk.js'
@@ -36,12 +38,38 @@ export default function DayCell({ day, weekday, fullLabel, srcs, isToday, rotate
   const numInk = usePageInk(cellRef, n === 0, NUMBER_SPOT)
   const dowInk = usePageInk(cellRef, n === 0, WEEKDAY_SPOT)
   const index = usePhotoRotation(n, rotateMs)
+
+  // For the glass tiles: the photo elements, and a crossfade clock, so the glass can draw the same fade the CSS does
+  const imgRefs = useRef([])
+  const prevIndex = useRef(index)
+  const fade = useRef({ from: -1, to: index, t0: 0 })
+  useEffect(() => {
+    if (prevIndex.current !== index) {
+      fade.current = { from: prevIndex.current, to: index, t0: performance.now() }
+      prevIndex.current = index
+    }
+  }, [index])
   const inkVars = usePhotoInk(srcs[index], pageInk)
   const today = isToday ? ' pc-today' : ''
 
+  useGlassTile(cellRef, {
+    label: String(day),
+    tint: isToday ? todayTint : undefined,
+    getLayers: () => {
+      const f = fade.current
+      const t = Math.min(1, (performance.now() - f.t0) / 800)
+      const ready = i => imgRefs.current[i]?.complete && imgRefs.current[i].naturalWidth > 0
+      const layers = []
+      const fading = f.from >= 0 && t < 1
+      if (fading && ready(f.from)) layers.push({ img: imgRefs.current[f.from], alpha: 1 })
+      if (ready(f.to)) layers.push({ img: imgRefs.current[f.to], alpha: fading ? t : 1 })
+      return layers
+    },
+  })
+
   if (n === 0) {
     return (
-      <div className={`pc-day pc-empty${today}`} ref={cellRef} style={{ ...namedInkVars('num', numInk), ...namedInkVars('dow', dowInk) }}>
+      <div className={`pc-day pc-empty${today}`} data-glass-tile="" ref={cellRef} style={{ ...namedInkVars('num', numInk), ...namedInkVars('dow', dowInk) }}>
         <span className="pc-num">{day}</span>
         <span className="pc-dow">{weekday}</span>
       </div>
@@ -52,6 +80,8 @@ export default function DayCell({ day, weekday, fullLabel, srcs, isToday, rotate
   return (
     <button
       type="button"
+      ref={cellRef}
+      data-glass-tile=""
       className={`pc-day pc-photo${today}`}
       style={inkVars || undefined}
       onClick={onOpen}
@@ -59,7 +89,7 @@ export default function DayCell({ day, weekday, fullLabel, srcs, isToday, rotate
     >
       {/* All photos are stacked and crossfaded, so the swap never flashes */}
       {srcs.map((src, i) => (
-        <img key={src} src={src} alt="" className={i === index ? 'on' : ''} loading="lazy" decoding="async" draggable="false" />
+        <img key={src} ref={el => { imgRefs.current[i] = el }} src={src} alt="" className={i === index ? 'on' : ''} loading="lazy" decoding="async" draggable="false" />
       ))}
       <span className="pc-num">{day}</span>
       <span className="pc-dow">{weekday}</span>

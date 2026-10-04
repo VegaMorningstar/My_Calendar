@@ -37,8 +37,8 @@ body {
 /* Holds the calendar and positions its hint below it */
 .stage-calendar { position: relative; width: 100%; display: flex; justify-content: center; }
 
-/* The gear and the info button sit side by side at the bottom left */
-.stage-footer { align-self: flex-start; max-width: 100%; margin-top: 12px; position: relative; z-index: 5; display: flex; align-items: center; gap: 2px; }
+/* The gear and the info button sit side by side at the bottom left; the tile style button is pushed to the right end (see library-ui.css) */
+.stage-footer { align-self: stretch; max-width: 100%; margin-top: 12px; position: relative; z-index: 5; display: flex; align-items: center; gap: 2px; }
 
 
 /*

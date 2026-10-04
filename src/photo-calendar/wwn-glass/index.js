@@ -14,6 +14,18 @@ export { default as GlassButtons } from './glass-buttons/GlassButtons.jsx'
 export { BUTTON_MATERIAL } from './glass-buttons/constants.ts'
 export { liquidGlass } from './liquid-glass.js'
 
+// The tile glass behind WWN's glass alphabet, for the calendar's date tiles: the springs, the shader
+// setup and its backdrop painter. The shader is WebGPU code, so it is loaded only when asked for.
+export { Spring } from './glass-alphabet/spring.ts'
+export { squashProperties, liftProperties, POINTER_DEFAULTS } from './glass-alphabet/constants.ts'
+export const loadTileGlass = async () => {
+  const [{ setupTileGlass }, { createTileBackdrop }] = await Promise.all([
+    import('./glass-alphabet/scene.ts'),
+    import('./glass-alphabet/backdrop.js'),
+  ])
+  return { setupTileGlass, createTileBackdrop }
+}
+
 // WWN's glyph material, which carries the adaptive-ink band the calendar reuses
 export { MATERIAL_DEFAULTS } from './glass-alphabet/constants.ts'
 
