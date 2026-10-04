@@ -3,7 +3,7 @@
 html, body { margin: 0; min-height: 100%; }
 body {
   /* Shows for the instant before the default wallpaper is drawn, so there is no beige flash */
-  background: linear-gradient(135deg, #b99bf5 0%, #8fbaff 38%, #ffb27a 70%, #ffdc70 100%);
+  background: linear-gradient(135deg, #9cc6f7 0%, #c9defa 42%, #ffcaa6 78%, #ffbd94 100%);
   background-attachment: fixed;
   min-height: 100vh;
   min-height: 100dvh; /* the visible height on iOS, with the Safari toolbar showing */
@@ -32,10 +32,13 @@ body {
 /* The gear sits at the top left, above the calendar */
 .stage-toolbar { align-self: flex-start; margin-bottom: 12px; position: relative; z-index: 5; }
 
-/* The calendar and the note stack in one centred column */
-.stage-column { width: min(980px, 100%); display: flex; flex-direction: column; align-items: center; }
+/* The calendar and its hint stack in one centred column that takes the space between the gear and the info button */
+.stage-column { width: min(980px, 100%); flex: 1 1 auto; display: flex; flex-direction: column; align-items: center; }
+
+/* The info button sits at the bottom left, mirroring the gear at the top left */
+.stage-footer { align-self: flex-start; margin-top: 12px; position: relative; z-index: 5; }
 
 @media (min-width: 900px) {
-  /* On larger screens the column is centred vertically */
-  .stage-column { margin-block: auto; }
+  /* On larger screens the calendar is centred vertically between the gear and the info button */
+  .stage-column { justify-content: center; }
 }

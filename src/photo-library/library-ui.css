@@ -57,28 +57,36 @@
 .lib-item-danger { color: rgb(var(--lib-burgundy)); }
 .lib-item-danger:hover { background: rgba(var(--lib-burgundy), .16); }
 
-/* ── Under the calendar: a hint, an info button, and a note that slides open ── */
-.lib-footer {
+/* ── Hint under the calendar ── */
+.lib-hint {
   --lib-ink: 28, 26, 16; --lib-hi: 255, 255, 255;
-  width: min(980px, 100%); margin-top: 8px; display: grid; justify-items: center;
+  margin: 14px 0 0; font: .8rem 'DM Mono', ui-monospace, monospace; text-align: center;
+  color: rgb(var(--lib-ink)); text-shadow: 0 1px 0 rgba(var(--lib-hi), .6);
+}
+
+/* ── Info button (bottom left) with a note that slides open beside it ── */
+.lib-info {
+  --lib-ink: 28, 26, 16; --lib-hi: 255, 255, 255;
+  display: flex; align-items: center; gap: 6px;
   font-family: 'DM Mono', ui-monospace, monospace; color: rgb(var(--lib-ink));
   text-shadow: 0 1px 0 rgba(var(--lib-hi), .6);
 }
-.lib-hint { margin: 8px 0 0; font-size: .8rem; text-align: center; }
+/* GlassButtons pads its canvas; this tucks the tile toward the corner without clipping it */
+.lib-info-slot { line-height: 0; margin: -8px 0 -8px -4px; flex: none; }
 
 /* The info button's CSS fallback (without WebGPU); the glass tile replaces it otherwise */
 .lib-info-btn {
-  appearance: none; cursor: pointer; border-radius: 50%; padding: 0; font: italic 1.1rem 'Playfair Display', Georgia, serif;
+  appearance: none; cursor: pointer; border-radius: 18px; padding: 0 14px; font: italic .95rem 'Playfair Display', Georgia, serif;
   display: grid; place-items: center; color: rgb(var(--lib-ink));
   border: 1px solid rgba(255,255,255,.7);
   background: linear-gradient(145deg, rgba(255,255,255,.55), rgba(255,255,255,.12));
   box-shadow: -2px -2px 6px rgba(255,255,255,.6), 3px 4px 10px rgba(90,64,28,.16), inset 1px 1px 3px rgba(255,255,255,.7);
 }
 
-/* Height animates between 0 and its content using a grid row; the inner paragraph clips */
+/* Slides open sideways: the width animates from 0, and the paragraph keeps a fixed width so it never reflows */
 .lib-note-wrap {
-  display: grid; grid-template-rows: 0fr; opacity: 0; max-width: min(560px, 100%);
-  transition: grid-template-rows .32s cubic-bezier(.2, .8, .2, 1), opacity .25s ease;
+  max-width: 0; opacity: 0; overflow: hidden;
+  transition: max-width .38s cubic-bezier(.2, .8, .2, 1), opacity .25s ease;
 }
-.lib-note-open { grid-template-rows: 1fr; opacity: 1; }
-.lib-note { margin: 0; overflow: hidden; min-height: 0; font-size: .76rem; line-height: 1.5; text-align: center; }
+.lib-note-open { max-width: min(420px, calc(100vw - 96px)); opacity: 1; }
+.lib-note { margin: 0; width: min(420px, calc(100vw - 96px)); font-size: .76rem; line-height: 1.5; }

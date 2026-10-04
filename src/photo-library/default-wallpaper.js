@@ -1,13 +1,13 @@
 /**
- * The default wallpaper: a frosted wash of purple, blue, orange and yellow,
- * drawn on a canvas so there is no image file to ship.
+ * The default wallpaper: a frosted wash of peach and light pastel blue, drawn on
+ * a canvas so there is no image file to ship.
  *
  * It goes through exactly the same path as a photo the user picks: the page shows
  * it, the glass refracts it, and the text colours are chosen against it.
  *
- * Rich, soft colour fields, a light haze over the middle and a fine grain give the
- * frosted look. The colours sit near the corners so a phone (tall, so the sides are
- * cropped) and a laptop (wide) both show all four.
+ * Soft colour fields, a light haze over the middle and a fine grain give the
+ * frosted look. The two colours alternate around the corners so a phone (tall, so
+ * the sides are cropped) and a laptop (wide) both show both.
  */
 
 /** Size of the square canvas, in px. The page crops it to cover the screen. */
@@ -15,12 +15,13 @@ const SIZE = 1400
 
 /** [centre x, centre y, radius] as fractions of SIZE, and the colour (r, g, b). */
 const FIELDS = [
-  [0.2, 0.22, 0.7, [140, 80, 245]], // purple, top left
-  [0.82, 0.2, 0.62, [45, 130, 255]], // blue, top right
-  [0.22, 0.82, 0.66, [255, 118, 40]], // orange, bottom left
-  [0.82, 0.8, 0.6, [255, 204, 35]], // yellow, bottom right
+  [0.16, 0.2, 0.72, [150, 198, 250]], // pastel blue, top left
+  [0.86, 0.22, 0.62, [255, 183, 142]], // peach, top right
+  [0.18, 0.84, 0.66, [255, 180, 138]], // peach, bottom left
+  [0.84, 0.82, 0.62, [152, 200, 250]], // pastel blue, bottom right
+  [0.5, 0.52, 0.5, [255, 205, 175]], // a peach bridge through the middle
 ]
-const BASE = '#e4d8fb'
+const BASE = '#f4ece6'
 
 let cached = null
 
@@ -57,8 +58,8 @@ export function makeDefaultWallpaper() {
     const x = cx * SIZE
     const y = cy * SIZE
     const grad = ctx.createRadialGradient(x, y, 0, x, y, radius * SIZE)
-    grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 1)`)
-    grad.addColorStop(0.6, `rgba(${r}, ${g}, ${b}, 0.62)`)
+    grad.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.95)`)
+    grad.addColorStop(0.6, `rgba(${r}, ${g}, ${b}, 0.55)`)
     grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`)
     ctx.fillStyle = grad
     ctx.fillRect(0, 0, SIZE, SIZE)
@@ -66,8 +67,8 @@ export function makeDefaultWallpaper() {
 
   // Frost: a pale haze, brighter in the middle, then fine grain
   const haze = ctx.createRadialGradient(SIZE / 2, SIZE / 2, 0, SIZE / 2, SIZE / 2, SIZE * 0.6)
-  haze.addColorStop(0, 'rgba(255, 255, 255, 0.2)')
-  haze.addColorStop(1, 'rgba(255, 255, 255, 0.03)')
+  haze.addColorStop(0, 'rgba(255, 255, 255, 0.26)')
+  haze.addColorStop(1, 'rgba(255, 255, 255, 0.06)')
   ctx.fillStyle = haze
   ctx.fillRect(0, 0, SIZE, SIZE)
   ctx.globalCompositeOperation = 'soft-light'

@@ -23,7 +23,7 @@ Tap the **gear** at the top left, then **Import photos**. The system photo picke
 
 ## Wallpaper
 
-The calendar sits on a wallpaper. By default it is a frosted wash of purple, blue, orange and yellow, drawn by the app (`src/photo-library/default-wallpaper.js`). In the gear menu, **Set wallpaper** opens the photo picker and uses the photo you choose instead (**Change wallpaper** once one is set), and **Reset wallpaper** brings the default back. The wallpaper is shrunk to screen size and kept on the device like the photos.
+The calendar sits on a wallpaper. By default it is a frosted wash of peach and light pastel blue, drawn by the app (`src/photo-library/default-wallpaper.js`). In the gear menu, **Set wallpaper** opens the photo picker and uses the photo you choose instead (**Change wallpaper** once one is set), and **Reset wallpaper** brings the default back. The wallpaper is shrunk to screen size and kept on the device like the photos.
 
 The glass refracts the wallpaper, using Write-With-Nature's liquid glass, so it bends and blurs whatever is behind it. All text adapts to how dark the wallpaper is directly behind it: light text over dark areas, dark text over light areas, chosen separately for the calendar, the day view, the gear menu and the note under the calendar. A soft wash over the glass keeps text readable on busy photos.
 
