@@ -7,7 +7,7 @@ import { useRef } from 'react'
 import { GlassButtons } from '../wwn-glass/index.js'
 import usePageInk, { inkVars } from '../hooks/usePageInk.js'
 import { MONTHS, photoCountLabel } from '../lib/dates.js'
-import { NAV_MATERIAL, TEAL_TINT, YEAR_BUTTON_WIDTH } from '../lib/glass-config.js'
+import { NAV_MATERIAL, ORANGE_TINT, TEAL_TINT, YEAR_BUTTON_WIDTH } from '../lib/glass-config.js'
 
 /**
  * @param {{y:number, m:number}} view  the month or year on screen
@@ -27,7 +27,7 @@ export default function CalendarHeader({ view, isYear, photoCount, onStep, onTog
     {
       key: 'zoom', label: String(view.y), width: YEAR_BUTTON_WIDTH,
       title: isYear ? 'Zoom in to a month' : 'Zoom out to the year',
-      onClick: onToggleZoom, fallbackClass: 'pc-round pc-wide',
+      onClick: onToggleZoom, fallbackClass: 'pc-round pc-wide pc-orange', tint: ORANGE_TINT,
     },
     { key: 'prev', label: '←', title: `Previous ${noun}`, onClick: () => onStep(-1), fallbackClass: 'pc-round' },
     { key: 'next', label: '→', title: `Next ${noun}`, onClick: () => onStep(1), fallbackClass: 'pc-round pc-teal', tint: TEAL_TINT },

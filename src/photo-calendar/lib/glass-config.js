@@ -23,6 +23,9 @@ export const YEAR_BUTTON_WIDTH = 76
 /** Teal cast over the next button, same shape as WWN's SAVE_TINT. */
 export const TEAL_TINT = { r: 0x3c / 255, g: 0xb4 / 255, b: 0xaa / 255, strength: 0.2 }
 
+/** A slight orange cast over the year button. */
+export const ORANGE_TINT = { r: 0xff / 255, g: 0x96 / 255, b: 0x3c / 255, strength: 0.24 }
+
 /** Burgundy cast over the close button. */
 export const BURGUNDY_TINT = { r: 0x80 / 255, g: 0x1c / 255, b: 0x3a / 255, strength: 0.34 }
 
