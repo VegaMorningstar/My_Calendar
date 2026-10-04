@@ -37,9 +37,9 @@ const TILE_MATERIAL = {
   // not a blend) matches how every other piece of text in the calendar chooses its colour.
   inkLumLo: 0.42,
   inkLumHi: 0.5,
-  // A light body and a soft highlight along the bevel: over a smooth wallpaper there is nothing for the rim
-  // to bend, and without these the tiles would be nearly invisible
-  tintR: 1, tintG: 1, tintB: 1, tintStrength: 0.12,
+  // No tint: the body of an empty tile is clear glass, the wallpaper seen straight through it. The tile
+  // is made visible by the bevel alone, a bright highlight along the rim (the shader fades it out over the body).
+  tintR: 1, tintG: 1, tintB: 1, tintStrength: 0,
   specularStrength: 0.8, specularPower: 20,
 }
 
