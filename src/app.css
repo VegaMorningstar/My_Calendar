@@ -42,14 +42,11 @@ body {
 /*
  * The installed app runs under the iPhone status bar (see the status-bar-style meta tag in
  * index.html). iOS draws that text in white, which a pale wallpaper would swallow, so a soft
- * dark fade sits behind it. It exists only in the installed app; in a browser tab there is no
- * status bar of ours to protect.
+ * dark fade sits behind it. App.jsx only renders it when the page really runs under the status
+ * bar (top safe-area inset above 0); anywhere else it would sit on the page and tint the bar.
  */
-.app-status-scrim { display: none; }
-@media (display-mode: standalone) {
-  .app-status-scrim {
-    display: block; position: fixed; top: 0; left: 0; right: 0; z-index: 2; pointer-events: none;
-    height: calc(env(safe-area-inset-top) + 26px);
-    background: linear-gradient(to bottom, rgba(0, 0, 0, .34), rgba(0, 0, 0, 0));
-  }
+.app-status-scrim {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 2; pointer-events: none;
+  height: calc(env(safe-area-inset-top) + 26px);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .34), rgba(0, 0, 0, 0));
 }
