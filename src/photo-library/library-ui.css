@@ -96,3 +96,19 @@
 }
 .lib-note-open { max-width: var(--lib-note-w); opacity: 1; }
 .lib-note { margin: 0; width: var(--lib-note-w); font-size: .76rem; line-height: 1.5; }
+
+/* A phone on its side: the gear and info button are a column on the left, so the note opens as a
+   small card beside the info button rather than stretching a row (see app.css) */
+@media (orientation: landscape) and (max-height: 520px) {
+  .lib-info { position: relative; --lib-note-w: 260px; }
+  /* The tile sits at the screen's left edge in this layout, so it must not be pulled past it (that clips its glass rim) */
+  .lib-info-slot { margin-left: -4px; }
+  .lib-note-wrap {
+    position: absolute; left: calc(100% + 4px); bottom: 2px; z-index: 8;
+    border-radius: 12px; background: rgba(var(--lib-hi), .78);
+    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  }
+  .lib-note-open { box-shadow: 0 6px 18px rgba(60, 40, 15, .2); }
+  .lib-note { padding: 8px 12px; }
+  .lib-menu-wrap { bottom: calc(100% + 2px); }
+}

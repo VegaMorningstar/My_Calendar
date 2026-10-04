@@ -83,3 +83,14 @@
   .pc-gallery { grid-template-columns: repeat(3, 1fr); gap: 2px; }
   .pc-thumb { border-radius: 3px; }
 }
+
+/* A phone on its side: a tighter header so the photos get the height (see compact.css) */
+@media (orientation: landscape) and (max-height: 520px) {
+  .pc-overlay { padding: 8px max(12px, env(safe-area-inset-left)) 8px max(12px, env(safe-area-inset-right)); }
+  .pc-sheet { --pc-panel-r: 22px; }
+  .pc-sheet-scroll { padding: 12px 18px; }
+  .pc-detail-head { margin-bottom: 8px; }
+  .pc-detail-dow { font-size: 1.8rem; }
+  .pc-detail-date { margin-top: 2px; font-size: 1rem; }
+  .pc-detail-meta { margin-top: 4px; font-size: .62rem; }
+}

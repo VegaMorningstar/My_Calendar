@@ -7,7 +7,8 @@ import { useRef } from 'react'
 import { GlassButtons } from '../wwn-glass/index.js'
 import usePageInk, { inkVars } from '../hooks/usePageInk.js'
 import { MONTHS, photoCountLabel } from '../lib/dates.js'
-import { NAV_MATERIAL, TEAL_TINT, YEAR_BUTTON_WIDTH } from '../lib/glass-config.js'
+import useMediaQuery from '../hooks/useMediaQuery.js'
+import { COMPACT_NAV_MATERIAL, COMPACT_QUERY, COMPACT_YEAR_BUTTON_WIDTH, NAV_MATERIAL, TEAL_TINT, YEAR_BUTTON_WIDTH } from '../lib/glass-config.js'
 
 /**
  * @param {{y:number, m:number}} view  the month or year on screen
@@ -18,6 +19,7 @@ import { NAV_MATERIAL, TEAL_TINT, YEAR_BUTTON_WIDTH } from '../lib/glass-config.
  */
 export default function CalendarHeader({ view, isYear, photoCount, onStep, onToggleZoom }) {
   const noun = isYear ? 'year' : 'month'
+  const compact = useMediaQuery(COMPACT_QUERY) // a phone on its side: smaller buttons
   const titleRef = useRef(null)
   const titleInk = usePageInk(titleRef) // the title's colour follows what is behind the title
 
@@ -25,7 +27,7 @@ export default function CalendarHeader({ view, isYear, photoCount, onStep, onTog
   // plain-CSS fallback class for browsers without WebGPU.
   const items = [
     {
-      key: 'zoom', label: String(view.y), width: YEAR_BUTTON_WIDTH,
+      key: 'zoom', label: String(view.y), width: compact ? COMPACT_YEAR_BUTTON_WIDTH : YEAR_BUTTON_WIDTH,
       title: isYear ? 'Zoom in to a month' : 'Zoom out to the year',
       onClick: onToggleZoom, fallbackClass: 'pc-round pc-wide',
     },
@@ -47,7 +49,7 @@ export default function CalendarHeader({ view, isYear, photoCount, onStep, onTog
         <span className="pc-count">{photoCountLabel(photoCount)}</span>
       </div>
       <nav className="pc-nav">
-        <GlassButtons items={items} material={NAV_MATERIAL} />
+        <GlassButtons items={items} material={compact ? COMPACT_NAV_MATERIAL : NAV_MATERIAL} />
       </nav>
     </header>
   )

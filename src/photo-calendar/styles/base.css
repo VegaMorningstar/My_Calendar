@@ -13,6 +13,9 @@
   --pc-burgundy: 128, 28, 58;
   --pc-gap: 8px;
   --pc-radius: 14px;
+  /* Tallest a date box may be: six rows must fit the screen's height after the header, padding and
+     the buttons below (about 340px). On a wide, short window the boxes get wider than tall, not taller. */
+  --pc-tile-max: max(44px, calc((100dvh - 340px) / 6));
   --pc-serif: 'Playfair Display', Georgia, serif;
   --pc-mono: 'DM Mono', ui-monospace, monospace;
 

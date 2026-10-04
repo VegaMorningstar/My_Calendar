@@ -14,6 +14,10 @@ export const NAV_MATERIAL = {
   letterFamily: "'Times New Roman', Times, serif",
 }
 
+/** A phone on its side is short, so the header buttons shrink: smaller tiles and text. */
+export const COMPACT_NAV_MATERIAL = { ...NAV_MATERIAL, size: 30, radius: 15, edge: 6, letterSize: 14 }
+export const COMPACT_YEAR_BUTTON_WIDTH = 58
+
 /** The close button's material: a larger glyph, since the multiplication sign is small. */
 export const CLOSE_MATERIAL = { ...NAV_MATERIAL, letterSize: 32 }
 
@@ -28,3 +32,6 @@ export const BURGUNDY_TINT = { r: 0x80 / 255, g: 0x1c / 255, b: 0x3a / 255, stre
 
 /** Options for WWN's CSS glass, used only where WebGPU is missing. */
 export const PANEL_FALLBACK = { scale: -60, chroma: 4, blur: 6, saturate: 1.25, aberrationIntensity: 4, elasticity: 0 }
+
+/** The media query for a phone held on its side: wide but short. The calendar switches to a compact layout. */
+export const COMPACT_QUERY = '(orientation: landscape) and (max-height: 520px)'

@@ -64,6 +64,10 @@ The build uses relative URLs (`base: './'`), so it works from that project path,
 
 The layout responds to the calendar's own width rather than the screen's, using container queries. On a laptop it is a wide grid with weekday names in each cell; on an iPad it scales down; on an iPhone the header stacks, the year view drops to two columns, and the day view becomes a near full-screen sheet with a two-column photo layout. The page respects the iPhone notch and home indicator when installed.
 
+## Phone on its side
+
+In landscape a phone is wide but short, so the calendar switches to a compact layout that fits the screen with no scrolling: a one-line header with smaller glass buttons, date boxes that stretch to share the height (wider than tall), the weekday names left out of the boxes, the gear and info button in a column on the left, the year view as six months across and two down, and a tighter day view. On any wide, short window (such as a laptop with a small browser window) the date boxes also get shorter, so six rows always fit the height. The rules are in `src/photo-calendar/styles/compact.css` and `src/app.css`.
+
 ## What it does
 
 - Month pages with real calendar dates, stepped with the glass arrows or the arrow keys, or by swiping: a finger swipe left or right on a phone, or a two-finger sideways swipe on a laptop trackpad while the pointer is over the calendar (left is next, right is previous; in year view it steps the year).

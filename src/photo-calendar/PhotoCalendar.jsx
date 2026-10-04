@@ -30,6 +30,7 @@ import useTrackpadSwipe from './hooks/useTrackpadSwipe.js'
 import { MONTHS, countInMonth, dateKey, fullSources, groupByDate } from './lib/dates.js'
 import { PANEL_FALLBACK } from './lib/glass-config.js'
 import './styles/base.css'
+import './styles/compact.css'
 
 export default function PhotoCalendar({
   photos = [],

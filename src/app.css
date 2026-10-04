@@ -72,3 +72,23 @@ body {
   transition: background .5s ease;
 }
 @media (display-mode: standalone) { .app-top-strip { display: block; } }
+
+/*
+ * A phone on its side (landscape, under 520px tall). The calendar needs all of the height, so the
+ * gear and info button move into a column on the left, and the calendar takes the rest. The
+ * calendar's own compact layout is in src/photo-calendar/styles/compact.css.
+ */
+@media (orientation: landscape) and (max-height: 520px) {
+  .stage {
+    flex-direction: row; align-items: stretch;
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left));
+  }
+  .stage-footer { order: -1; align-self: flex-end; flex-direction: column; align-items: flex-start; margin: 0 6px 0 0; gap: 0; }
+  .stage-column { flex: 1 1 auto; width: auto; min-width: 0; height: 100%; }
+  .stage-calendar { height: 100%; }
+  .lib-hint { display: none; }
+}

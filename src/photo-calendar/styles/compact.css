@@ -1,0 +1,39 @@
+/*
+ * Compact layout: a phone held on its side (landscape, under 520px tall).
+ *
+ * The screen is wide but very short, so the calendar fills the height it is given: a one-line
+ * header, and date boxes that stretch to share whatever height is left (wider than tall) instead
+ * of staying square. App-level rules (the gear column on the left) are in src/app.css, and use the
+ * same media query. This uses the viewport, not the container, on purpose: it is about the
+ * screen's shape, which the calendar's own width cannot tell it.
+ */
+@media (orientation: landscape) and (max-height: 520px) {
+  .pc-root { width: 100%; height: 100%; }
+  .pc-panel {
+    height: 100%; display: flex; flex-direction: column;
+    padding: 6px 14px 10px; --pc-panel-r: 22px; --pc-gap: 4px; --pc-radius: 9px;
+  }
+
+  /* One line: title on the left, buttons on the right (they are 54px tall with padding; tuck that in) */
+  .pc-head { flex-wrap: nowrap; margin-bottom: 0; }
+  .pc-title { width: auto; gap: 8px; }
+  .pc-month { font-size: 1.45rem; }
+  .pc-year { font-size: .95rem; }
+  .pc-count { display: none; }
+  .pc-nav { margin: -12px 0; }
+
+  .pc-weekdays { margin: 3px 0 2px; }
+  .pc-weekdays span { font-size: .55rem; letter-spacing: .1em; }
+
+  /* The grid takes all the height left; rows share it equally, five or six of them */
+  .pc-grid { flex: 1; min-height: 0; grid-auto-rows: 1fr; }
+  .pc-day, .pc-blank { aspect-ratio: auto; max-height: none; }
+  .pc-dow, .pc-photo .pc-badge { display: none; }
+  .pc-empty .pc-num, .pc-photo .pc-num { top: 3px; left: 6px; font-size: .8rem; }
+
+  /* Year view: six months across, two down */
+  .pc-year-grid { flex: 1; min-height: 0; grid-template-columns: repeat(6, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 4px 12px; align-content: center; }
+  .pc-mini-name { font-size: .8rem; margin-bottom: 2px; }
+  .pc-mini-week { margin-bottom: 2px; gap: 2px; }
+  .pc-mini-grid { gap: 2px; }
+}
