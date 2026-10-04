@@ -80,10 +80,13 @@
 
 /* ── Header ───────────────────────────────────────────────────────────── */
 .pc-head {
-  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
   margin-bottom: clamp(10px, 2vw, 22px);
 }
-.pc-title { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.pc-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+/* The month and the year button side by side. GlassButtons pads its canvas, so the slot tucks it in toward the text */
+.pc-title-row { display: flex; align-items: center; gap: 4px; }
+.pc-zoom { line-height: 0; flex: none; margin: -12px 0 -12px -6px; }
 .pc-month {
   margin: 0; font-family: var(--pc-serif); font-weight: 600; letter-spacing: .02em;
   font-size: clamp(1.9rem, 5vw, 3rem); line-height: 1;
@@ -135,7 +138,9 @@
 /* ── Narrow containers: phones, and narrow columns on any screen ────────── */
 @container pc (max-width: 640px) {
   .pc-panel { --pc-gap: 3px; --pc-radius: 7px; padding: 10px 10px 12px; --pc-panel-r: 26px; }
-  /* Title on its own line, buttons beneath it on the right */
+}
+/* Very narrow: the arrows drop beneath the title, on the right */
+@container pc (max-width: 360px) {
   .pc-head { flex-wrap: wrap; row-gap: 10px; }
   .pc-title { width: 100%; }
   .pc-nav { margin-left: auto; }

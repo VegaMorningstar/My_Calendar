@@ -1,12 +1,12 @@
 /**
- * The calendar's header: what is being shown on the left, and on the right the
- * glass buttons for zooming between month and year and for stepping forward and
- * back.
+ * The calendar's header: on the left the month with the year button beside it (zooming
+ * between month and year) and the photo count beneath, and on the right the glass buttons
+ * for stepping forward and back.
  */
 import { useRef } from 'react'
 import { GlassButtons } from '../wwn-glass/index.js'
 import usePageInk, { inkVars } from '../hooks/usePageInk.js'
-import { MONTHS, photoCountLabel } from '../lib/dates.js'
+import { MONTHS } from '../lib/dates.js'
 import useMediaQuery from '../hooks/useMediaQuery.js'
 import { COMPACT_NAV_MATERIAL, COMPACT_QUERY, COMPACT_YEAR_BUTTON_WIDTH, NAV_MATERIAL, TEAL_TINT, YEAR_BUTTON_WIDTH } from '../lib/glass-config.js'
 
@@ -23,14 +23,17 @@ export default function CalendarHeader({ view, isYear, photoCount, onStep, onTog
   const titleRef = useRef(null)
   const titleInk = usePageInk(titleRef) // the title's colour follows what is behind the title
 
-  // One shared glass canvas draws all three buttons; each item carries its own
-  // plain-CSS fallback class for browsers without WebGPU.
-  const items = [
-    {
-      key: 'zoom', label: String(view.y), width: compact ? COMPACT_YEAR_BUTTON_WIDTH : YEAR_BUTTON_WIDTH,
-      title: isYear ? 'Zoom in to a month' : 'Zoom out to the year',
-      onClick: onToggleZoom, fallbackClass: 'pc-round pc-wide',
-    },
+  // Two glass canvases: the year button beside the title, and the two arrows on the right.
+  // Each item carries its own plain-CSS fallback class for browsers without WebGPU.
+  const material = compact ? COMPACT_NAV_MATERIAL : NAV_MATERIAL
+  const zoomItems = [{
+    // In year view the title already says the year, so the button names the month it returns to
+    key: 'zoom', label: isYear ? MONTHS[view.m].slice(0, 3) : String(view.y),
+    width: compact ? COMPACT_YEAR_BUTTON_WIDTH : YEAR_BUTTON_WIDTH,
+    title: isYear ? 'Zoom in to a month' : 'Zoom out to the year',
+    onClick: onToggleZoom, fallbackClass: 'pc-round pc-wide',
+  }]
+  const stepItems = [
     { key: 'prev', label: '←', title: `Previous ${noun}`, onClick: () => onStep(-1), fallbackClass: 'pc-round' },
     { key: 'next', label: '→', title: `Next ${noun}`, onClick: () => onStep(1), fallbackClass: 'pc-round pc-teal', tint: TEAL_TINT },
   ]
@@ -38,18 +41,14 @@ export default function CalendarHeader({ view, isYear, photoCount, onStep, onTog
   return (
     <header className="pc-head">
       <div className="pc-title" ref={titleRef} style={inkVars(titleInk)}>
-        {isYear ? (
-          <h2 className="pc-month">{view.y}</h2>
-        ) : (
-          <>
-            <h2 className="pc-month">{MONTHS[view.m]}</h2>
-            <span className="pc-year">{view.y}</span>
-          </>
-        )}
-        <span className="pc-count">{photoCountLabel(photoCount)}</span>
+        <div className="pc-title-row">
+          <h2 className="pc-month">{isYear ? view.y : MONTHS[view.m]}</h2>
+          <div className="pc-zoom"><GlassButtons items={zoomItems} material={material} /></div>
+        </div>
+        <span className="pc-count">{`${photoCount} ${photoCount === 1 ? 'photo' : 'photos'} this ${noun}`}</span>
       </div>
       <nav className="pc-nav">
-        <GlassButtons items={items} material={compact ? COMPACT_NAV_MATERIAL : NAV_MATERIAL} />
+        <GlassButtons items={stepItems} material={material} />
       </nav>
     </header>
   )
