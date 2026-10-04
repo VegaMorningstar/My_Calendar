@@ -7,7 +7,6 @@
   font-family: var(--pc-serif); font-weight: 600; font-size: 1.05rem; color: rgb(var(--pc-ink));
   text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
-.pc-mini-name:hover { color: rgb(var(--pc-teal)); }
 .pc-mini-name:focus-visible { outline: 2px solid rgba(var(--pc-teal), .8); outline-offset: 3px; border-radius: 4px; }
 .pc-mini-week, .pc-mini-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
 .pc-mini-week { margin-bottom: 3px; }
