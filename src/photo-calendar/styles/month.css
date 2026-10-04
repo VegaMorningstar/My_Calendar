@@ -88,3 +88,17 @@ button.pc-photo:focus-visible { outline: 2px solid rgba(var(--pc-teal), .85); ou
   .pc-weekdays span { font-size: .56rem; letter-spacing: .08em; }
 }
 
+
+/* ── Liquid glass tiles (see glass-tiles/GlassTileGrid.jsx) ─────────────────────────────────────
+   While the glass runs, the grid draws the boxes, their numbers and their photos itself; the boxes
+   stay in the page as transparent buttons that take the pointer and carry the weekday and count. */
+.pc-grid { position: relative; isolation: isolate; }
+.pc-glass-canvas {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;
+  opacity: 0; transition: opacity .3s ease;
+}
+.pc-grid[data-glass='on'] .pc-glass-canvas { opacity: 1; }
+.pc-grid[data-glass='on'] .pc-day { background: transparent; border-color: transparent; box-shadow: none; overflow: visible; }
+.pc-grid[data-glass='on'] .pc-day .pc-num { visibility: hidden; } /* the number is drawn inside the glass */
+.pc-grid[data-glass='on'] .pc-photo img { opacity: 0 !important; } /* the photo is painted into the glass backdrop */
+.pc-grid[data-glass='on'] .pc-photo::after { display: none; }

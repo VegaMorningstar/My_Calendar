@@ -85,6 +85,9 @@ function usePageBackdrop(wallpaper) {
   return topColor
 }
 
+/** The glass date tiles are on unless the address ends in ?lq=0, which lets the two looks be compared side by side. */
+const LIQUID_TILES = new URLSearchParams(window.location.search).get('lq') !== '0'
+
 export default function App() {
   const library = usePhotoLibrary()
   const underStatusBar = useRunsUnderStatusBar()
@@ -110,7 +113,7 @@ export default function App() {
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
-          <PhotoCalendar photos={library.photos} />
+          <PhotoCalendar photos={library.photos} liquidTiles={LIQUID_TILES} />
           <LibraryHint library={library} />
         </div>
       </div>
