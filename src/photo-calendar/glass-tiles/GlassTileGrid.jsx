@@ -43,6 +43,9 @@ const TILE_MATERIAL = {
   specularStrength: 0.8, specularPower: 20,
 }
 
+/** No tint: used by tiles that show a photo, which must be seen through clear glass. */
+const CLEAR_TINT = { r: 1, g: 1, b: 1, strength: 0 }
+
 /** A faint teal in today's tile. */
 const TODAY_TINT = { r: 0x3c / 255, g: 0xb4 / 255, b: 0xaa / 255, strength: 0.22 }
 export const todayTint = TODAY_TINT
@@ -131,7 +134,7 @@ export default function GlassTileGrid({ className = '', animKey, enabled = true,
 
           // The glass is sized from the boxes (they are all the same size): rim, bend and corner follow the tile
           const side = Math.min(entries[0].w, entries[0].h)
-          const edge = clamp(side * 0.12, 4.5, 11.5)
+          const edge = clamp(side * 0.085, 3.5, 8.5)
           const radius = clamp(side * 0.2, 6, 16)
           // Px of displacement at the rim (the shader wants it in canvas heights). Negative: a rim pulls in
           // the picture from inside its own tile. Positive pulls from outside, and with gaps this small
@@ -155,7 +158,9 @@ export default function GlassTileGrid({ className = '', animKey, enabled = true,
             const hx = (w / 2) * (1 + sq) - edge
             const hy = (h / 2) * (1 - sq * 0.7) - edge
             const pressed = Math.min((Math.abs(s.squash.velocity) * 0.05 + Math.abs(sq) * 1.4) * POINTER_DEFAULTS.glowGain, 1.2)
-            shaderTiles.push({ cx: cx / H, cy: cy / H, hx: hx / H, hy: hy / H, glow: Math.min(pressed, 3), tint: info.tint })
+            const layers = info.getLayers ? info.getLayers() : []
+            // A tile showing a photo takes no tint at all, so the picture is seen through clear glass
+            shaderTiles.push({ cx: cx / H, cy: cy / H, hx: hx / H, hy: hy / H, glow: Math.min(pressed, 3), tint: layers.length ? CLEAR_TINT : info.tint })
 
             // The number, top left of the tile
             const padX = Math.max(7, side * 0.1)
@@ -168,7 +173,6 @@ export default function GlassTileGrid({ className = '', animKey, enabled = true,
               alpha: 1,
             })
 
-            const layers = info.getLayers ? info.getLayers() : []
             if (layers.length) photoTiles.push({ x: rect.left + cx - w / 2, y: rect.top + cy - h / 2, w, h, r: radius, layers })
           }
           // Pad to the fixed count with tiles far off the canvas
