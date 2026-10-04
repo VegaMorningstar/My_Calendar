@@ -23,6 +23,9 @@ A photo calendar built around one reusable element, `src/photo-calendar/`. See `
 ### Native iOS app
 Turn the calendar into an iOS app that reads the Photos library through PhotoKit and fills the calendar from it. Two routes: wrap this web app (Capacitor or WKWebView) with a PhotoKit plugin, or rebuild in SwiftUI with iOS 26 Liquid Glass. Not started. The full write-up and open questions are in `README.md`, under "Idea for later: native iOS app".
 
+### iPhone widget
+A PWA cannot provide one (WidgetKit is native only). Options: a widget extension inside the native iOS app, or an exported month image shown by the built-in Photos widget. Not started. Full write-up in `README.md`, under "Idea for later: an iPhone widget".
+
 ### Other open items
 - Dedicated cleanup so Write-With-Nature and this repo share one copy of the glass code (a shared package) instead of two. Details in `src/photo-calendar/wwn-glass/README.md`.
 - Test the glass against other page background colours.

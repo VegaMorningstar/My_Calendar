@@ -101,3 +101,33 @@ Not started, written down so we can discuss it.
 - Does the glass need to match Write-With-Nature exactly, or may it use Apple's glass on iOS?
 - Performance with tens of thousands of photos: thumbnail caching and loading only the visible month.
 - Photo metadata, such as an in-app favourites or a "best shot of the day" pick.
+
+## Idea for later: an iPhone widget
+
+Not started, written down as an option.
+
+**A PWA cannot provide an iPhone widget.** Home Screen widgets are built with Apple's WidgetKit, which only native apps can use, and iOS 26 does not change that. A real widget therefore means the native app above, with a small widget extension inside it.
+
+**Option 1: a widget inside the native app (the real answer)**
+
+- The app shell holds this web app, plus a small Swift (SwiftUI) widget.
+- The app writes the current month's data to a folder shared with the widget (an App Group): thumbnails of the days that have photos, or a photo from "this day" in past years. The widget reads it.
+- Tapping the widget opens the app on that day. That needs one addition to the web app: open a given date from a link (for example `?day=2026-10-03`).
+- A native shell would also sidestep the iOS 26 status bar problem and could read the Favourites album directly.
+- Limits: widgets are static snapshots that iOS refreshes on its own schedule (no live animation, no photo rotation, no WebGPU glass). Sizes are small, medium, large and lock screen. iOS 26 gives widgets a glass look automatically.
+- Cost: Xcode on a Mac. A free Apple ID works for your own phone but the app must be re-signed every 7 days; the paid developer account ($99 a year) removes that and allows TestFlight.
+
+**Option 2: no native app, an exported image on the built-in Photos widget**
+
+- The PWA exports a picture of the current month, with the photo thumbnails, and saves it to an album in Photos.
+- The built-in Photos widget on the Home Screen is pointed at that album.
+- Not a real widget: it is updated by re-exporting by hand, and it cannot open a day when tapped. It needs no native code.
+
+**Small extras available to the PWA today:** an icon badge number (installed web apps on iOS 16.4 and later) and a Shortcuts shortcut as a tappable launcher. Neither shows calendar content.
+
+**Questions to settle first**
+
+- Which widget: a month grid with photo thumbnails, or "on this day" from past years?
+- Native app with the free Apple ID (re-sign every 7 days) or the paid account?
+- Go native for the widget, or try the exported image first?
+
