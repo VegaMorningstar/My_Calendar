@@ -38,6 +38,10 @@ The app is meant to look finished on its first frame, with no flash of a differe
 
 Re-draw the default wallpaper with `npm run default-wallpaper` (needs Chrome installed).
 
+## Diagnostics
+
+Press and hold the **info** button for about a second to open a card of screen and page facts: the page's size against the screen's, the safe-area insets, whether it is running as an installed app, and the iOS version. It exists so layout problems that only show on a real phone can be diagnosed from a screenshot. Tap the card to close it.
+
 ## Install it as an app (PWA)
 
 The calendar is a progressive web app: installable, full-screen, and usable offline.

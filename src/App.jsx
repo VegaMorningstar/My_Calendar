@@ -6,6 +6,7 @@
  * on top of the wallpaper they chose (or the frosted default), which is painted on the page root.
  */
 import { useEffect, useState } from 'react'
+import { viewportDeficit } from './diagnostics.js'
 import { PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
 import { LibraryHint, LibraryNote, SettingsMenu, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
@@ -55,9 +56,16 @@ function usePageBackdrop(wallpaper) {
       const h = fullImage.naturalHeight * scale
       const top = topEdgeColor()
       const bottom = bottomEdgeColor()
-      // The image, then the bottom edge's colour behind it for anything it does not reach
+      // When an installed iPhone app is given a viewport shorter than the screen, the strip below it
+      // can only show the plain page colour, whatever the page paints. So the wallpaper's last stretch
+      // fades into that colour and the strip reads as part of the picture, not as a bar.
+      const deficit = viewportDeficit()
+      const fade = deficit >= 20
+        ? `linear-gradient(to bottom, ${bottom.replace('rgb(', 'rgba(').replace(')', ', 0)')}, ${bottom}) 0 100% / 100% ${deficit + 60}px no-repeat, `
+        : ''
+      // The fade (if any), the image, then the bottom edge's colour behind it for anything it does not reach
       document.documentElement.style.background =
-        `url("${url}") ${(viewportW - w) / 2}px ${(boxH - h) / 2}px / ${w}px ${h}px no-repeat, ${bottom}`
+        `${fade}url("${url}") ${(viewportW - w) / 2}px ${(boxH - h) / 2}px / ${w}px ${h}px no-repeat, ${bottom}`
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', top)
       setTopColor(top)
       if (!wallpaper.isDefault) rememberWallpaperEdges(top, bottom)
