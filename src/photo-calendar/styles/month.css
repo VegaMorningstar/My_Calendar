@@ -11,11 +11,11 @@
 
 /* ── Day cells ────────────────────────────────────────────────────────── */
 .pc-day {
-  position: relative; aspect-ratio: 1; min-width: 0; max-height: var(--pc-tile-max);
+  position: relative; width: 100%; aspect-ratio: var(--pc-tile-ratio); min-width: 0;
   border-radius: var(--pc-radius); overflow: hidden;
   font: inherit; color: inherit; padding: 0; text-align: left;
 }
-.pc-blank { aspect-ratio: 1; max-height: var(--pc-tile-max); }
+.pc-blank { aspect-ratio: var(--pc-tile-ratio); }
 
 /* No photo: transparent, drawn as a groove cut into the glass. */
 .pc-empty {
@@ -26,7 +26,7 @@
 }
 .pc-empty .pc-num {
   --pc-ink: var(--num-ink); --pc-hi: var(--num-hi);
-  position: absolute; top: 8px; left: 10px;
+  position: absolute; top: 6px; left: 8px;
   font-family: var(--pc-serif); font-size: clamp(.9rem, 2vw, 1.25rem);
   color: rgba(var(--pc-ink), .95); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }

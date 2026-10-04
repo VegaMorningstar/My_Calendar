@@ -1,17 +1,18 @@
 /*
  * Compact layout: a phone held on its side (landscape, under 520px tall).
  *
- * The screen is wide but very short, so the calendar fills the height it is given: a one-line
- * header, and date boxes that stretch to share whatever height is left (wider than tall) instead
- * of staying square. App-level rules (the gear column on the left) are in src/app.css, and use the
+ * The screen is wide but very short, so the calendar fits the height it is given: a one-line
+ * header, and square date boxes sized to the height that is left, in a panel just wide enough for them. App-level rules (the gear column on the left) are in src/app.css, and use the
  * same media query. This uses the viewport, not the container, on purpose: it is about the
  * screen's shape, which the calendar's own width cannot tell it.
  */
 @media (orientation: landscape) and (max-height: 520px) {
-  .pc-root { width: 100%; height: 100%; }
+  /* The date boxes stay square: their size comes from the height left (the header takes about 130px),
+     and the panel is just as wide as seven of them, centred in the space beside the buttons. */
+  .pc-root { --pc-tile-max: max(30px, calc((100dvh - 135px) / 6)); }
   .pc-panel {
-    height: 100%; display: flex; flex-direction: column;
-    padding: 6px 14px 10px; --pc-panel-r: 22px; --pc-gap: 4px; --pc-radius: 9px;
+    display: flex; flex-direction: column;
+    padding: 6px 14px 10px; --pc-panel-r: 22px; --pc-gap: 3px; --pc-radius: 7px;
   }
 
   /* One line: title on the left, buttons on the right (they are 54px tall with padding; tuck that in) */
@@ -25,9 +26,6 @@
   .pc-weekdays { margin: 3px 0 2px; }
   .pc-weekdays span { font-size: .55rem; letter-spacing: .1em; }
 
-  /* The grid takes all the height left; rows share it equally, five or six of them */
-  .pc-grid { flex: 1; min-height: 0; grid-auto-rows: 1fr; }
-  .pc-day, .pc-blank { aspect-ratio: auto; max-height: none; }
   .pc-dow, .pc-photo .pc-badge { display: none; }
   .pc-empty .pc-num, .pc-photo .pc-num { top: 3px; left: 6px; font-size: .8rem; }
 

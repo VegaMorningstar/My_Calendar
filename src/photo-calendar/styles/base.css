@@ -11,11 +11,14 @@
   --pc-hi: 255, 255, 255;
   --pc-teal: 70, 170, 164;
   --pc-burgundy: 128, 28, 58;
-  --pc-gap: 8px;
-  --pc-radius: 14px;
-  /* Tallest a date box may be: six rows must fit the screen's height after the header, padding and
-     the buttons below (about 340px). On a wide, short window the boxes get wider than tall, not taller. */
-  --pc-tile-max: max(44px, calc((100dvh - 340px) / 6));
+  /* Date boxes sit close together with small corners, so photos get as much of the panel as possible */
+  --pc-gap: 4px;
+  --pc-radius: 10px;
+  /* The shape of a date box: square, so a photo shows as much of itself as possible */
+  --pc-tile-ratio: 1;
+  /* The biggest a square date box can be: six rows must fit the screen's height after the header, padding
+     and the buttons below (about 270px). */
+  --pc-tile-max: max(44px, calc((100dvh - 270px) / 6));
   --pc-serif: 'Playfair Display', Georgia, serif;
   --pc-mono: 'DM Mono', ui-monospace, monospace;
 
@@ -24,7 +27,9 @@
 }
 
 .pc-root {
-  width: min(980px, 100%);
+  /* On a short window the calendar narrows so that its square date boxes still fit the height, rather
+     than the boxes shrinking inside wide columns (seven boxes, six gaps, and the panel's padding). */
+  width: min(980px, 100%, calc(7 * var(--pc-tile-max) + 6 * var(--pc-gap) + 44px));
   /* The layout responds to the element's own width, not the screen's, so it
      also fits when embedded in a narrow column. */
   container: pc / inline-size;
@@ -35,7 +40,7 @@
 .pc-panel {
   position: relative;
   isolation: isolate;
-  padding: clamp(16px, 3vw, 32px);
+  padding: clamp(10px, 2vw, 22px);
   /* The glass shader adds its rim width (--pc-edge, set by usePanelEdge) to the radius,
      so the box takes it off again and the glass corner lands on --pc-panel-r */
   --pc-panel-r: 34px;
@@ -126,7 +131,7 @@
 
 /* ── Narrow containers: phones, and narrow columns on any screen ────────── */
 @container pc (max-width: 640px) {
-  .pc-panel { --pc-gap: 5px; --pc-radius: 10px; padding: 16px; --pc-panel-r: 28px; }
+  .pc-panel { --pc-gap: 3px; --pc-radius: 7px; padding: 10px 10px 12px; --pc-panel-r: 26px; }
   /* Title on its own line, buttons beneath it on the right */
   .pc-head { flex-wrap: wrap; row-gap: 10px; }
   .pc-title { width: 100%; }
