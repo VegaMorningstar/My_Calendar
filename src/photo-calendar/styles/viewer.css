@@ -6,15 +6,23 @@
 .pc-viewer {
   position: fixed; inset: 0; z-index: 1100;
   display: grid; place-items: center;
-  /* --pc-bg-a is lowered while dragging down to close, so the backdrop fades with the drag */
-  background: rgba(8, 7, 5, var(--pc-bg-a, .94));
-  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
   animation: pc-fade .22s ease both;
   touch-action: none; /* every touch gesture here is ours: pinch, pan, swipe */
   overflow: hidden;
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
 }
 @keyframes pc-fade { from { opacity: 0; } }
+/* The dark backdrop is its own layer so its bottom edge can fade out (--pc-fade, set by App.jsx only on an
+   installed iPhone given a page shorter than the screen; see detail.css), instead of ending in a hard line
+   against the plain strip below the page. --pc-bg-a is lowered while dragging down to close, so the backdrop
+   fades with the drag. */
+.pc-viewer::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: rgba(8, 7, 5, var(--pc-bg-a, .94));
+  -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--pc-fade, 0px)), transparent);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - var(--pc-fade, 0px)), transparent);
+}
 
 /*
  * Fit to screen: never larger than the viewport (less the notch and home
