@@ -22,8 +22,10 @@ export { groupByDate, parsePhotoDate, monthCells } from './lib/dates.js'
 // (the settings gear and menu use these)
 export { GlassButtons, LiquidGlassPanel, PANEL_GLASS, usePanelGlass, BUTTON_MATERIAL } from './wwn-glass/index.js'
 
-// The colour along the top edge of the screen (for tinting the status bar to match)
-export { topEdgeColor } from './lib/adaptive-ink.js'
+// The colours along the top and bottom edges of the screen (the status bar tint and the page behind), and
+// how far the wallpaper extends past the bottom of the viewport
+export { bottomEdgeColor, topEdgeColor } from './lib/adaptive-ink.js'
+export { WALLPAPER_OVERSCAN_PX } from './wwn-glass/index.js'
 
 // Tell the glass what the page behind it looks like, if that changes after load
 export { setPaperColor, setBackgroundImage } from './wwn-glass/index.js'

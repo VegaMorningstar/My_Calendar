@@ -56,6 +56,18 @@ export function setBackgroundImage(image, average) {
   emit()
 }
 
+/**
+ * How far (px) the wallpaper extends past the bottom of the viewport. On iPhone, when a Home
+ * Screen app first opens, the page briefly thinks the screen is shorter than it is, so a fixed
+ * wallpaper that is exactly one viewport tall stops short and leaves a white bar until the
+ * first scroll. Making it taller hides that. The glass and the text-colour measurements must
+ * use the same taller box, or they would look at a differently scaled copy of the photo.
+ */
+export const WALLPAPER_OVERSCAN_PX = 120
+
+/** Height of the wallpaper box relative to the viewport (1 plus the overscan). */
+export const wallpaperBoxScale = () => (window.innerHeight + WALLPAPER_OVERSCAN_PX) / window.innerHeight
+
 /** The background photo (an HTMLImageElement), or null. */
 export const getBackgroundImage = () => state.bgImage ?? null
 

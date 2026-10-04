@@ -9,7 +9,7 @@
  * The photo is fitted like CSS `background-size: cover; background-position:
  * center`, so the glass refracts exactly what the page shows.
  */
-import { getBackgroundImage } from './theme.js'
+import { getBackgroundImage, wallpaperBoxScale } from './theme.js'
 
 /** Cover-fitted copies of the photo, by target size, so each frame is one cheap blit. */
 const fitted = new Map()
@@ -17,7 +17,7 @@ const MAX_FITTED = 4
 
 /** The photo cropped to cover a w x h area, cached. */
 function coverCanvas(image, w, h) {
-  const key = `${image.src}|${w}x${h}`
+  const key = `${image.src}|${Math.round(w)}x${Math.round(h)}`
   let canvas = fitted.get(key)
   if (!canvas) {
     canvas = document.createElement('canvas')
@@ -37,7 +37,10 @@ function coverCanvas(image, w, h) {
 export function drawStars(ctx, w, h) {
   const image = getBackgroundImage()
   if (!image || !image.naturalWidth) return
-  ctx.drawImage(coverCanvas(image, w, h), 0, 0, w, h)
+  // The page's wallpaper box is a little taller than the viewport (see WALLPAPER_OVERSCAN_PX in
+  // theme.js); fit the photo to that taller box, anchored at the top, so the glass sees the same crop
+  const boxH = h * wallpaperBoxScale()
+  ctx.drawImage(coverCanvas(image, w, boxH), 0, 0, w, boxH)
 }
 
 export const drawBakedStars = drawStars // the photo does not move, so baked and live are the same

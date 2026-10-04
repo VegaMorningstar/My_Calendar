@@ -6,7 +6,7 @@
  * on top of the wallpaper they chose (or the plain page colour).
  */
 import { useEffect, useState } from 'react'
-import { PhotoCalendar, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
+import { PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
 import { LibraryHint, LibraryNote, SettingsMenu, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
 /**
@@ -40,6 +40,9 @@ function useTopEdgeColor(wallpaper) {
       const next = topEdgeColor()
       setColor(next)
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next)
+      // The page behind the wallpaper takes the bottom edge's colour, so anything the wallpaper
+      // does not reach (the screen is briefly taller than the page on launch) blends in, not white
+      document.documentElement.style.background = bottomEdgeColor()
     }
     update()
     window.addEventListener('resize', update)
@@ -68,7 +71,7 @@ export default function App() {
           Only needed when the page cannot run under the bar; when it does, the strip would show as a band. */}
       {!underStatusBar && topColor && <div className="app-top-strip" style={{ background: topColor }} aria-hidden="true" />}
       {wallpaper.url && (
-        <div className="app-wallpaper" key={wallpaper.url} style={{ backgroundImage: `url("${wallpaper.url}")` }} />
+        <div className="app-wallpaper" key={wallpaper.url} style={{ backgroundImage: `url("${wallpaper.url}")`, height: `calc(100% + ${WALLPAPER_OVERSCAN_PX}px)` }} />
       )}
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}

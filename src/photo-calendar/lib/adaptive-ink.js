@@ -8,7 +8,7 @@
  * so this applies the same rule to a luminance we measure: the page colour for
  * text on the glass, a sampled region of the photo for text on a photo.
  */
-import { getBackgroundImage, paperColor, MATERIAL_DEFAULTS } from '../wwn-glass/index.js'
+import { getBackgroundImage, paperColor, MATERIAL_DEFAULTS, WALLPAPER_OVERSCAN_PX } from '../wwn-glass/index.js'
 
 const m = MATERIAL_DEFAULTS
 const DARK = [m.letterR, m.letterG, m.letterB]
@@ -105,11 +105,11 @@ let viewportSample = { key: '', w: 0, h: 0, data: null }
 /** Pixels of the wallpaper as it appears in the viewport, cover-fitted, at low resolution. */
 function sampleViewport(image) {
   const vw = window.innerWidth
-  const vh = window.innerHeight
-  const key = `${image.src}|${vw}x${vh}`
+  const boxH = window.innerHeight + WALLPAPER_OVERSCAN_PX // the wallpaper box is a little taller than the viewport
+  const key = `${image.src}|${vw}x${boxH}`
   if (viewportSample.key === key) return viewportSample
   const w = SAMPLE_W
-  const h = Math.max(1, Math.round((SAMPLE_W * vh) / vw))
+  const h = Math.max(1, Math.round((SAMPLE_W * boxH) / vw))
   const canvas = document.createElement('canvas')
   canvas.width = w
   canvas.height = h
@@ -133,10 +133,11 @@ export function backdropLuma(rect) {
   const { w, h, data } = sampleViewport(image)
   const vw = window.innerWidth
   const vh = window.innerHeight
+  const boxH = vh + WALLPAPER_OVERSCAN_PX
   const x0 = Math.max(0, Math.floor(((rect?.left ?? 0) / vw) * w))
   const x1 = Math.min(w, Math.max(x0 + 1, Math.ceil(((rect?.right ?? vw) / vw) * w)))
-  const y0 = Math.max(0, Math.floor(((rect?.top ?? 0) / vh) * h))
-  const y1 = Math.min(h, Math.max(y0 + 1, Math.ceil(((rect?.bottom ?? vh) / vh) * h)))
+  const y0 = Math.max(0, Math.floor(((rect?.top ?? 0) / boxH) * h))
+  const y1 = Math.min(h, Math.max(y0 + 1, Math.ceil(((rect?.bottom ?? vh) / boxH) * h)))
   let sum = 0
   let n = 0
   for (let y = y0; y < y1; y++) {
@@ -159,10 +160,11 @@ export function backdropColor(rect) {
   const { w, h, data } = sampleViewport(image)
   const vw = window.innerWidth
   const vh = window.innerHeight
+  const boxH = vh + WALLPAPER_OVERSCAN_PX
   const x0 = Math.max(0, Math.floor(((rect?.left ?? 0) / vw) * w))
   const x1 = Math.min(w, Math.max(x0 + 1, Math.ceil(((rect?.right ?? vw) / vw) * w)))
-  const y0 = Math.max(0, Math.floor(((rect?.top ?? 0) / vh) * h))
-  const y1 = Math.min(h, Math.max(y0 + 1, Math.ceil(((rect?.bottom ?? vh) / vh) * h)))
+  const y0 = Math.max(0, Math.floor(((rect?.top ?? 0) / boxH) * h))
+  const y1 = Math.min(h, Math.max(y0 + 1, Math.ceil(((rect?.bottom ?? vh) / boxH) * h)))
   let r = 0, g = 0, b = 0, n = 0
   for (let y = y0; y < y1; y++) {
     for (let x = x0; x < x1; x++) {
@@ -175,3 +177,6 @@ export function backdropColor(rect) {
 
 /** The colour along the very top edge of the screen: what the status bar should blend into. */
 export const topEdgeColor = () => backdropColor({ left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight * 0.04 })
+
+/** The colour along the very bottom edge of the screen, for the page behind the wallpaper. */
+export const bottomEdgeColor = () => backdropColor({ left: 0, right: window.innerWidth, top: window.innerHeight * 0.96, bottom: window.innerHeight })

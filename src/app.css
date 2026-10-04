@@ -1,10 +1,14 @@
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; overscroll-behavior-x: none; /* a sideways swipe must not navigate back a page */ }
+/*
+ * The page background lives on <html>, not <body>. The wallpaper is a fixed element behind the
+ * content (z-index -1), and a background on <body> would paint over it. This gradient shows for
+ * the instant before the wallpaper is drawn, so there is no flash; App.jsx later replaces it with
+ * the wallpaper's bottom-edge colour, which fills any strip the wallpaper does not reach.
+ */
+html { background: linear-gradient(135deg, #9cc6f7 0%, #c9defa 42%, #ffcaa6 78%, #ffbd94 100%); }
 body {
-  /* Shows for the instant before the default wallpaper is drawn, so there is no beige flash */
-  background: linear-gradient(135deg, #9cc6f7 0%, #c9defa 42%, #ffcaa6 78%, #ffbd94 100%);
-  background-attachment: fixed;
   min-height: 100vh;
   min-height: 100dvh; /* the visible height on iOS, with the Safari toolbar showing */
   -webkit-tap-highlight-color: transparent;
@@ -21,7 +25,9 @@ body {
     max(10px, env(safe-area-inset-left));
 }
 
-/* The wallpaper: fixed to the viewport so the page scrolls over it, and the glass refracts the same crop */
+/* The wallpaper: fixed to the viewport so the page scrolls over it, and the glass refracts the same crop.
+   App.jsx makes it taller than the viewport (WALLPAPER_OVERSCAN_PX) so a short launch-time viewport on
+   iPhone does not leave a bar at the bottom. */
 .app-wallpaper {
   position: fixed; inset: 0; z-index: -1;
   background-size: cover; background-position: center; background-repeat: no-repeat;
@@ -57,6 +63,8 @@ body {
  * what is behind it, so it is all but invisible.
  */
 .app-top-strip {
+  display: none; /* only the installed app has a status bar to tint; in a browser it would show as a band */
   position: fixed; top: 0; left: 0; right: 0; height: 6px; z-index: 3; pointer-events: none;
   transition: background .5s ease;
 }
+@media (display-mode: standalone) { .app-top-strip { display: block; } }

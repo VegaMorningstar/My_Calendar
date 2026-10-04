@@ -19,4 +19,4 @@ export { MATERIAL_DEFAULTS } from './glass-alphabet/constants.ts'
 
 // The "paper" contract: the page colour (or photo) the glass refracts. In WWN these
 // come from its theme; here they come from the small stand-ins in theme.js and stars.js.
-export { paperColor, setPaperColor, setBackgroundImage, getBackgroundImage, syncPaperFromBody, onPaperChange } from './theme.js'
+export { paperColor, setPaperColor, setBackgroundImage, getBackgroundImage, syncPaperFromBody, onPaperChange, WALLPAPER_OVERSCAN_PX } from './theme.js'
