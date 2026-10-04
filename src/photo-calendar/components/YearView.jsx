@@ -1,4 +1,6 @@
 /** Year view: twelve mini months, with a thumbnail on every day that has photos. */
+import { useRef } from 'react'
+import usePageInk, { inkVars } from '../hooks/usePageInk.js'
 import { MONTHS, dateKey, monthCells, photoCountLabel, weekdayLabels } from '../lib/dates.js'
 import '../styles/year.css'
 
@@ -32,8 +34,10 @@ export default function YearView({ year, weekStartsOn, byDate, todayKey, anim, o
 /** One month: name, weekday initials and a grid of small day squares. */
 function MiniMonth({ year, month, name, weekStartsOn, byDate, todayKey, onOpen }) {
   const initials = weekdayLabels(weekStartsOn).map(w => w[0])
+  const ref = useRef(null)
+  const ink = usePageInk(ref) // this month's labels follow what is behind this month
   return (
-    <div className="pc-mini">
+    <div className="pc-mini" ref={ref} style={inkVars(ink)}>
       <button type="button" className="pc-mini-name" onClick={onOpen} aria-label={`Open ${name} ${year}`}>{name}</button>
       <div className="pc-mini-week" aria-hidden="true">
         {initials.map((w, i) => <span key={i}>{w}</span>)}

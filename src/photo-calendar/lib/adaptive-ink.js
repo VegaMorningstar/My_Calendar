@@ -24,9 +24,10 @@ export const luma = (r, g, b) => (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
 
 /**
  * { ink, halo } as 'r, g, b' strings: the text colour, and its opposite for etching.
- * `band` defaults to WWN's. Text on a photo passes PHOTO_BAND: a photo's local
- * average is rarely clean light or dark, and WWN's wide band leaves mid-tones
- * with mid-grey type that reads on neither.
+ * `band` defaults to WWN's wide band, which suits glyphs drawn by the shader. DOM text
+ * over photos and wallpapers passes PHOTO_BAND instead: the local background is
+ * rarely cleanly light or dark, and WWN's wide band leaves mid-tones with mid-grey
+ * type that reads on neither.
  */
 export const PHOTO_BAND = [0.4, 0.5]
 export function inkFor(lum, band = [m.inkLumLo, m.inkLumHi]) {

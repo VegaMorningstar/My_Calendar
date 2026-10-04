@@ -5,7 +5,7 @@
 .pc-weekdays { margin-bottom: 8px; }
 .pc-weekdays span {
   text-align: center; font-size: .66rem; letter-spacing: .18em; text-transform: uppercase;
-  color: rgba(var(--pc-ink), .45); text-shadow: 0 1px 0 rgba(var(--pc-hi), .8);
+  color: rgba(var(--pc-ink), .92); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 
 
@@ -19,19 +19,22 @@
 
 /* No photo: transparent, drawn as a groove cut into the glass. */
 .pc-empty {
-  background: transparent;
+  /* A faint wash in the tone opposite the ink keeps the text legible over busy wallpapers */
+  background: rgba(var(--pc-hi), .1);
   border: 1px solid rgba(var(--pc-ink), .16);
   box-shadow: 1px 1px 0 rgba(var(--pc-hi), .75), inset 1px 1px 2px rgba(var(--pc-ink), .10);
 }
 .pc-empty .pc-num {
+  --pc-ink: var(--num-ink); --pc-hi: var(--num-hi);
   position: absolute; top: 8px; left: 10px;
   font-family: var(--pc-serif); font-size: clamp(.9rem, 2vw, 1.25rem);
-  color: rgba(var(--pc-ink), .55); text-shadow: 0 1px 0 rgba(var(--pc-hi), .85), 0 -1px 0 rgba(var(--pc-ink), .18);
+  color: rgba(var(--pc-ink), .95); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 .pc-empty .pc-dow {
+  --pc-ink: var(--dow-ink); --pc-hi: var(--dow-hi);
   position: absolute; bottom: 8px; left: 10px;
   font-size: .58rem; letter-spacing: .16em; text-transform: uppercase;
-  color: rgba(var(--pc-ink), .34); text-shadow: 0 1px 0 rgba(var(--pc-hi), .8);
+  color: rgba(var(--pc-ink), .85); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 
 /* Photo: a window in the slab, bevelled like the groove around it. */
@@ -57,11 +60,11 @@ button.pc-photo:focus-visible { outline: 2px solid rgba(var(--pc-teal), .85); ou
 }
 .pc-photo .pc-num {
   top: 7px; left: 10px; font-family: var(--pc-serif); font-size: clamp(.9rem, 2vw, 1.25rem);
-  color: rgb(var(--num-ink, 246, 241, 226)); text-shadow: 0 0 4px rgba(var(--num-halo, 28, 26, 16), .55);
+  color: rgb(var(--num-ink, 246, 241, 226)); text-shadow: 0 1px 2px rgba(var(--num-halo, 28, 26, 16), .55);
 }
 .pc-photo .pc-dow {
   bottom: 7px; left: 10px; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase;
-  color: rgb(var(--dow-ink, 246, 241, 226)); text-shadow: 0 0 4px rgba(var(--dow-halo, 28, 26, 16), .55);
+  color: rgb(var(--dow-ink, 246, 241, 226)); text-shadow: 0 1px 2px rgba(var(--dow-halo, 28, 26, 16), .55);
 }
 /* Photo count, shown on hover (or keyboard focus) instead of dots. */
 .pc-photo .pc-badge {

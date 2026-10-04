@@ -3,7 +3,9 @@
  * glass buttons for zooming between month and year and for stepping forward and
  * back.
  */
+import { useRef } from 'react'
 import { GlassButtons } from '../wwn-glass/index.js'
+import usePageInk, { inkVars } from '../hooks/usePageInk.js'
 import { MONTHS, photoCountLabel } from '../lib/dates.js'
 import { NAV_MATERIAL, TEAL_TINT, YEAR_BUTTON_WIDTH } from '../lib/glass-config.js'
 
@@ -16,6 +18,8 @@ import { NAV_MATERIAL, TEAL_TINT, YEAR_BUTTON_WIDTH } from '../lib/glass-config.
  */
 export default function CalendarHeader({ view, isYear, photoCount, onStep, onToggleZoom }) {
   const noun = isYear ? 'year' : 'month'
+  const titleRef = useRef(null)
+  const titleInk = usePageInk(titleRef) // the title's colour follows what is behind the title
 
   // One shared glass canvas draws all three buttons; each item carries its own
   // plain-CSS fallback class for browsers without WebGPU.
@@ -31,7 +35,7 @@ export default function CalendarHeader({ view, isYear, photoCount, onStep, onTog
 
   return (
     <header className="pc-head">
-      <div className="pc-title">
+      <div className="pc-title" ref={titleRef} style={inkVars(titleInk)}>
         {isYear ? (
           <h2 className="pc-month">{view.y}</h2>
         ) : (

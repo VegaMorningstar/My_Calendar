@@ -1,5 +1,7 @@
 /** One month page: the weekday row above a grid of day cells. */
+import { useRef } from 'react'
 import DayCell from './DayCell.jsx'
+import usePageInk, { inkVars } from '../hooks/usePageInk.js'
 import { FULL_WEEKDAYS, MONTHS, WEEKDAYS, dateKey, monthCells, weekdayLabels } from '../lib/dates.js'
 import '../styles/month.css'
 
@@ -18,7 +20,7 @@ export default function MonthView({ year, month, weekStartsOn, byDate, todayKey,
   return (
     <>
       <div className="pc-weekdays" aria-hidden="true">
-        {weekdayLabels(weekStartsOn).map(w => <span key={w}>{w}</span>)}
+        {weekdayLabels(weekStartsOn).map(w => <WeekdayLabel key={w} name={w} />)}
       </div>
 
       {/* Keyed by month so every page change replays the entry animation */}
@@ -44,4 +46,11 @@ export default function MonthView({ year, month, weekStartsOn, byDate, todayKey,
       </div>
     </>
   )
+}
+
+/** One weekday heading, coloured for the wallpaper directly behind it. */
+function WeekdayLabel({ name }) {
+  const ref = useRef(null)
+  const ink = usePageInk(ref)
+  return <span ref={ref} style={inkVars(ink)}>{name}</span>
 }

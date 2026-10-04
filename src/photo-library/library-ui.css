@@ -57,7 +57,16 @@
 .lib-item-danger { color: rgb(var(--lib-burgundy)); }
 .lib-item-danger:hover { background: rgba(var(--lib-burgundy), .16); }
 
-/* ── Note under the calendar ── */
-.lib-footer { width: min(980px, 100%); margin-top: 16px; display: grid; justify-items: center; gap: 6px; text-align: center; }
-.lib-hint { margin: 0; font-size: .78rem; opacity: .75; }
-.lib-note { margin: 0; max-width: 520px; font-size: .72rem; line-height: 1.45; opacity: .55; }
+/* ── Note under the calendar: a frosted pill, so the text reads over any wallpaper ── */
+.lib-footer { width: min(980px, 100%); margin-top: 16px; display: grid; justify-items: center; }
+.lib-pill {
+  --lib-ink: 28, 26, 16; --lib-hi: 255, 255, 255;
+  display: grid; gap: 6px; max-width: min(560px, 100%); padding: 12px 18px; border-radius: 18px; text-align: center;
+  font-family: 'DM Mono', ui-monospace, monospace; color: rgb(var(--lib-ink));
+  background: rgba(var(--lib-hi), .6);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+  border: 1px solid rgba(255,255,255,.4);
+  text-shadow: 0 1px 0 rgba(var(--lib-hi), .6);
+}
+.lib-hint { margin: 0; font-size: .8rem; }
+.lib-note { margin: 0; font-size: .74rem; line-height: 1.45; }
