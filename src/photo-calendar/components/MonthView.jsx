@@ -12,7 +12,7 @@ import '../styles/month.css'
  * @param {number} weekStartsOn   0 = Sunday
  * @param {Map}    byDate         'YYYY-MM-DD' -> photo URLs
  * @param {string} todayKey       'YYYY-MM-DD' of today, for the ring
- * @param {number} rotateMs       photo rotation interval for the cells
+ * @param {number} rotateMs       least time each photo stays up in the cells
  * @param {*}      pageInk        passed through so photo text re-samples on a colour change
  * @param {string} anim           entry animation name, see useCalendarView
  * @param {boolean} liquidTiles   draw the date boxes as WWN liquid glass tiles (falls back to CSS boxes without WebGPU)

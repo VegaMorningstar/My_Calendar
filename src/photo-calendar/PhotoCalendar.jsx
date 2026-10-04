@@ -13,7 +13,7 @@
  *   photos        photo URLs or { src, date, full? } objects
  *   initialDate   Date whose month opens first (default: today)
  *   weekStartsOn  0 = Sunday (default) ... 6 = Saturday
- *   rotateMs      average time each photo stays up on a multi-photo day
+ *   rotateMs      the least time each photo stays up on a multi-photo day (default 5 seconds; random extra on top)
  *   liquidTiles   draw the date boxes as WWN liquid glass tiles (default true; CSS boxes without WebGPU)
  *   className     extra class on the root element
  */

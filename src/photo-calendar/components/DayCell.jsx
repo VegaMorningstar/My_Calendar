@@ -26,7 +26,7 @@ const WEEKDAY_SPOT = [0, 0.65, 0.5, 1]
  * @param {string}   fullLabel  spoken label, e.g. 'Saturday 3 October'
  * @param {string[]} srcs       URLs of the photos taken on this day
  * @param {boolean}  isToday    draws the teal ring
- * @param {number}   rotateMs   average time each photo stays up
+ * @param {number}   rotateMs   least time each photo stays up
  * @param {*}        pageInk    page ink; a change re-samples the photo text colours
  * @param {Function} onOpen     () => void, opens the day view
  */

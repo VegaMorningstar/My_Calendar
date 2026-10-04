@@ -1,19 +1,20 @@
 /**
  * Cycles through a day's photos on a randomised timer.
  *
- * Each cell draws its own random start offset and jitters every later wait, so
- * the grid never swaps in unison: photos change here and there, one at a time.
+ * Each cell draws its own random wait, so the grid never swaps in unison: photos change
+ * here and there, one at a time. A photo always stays up at least `intervalMs`; the random
+ * part only adds to that, so nothing swaps sooner than the interval.
  */
 import { useEffect, useRef, useState } from 'react'
 
-/** Each wait is `intervalMs` scaled by a random factor in 1 +/- JITTER. */
+/** Each wait is `intervalMs` plus up to this fraction of it more. */
 const JITTER = 0.4
-/** Never swap sooner than this, so a cell cannot flicker. */
-const MIN_WAIT_MS = 600
+/** The first wait can run longer, so cells start out of step with each other. */
+const FIRST_JITTER = 0.6
 
 /**
  * @param {number} count       photos on the day
- * @param {number} intervalMs  average time each photo stays up
+ * @param {number} intervalMs  the least time each photo stays up
  * @returns {number} index of the photo to show
  */
 export default function usePhotoRotation(count, intervalMs) {
@@ -22,12 +23,9 @@ export default function usePhotoRotation(count, intervalMs) {
 
   useEffect(() => {
     if (count < 2) return
-    // The first wait is anywhere in [0, intervalMs] so cells start out of step.
-    const wait = firstWait.current
-      ? Math.random() * intervalMs
-      : intervalMs * (1 - JITTER + 2 * JITTER * Math.random())
+    const wait = intervalMs * (1 + (firstWait.current ? FIRST_JITTER : JITTER) * Math.random())
     firstWait.current = false
-    const timer = setTimeout(() => setIndex(i => (i + 1) % count), Math.max(wait, MIN_WAIT_MS))
+    const timer = setTimeout(() => setIndex(i => (i + 1) % count), wait)
     return () => clearTimeout(timer)
   }, [index, count, intervalMs])
 

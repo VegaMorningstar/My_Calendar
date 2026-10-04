@@ -15,7 +15,7 @@ import { PhotoCalendar } from './photo-calendar'
 | `photos` | `[]` | URLs ending in `YYYY-MM-DD` or `YYYYMMDD`, or `{ src, date: 'YYYY-MM-DD' }` objects |
 | `initialDate` | today | `Date` whose month opens first |
 | `weekStartsOn` | `0` | `0` Sunday to `6` Saturday |
-| `rotateMs` | `5000` | Average time each photo stays up on a multi-photo day |
+| `rotateMs` | `5000` | The least time each photo stays up on a multi-photo day (a random extra, up to 40%, is added so tiles do not swap in step) |
 | `className` | `''` | Extra class on the root element |
 
 Colours and spacing are CSS variables on `.pc-root` (`styles/base.css`).
