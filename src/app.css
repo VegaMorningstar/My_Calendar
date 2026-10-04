@@ -1,6 +1,6 @@
 :root { color-scheme: light; }
 * { box-sizing: border-box; }
-html, body { margin: 0; min-height: 100%; }
+html, body { margin: 0; min-height: 100%; overscroll-behavior-x: none; /* a sideways swipe must not navigate back a page */ }
 body {
   /* Shows for the instant before the default wallpaper is drawn, so there is no beige flash */
   background: linear-gradient(135deg, #9cc6f7 0%, #c9defa 42%, #ffcaa6 78%, #ffbd94 100%);

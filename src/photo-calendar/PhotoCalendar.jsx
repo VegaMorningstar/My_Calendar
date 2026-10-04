@@ -25,6 +25,8 @@ import YearView from './components/YearView.jsx'
 import useCalendarView from './hooks/useCalendarView.js'
 import usePageInk from './hooks/usePageInk.js'
 import usePanelEdge from './hooks/usePanelEdge.js'
+import useSwipeNav from './hooks/useSwipeNav.js'
+import useTrackpadSwipe from './hooks/useTrackpadSwipe.js'
 import { MONTHS, countInMonth, dateKey, fullSources, groupByDate } from './lib/dates.js'
 import { PANEL_FALLBACK } from './lib/glass-config.js'
 import './styles/base.css'
@@ -61,6 +63,11 @@ export default function PhotoCalendar({
     goTo(year, month - 1)
   }
 
+  // Swiping the panel steps the month (or the year, in year view); left is next, right is previous.
+  // A finger swipe on a phone, a two-finger trackpad swipe on a laptop.
+  const swipe = useSwipeNav(go)
+  useTrackpadSwipe(panelRef, go) // the same on a laptop: a two-finger sideways swipe over the panel
+
   // Hands the panel's surface to the WebGPU glass, or to WWN's CSS glass without it
   usePanelGlass(panelRef, PANEL_FALLBACK)
 
@@ -76,7 +83,7 @@ export default function PhotoCalendar({
       aria-label="Photo calendar"
       style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo, '--pc-veil': pageInk.veil }}
     >
-      <div className="pc-panel" ref={panelRef}>
+      <div className="pc-panel" ref={panelRef} {...swipe}>
         <LiquidGlassPanel params={glassEdge} />
         <CalendarHeader view={view} isYear={isYear} photoCount={photoCount} onStep={go} onToggleZoom={toggleZoom} />
 

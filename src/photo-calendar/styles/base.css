@@ -37,6 +37,8 @@
      so the box takes it off again and the glass corner lands on --pc-panel-r */
   --pc-panel-r: 34px;
   border-radius: calc(var(--pc-panel-r) - var(--pc-edge, 0px));
+  /* Sideways drags are read as swipes between months (useSwipeNav); up and down still scroll the page */
+  touch-action: pan-y;
   background:
     linear-gradient(125deg, rgba(255,255,255,.46) 0%, rgba(255,255,255,.10) 32%, rgba(255,255,255,.06) 62%, rgba(255,255,255,.26) 100%);
   border: 1px solid rgba(255,255,255,.6);

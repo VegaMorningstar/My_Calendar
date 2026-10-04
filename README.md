@@ -55,7 +55,7 @@ The layout responds to the calendar's own width rather than the screen's, using 
 
 ## What it does
 
-- Month pages with real calendar dates, stepped with the glass arrows or the arrow keys.
+- Month pages with real calendar dates, stepped with the glass arrows or the arrow keys, or by swiping: a finger swipe left or right on a phone, or a two-finger sideways swipe on a laptop trackpad while the pointer is over the calendar (left is next, right is previous; in year view it steps the year).
 - Days with photos show them, rotating at random times (never all at once). Hover for the photo count.
 - Click a day for a full-screen view with the date and every photo from that day as a grid of thumbnails. Close it with the burgundy X, Esc, or by clicking away.
 - In that view, the left and right arrow keys, a swipe left or right, or the arrow buttons jump to the previous or next day that has photos.
