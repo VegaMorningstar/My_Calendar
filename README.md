@@ -150,3 +150,34 @@ Not started, written down as an option.
 - Native app with the free Apple ID (re-sign every 7 days) or the paid account?
 - Go native for the widget, or try the exported image first?
 
+
+## Idea for later: updates that keep your data, and backup
+
+Not started, written down for discussion. The problem: after a new version, the app has been deleted from the Home Screen and added again to see the update, and on iPhone that wipes the app's own storage (photos, wallpaper, settings), so everything had to be added again. That is not acceptable for future users. The update itself never needs a wipe; deleting the icon does.
+
+**1. Updates that arrive without deleting anything (do first, small)**
+
+- **Likely cause:** an installed iPhone app is usually suspended, not restarted, so it only checks for a new version at launch and can run old code for days. The service worker (`public/sw.js`) already installs and takes over quickly, but the page that is already open never reloads.
+- Check for a new version every time the app comes back to the front (`visibilitychange`, then `registration.update()`).
+- When the new service worker is ready, show a small "New version, tap to reload" message (or reload on its own when the app is idle).
+- Stop GitHub Pages' 10 minute browser cache from serving a stale `index.html` or `sw.js`: register the worker with `updateViaCache: 'none'` and fetch the page with `cache: 'no-cache'`.
+- Show the build version in the info card or the diagnostics card, so it is clear which version is running.
+- To confirm first: whether the old look really shows until the icon is deleted (stale version) or something else is going on.
+
+**2. Back up and restore**
+
+- An "Export library" button saves the photos, wallpaper and settings to a file through the Share sheet or Files, and "Import backup" restores them. It covers a new phone, an accidental delete, and a future change of web address (storage is tied to the address, so moving to a custom domain would orphan everyone's data without it).
+- Photos are big, so a cap on the stored copy (about 3000px on the long side, see the photo storage note below) keeps the backup light.
+
+**Also worth keeping in mind**
+
+- Persistent storage is already requested when photos are added; keep it that way.
+- Any change to how photos are stored needs a proper upgrade step (IndexedDB version upgrade), so a new version never needs a wipe.
+- A separate test address would let changes be tried without touching real data, but it has separate storage, so test photos would need adding there.
+- Removing the problem altogether: the native iOS app above reads the Photos library directly, so nothing needs re-adding. Syncing through an account or cloud would survive a delete, but it means uploading photos, which goes against the rule that photos never leave the device; that would be a deliberate decision.
+
+**Open questions**
+
+- Reload prompt, or reload by itself when idle?
+- Export as one file, or in parts for big libraries?
+- Cap the stored photo copy at 3000px first?

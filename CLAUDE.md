@@ -34,6 +34,9 @@ Turn the calendar into an iOS app that reads the Photos library through PhotoKit
 ### iPhone widget
 A PWA cannot provide one (WidgetKit is native only). Options: a widget extension inside the native iOS app, or an exported month image shown by the built-in Photos widget. Not started. Full write-up in `README.md`, under "Idea for later: an iPhone widget".
 
+### Updates that keep user data, and backup
+Deleting the Home Screen icon wipes the app's storage on iPhone, and that is what has been done to see updates. Two parts, agreed to discuss before building: (1) fix the update path so a new version reaches an installed app without deleting it (check on resume, "new version, tap to reload", bypass the 10 minute HTTP cache for `index.html` and `sw.js`, show the build version); (2) export and import a backup of photos, wallpaper and settings. Full write-up in `README.md`, under "Idea for later: updates that keep your data, and backup". Not started.
+
 ### Other open items
 - Dedicated cleanup so Write-With-Nature and this repo share one copy of the glass code (a shared package) instead of two. Details in `src/photo-calendar/wwn-glass/README.md`.
 - Test the glass against other page background colours.
