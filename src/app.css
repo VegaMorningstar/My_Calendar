@@ -50,3 +50,13 @@ body {
   height: calc(env(safe-area-inset-top) + 26px);
   background: linear-gradient(to bottom, rgba(0, 0, 0, .34), rgba(0, 0, 0, 0));
 }
+
+/*
+ * A thin strip in the wallpaper's top-edge colour. iOS 26 tints the status bar from the colour at
+ * the top of the page, so this makes the bar blend into the wallpaper. It is the same colour as
+ * what is behind it, so it is all but invisible.
+ */
+.app-top-strip {
+  position: fixed; top: 0; left: 0; right: 0; height: 6px; z-index: 3; pointer-events: none;
+  transition: background .5s ease;
+}

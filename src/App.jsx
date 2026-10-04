@@ -6,7 +6,7 @@
  * on top of the wallpaper they chose (or the plain page colour).
  */
 import { useEffect, useState } from 'react'
-import { PhotoCalendar, setBackgroundImage } from './photo-calendar/index.js'
+import { PhotoCalendar, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
 import { LibraryHint, LibraryNote, SettingsMenu, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
 /**
@@ -26,6 +26,28 @@ function useRunsUnderStatusBar() {
   return under
 }
 
+/**
+ * The colour along the top edge of the wallpaper, kept up to date. iOS 26 tints the status bar
+ * from the page's top edge and from the theme-color tag, and since 26.1 it will not draw the
+ * page behind the bar in a Home Screen app, so matching that edge is the best way to make the
+ * bar blend in. Returns a CSS colour, and also writes it to the theme-color meta tag.
+ */
+function useTopEdgeColor(wallpaper) {
+  const [color, setColor] = useState(null)
+  useEffect(() => {
+    if (!wallpaper.image) return
+    const update = () => {
+      const next = topEdgeColor()
+      setColor(next)
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next)
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [wallpaper.image, wallpaper.averageCss])
+  return color
+}
+
 export default function App() {
   const library = usePhotoLibrary()
   const underStatusBar = useRunsUnderStatusBar()
@@ -36,9 +58,14 @@ export default function App() {
     setBackgroundImage(wallpaper.image, wallpaper.averageCss)
   }, [wallpaper.image, wallpaper.averageCss])
 
+  // Declared after the effect above, so the glass already knows the wallpaper when this reads it
+  const topColor = useTopEdgeColor(wallpaper)
+
   return (
     <main className="stage">
       {underStatusBar && <div className="app-status-scrim" aria-hidden="true" />}
+      {/* A thin strip in the wallpaper's top-edge colour, there for iOS to tint the status bar from */}
+      {topColor && <div className="app-top-strip" style={{ background: topColor }} aria-hidden="true" />}
       {wallpaper.url && (
         <div className="app-wallpaper" key={wallpaper.url} style={{ backgroundImage: `url("${wallpaper.url}")` }} />
       )}

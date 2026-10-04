@@ -148,3 +148,30 @@ export function backdropLuma(rect) {
   }
   return n ? sum / n : cssColorLuma(paperColor())
 }
+
+/**
+ * Average colour of what is behind `rect` (a viewport rectangle) as a CSS string: the
+ * wallpaper's average there, or the page colour when there is no wallpaper.
+ */
+export function backdropColor(rect) {
+  const image = getBackgroundImage()
+  if (!image || !image.naturalWidth) return paperColor()
+  const { w, h, data } = sampleViewport(image)
+  const vw = window.innerWidth
+  const vh = window.innerHeight
+  const x0 = Math.max(0, Math.floor(((rect?.left ?? 0) / vw) * w))
+  const x1 = Math.min(w, Math.max(x0 + 1, Math.ceil(((rect?.right ?? vw) / vw) * w)))
+  const y0 = Math.max(0, Math.floor(((rect?.top ?? 0) / vh) * h))
+  const y1 = Math.min(h, Math.max(y0 + 1, Math.ceil(((rect?.bottom ?? vh) / vh) * h)))
+  let r = 0, g = 0, b = 0, n = 0
+  for (let y = y0; y < y1; y++) {
+    for (let x = x0; x < x1; x++) {
+      const o = (y * w + x) * 4
+      r += data[o]; g += data[o + 1]; b += data[o + 2]; n++
+    }
+  }
+  return n ? `rgb(${Math.round(r / n)}, ${Math.round(g / n)}, ${Math.round(b / n)})` : paperColor()
+}
+
+/** The colour along the very top edge of the screen: what the status bar should blend into. */
+export const topEdgeColor = () => backdropColor({ left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight * 0.04 })
