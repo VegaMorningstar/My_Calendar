@@ -17,10 +17,10 @@
   /* The shape of a date box: square, so a photo shows as much of itself as possible */
   --pc-tile-ratio: 1;
   /* The biggest a square date box can be: the month's rows (--pc-rows, set by PhotoCalendar: four to six)
-     must fit the screen's height after the header, padding and the buttons below (about 264px, plus the gaps between the rows, plus --pc-extra-height: space the host page needs below the
+     must fit the screen's height after the header, padding and the buttons below (about 268px, plus the gaps between the rows, plus --pc-extra-height: space the host page needs below the
      calendar, such as a hint line). A five-row
      month therefore gets bigger boxes than a six-row one. */
-  --pc-tile-max: max(44px, calc((100dvh - 264px - var(--pc-extra-height, 0px) - (var(--pc-rows, 6) - 1) * var(--pc-gap)) / var(--pc-rows, 6)));
+  --pc-tile-max: max(44px, calc((100dvh - 268px - var(--pc-extra-height, 0px) - (var(--pc-rows, 6) - 1) * var(--pc-gap)) / var(--pc-rows, 6)));
   --pc-serif: 'Playfair Display', Georgia, serif;
   --pc-mono: 'DM Mono', ui-monospace, monospace;
 
@@ -70,12 +70,14 @@
 
 /* ── Header ───────────────────────────────────────────────────────────── */
 .pc-head {
-  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  /* The title (month and year button) and the arrows share a row while they fit; when the month name is long
+     or the panel narrow, the arrows drop beneath on the right instead of running off the panel */
+  display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 6px 16px;
   margin-bottom: clamp(10px, 2vw, 22px);
 }
-.pc-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.pc-title { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; max-width: 100%; }
 /* The month and the year button side by side. GlassButtons pads its canvas, so the slot tucks it in toward the text */
-.pc-title-row { --pc-month-size: clamp(1.9rem, 5vw, 3rem); display: flex; align-items: center; gap: 4px; }
+.pc-title-row { --pc-month-size: clamp(1.9rem, 5vw, 3rem); display: flex; flex-wrap: wrap; align-items: center; gap: 4px; max-width: 100%; }
 /* The year in the button sits on the same line as the month's letters: the button moves down by the
    distance from the month's centre to its baseline (0.417 of its size), less the few px the digits sit
    below the button's own centre. position: relative, so the layout does not change. */
@@ -90,7 +92,8 @@
 /* The photo count: small and italic, with no highlight line under it */
 .pc-count { font-family: var(--pc-serif); font-style: italic; font-size: clamp(.78rem, 1.6vw, .9rem); color: rgba(var(--pc-ink), .9); }
 
-.pc-nav { display: flex; align-items: center; gap: 10px; flex: none; }
+/* GlassButtons pads its canvas, so the row is taller than the buttons; the negative margins tuck that in (matters most when the arrows sit on a row of their own) */
+.pc-nav { display: flex; align-items: center; gap: 10px; flex: none; margin: -8px 0 -12px auto; }
 
 .pc-round {
   appearance: none; cursor: pointer; font: inherit;
@@ -132,10 +135,4 @@
 /* ── Narrow containers: phones, and narrow columns on any screen ────────── */
 @container pc (max-width: 640px) {
   .pc-panel { --pc-gap: 3px; --pc-radius: 7px; padding: 10px 10px 12px; --pc-panel-r: 26px; }
-}
-/* Very narrow: the arrows drop beneath the title, on the right */
-@container pc (max-width: 360px) {
-  .pc-head { flex-wrap: wrap; row-gap: 10px; }
-  .pc-title { width: 100%; }
-  .pc-nav { margin-left: auto; }
 }

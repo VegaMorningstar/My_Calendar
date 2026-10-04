@@ -29,7 +29,7 @@
 .pc-slide-prev { animation-name: pc-slide-prev; }
 /* Horizontal swipes are read by the sheet; vertical drags still scroll the photos */
 .pc-sheet-scroll { touch-action: pan-y; }
-.pc-detail-actions { display: flex; align-items: flex-start; gap: 0; flex: none; }
+.pc-detail-actions { display: flex; align-items: flex-start; gap: 0; flex: none; margin-left: auto; }
 
 @keyframes pc-rise { from { opacity: 0; transform: translateY(14px) scale(.97); } }
 
@@ -58,7 +58,7 @@
   border-radius: inherit;
 }
 
-.pc-detail-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: clamp(14px, 2.4vw, 26px); }
+.pc-detail-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 8px 16px; margin-bottom: clamp(14px, 2.4vw, 26px); }
 .pc-detail-dow {
   margin: 0; font-family: var(--pc-serif); font-weight: 600; line-height: 1;
   font-size: clamp(2.2rem, 6vw, 3.8rem); color: rgb(var(--pc-ink));
