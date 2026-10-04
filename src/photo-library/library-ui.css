@@ -1,4 +1,4 @@
-/* The gear and its menu (top left), and the note under the calendar.
+/* The gear and its menu (bottom left; the menu opens upward), and the info note.
    Text colour is --lib-ink and the menu wash is --lib-hi (both adaptive). */
 .lib-settings, .lib-footer {
   --lib-ink: 28, 26, 16;
@@ -24,12 +24,12 @@
 
 /* ── Menu: a WWN liquid glass panel with the items on top ── */
 .lib-menu-wrap {
-  position: absolute; z-index: 60; top: calc(100% + 4px); left: 0; min-width: 230px; border-radius: 22px;
+  position: absolute; z-index: 60; bottom: calc(100% + 2px); left: 0; min-width: 230px; border-radius: 22px;
   /* The shadow lives here: the glass hook clears the shadow of the panel inside */
   box-shadow: 0 14px 40px rgba(60, 40, 15, .22);
-  animation: lib-menu-in .22s cubic-bezier(.2,.8,.2,1) both; transform-origin: top left;
+  animation: lib-menu-in .22s cubic-bezier(.2,.8,.2,1) both; transform-origin: bottom left;
 }
-@keyframes lib-menu-in { from { opacity: 0; transform: translateY(-6px) scale(.96); } }
+@keyframes lib-menu-in { from { opacity: 0; transform: translateY(6px) scale(.96); } }
 .lib-menu {
   position: relative; isolation: isolate; /* the glass canvas sits at z-index -1 inside this */
   display: grid; gap: 2px; padding: 8px;
@@ -72,7 +72,7 @@
   text-shadow: 0 1px 0 rgba(var(--lib-hi), .6);
 }
 /* GlassButtons pads its canvas; this tucks the tile toward the corner without clipping it */
-.lib-info-slot { line-height: 0; margin: -8px 0 -8px -4px; flex: none; }
+.lib-info-slot { line-height: 0; margin: -8px 0 -8px -18px; flex: none; }
 
 /* The info button's CSS fallback (without WebGPU); the glass tile replaces it otherwise */
 .lib-info-btn {

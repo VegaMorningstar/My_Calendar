@@ -9,11 +9,11 @@ npm install
 npm run dev        # http://127.0.0.1:5173
 ```
 
-The calendar starts empty. Tap the **gear** at the top left, then **Import photos**, to add photos from your device (see below). The calendar component itself can also take a list of photo URLs whose file names end in a date, for example `harbour_2026-10-03.webp`.
+The calendar starts empty. Tap the **gear** at the bottom left, then **Import photos**, to add photos from your device (see below). The calendar component itself can also take a list of photo URLs whose file names end in a date, for example `harbour_2026-10-03.webp`.
 
 ## Add your own photos
 
-Tap the **gear** at the top left, then **Import photos**. The system photo picker opens and you choose which photos to add (in the picker, the Albums tab lets you open Favourites and select them all). Each photo is placed on the day it was taken, read from its EXIF capture date. A photo with no capture date, such as a screenshot, uses the file's date instead. How many photos were added, skipped or unreadable shows in a toast that disappears after three seconds. Picking the same photo twice is ignored.
+Tap the **gear** at the bottom left, then **Import photos**. The system photo picker opens and you choose which photos to add (in the picker, the Albums tab lets you open Favourites and select them all). Each photo is placed on the day it was taken, read from its EXIF capture date. A photo with no capture date, such as a screenshot, uses the file's date instead. How many photos were added, skipped or unreadable shows in a toast that disappears after three seconds. Picking the same photo twice is ignored.
 
 - **Everything stays on the device.** Photos are saved in the browser's own storage (IndexedDB) on your phone. Nothing is uploaded, and the import code makes no network requests. The site's code comes from GitHub Pages; your photos never do.
 - **Install first, then import.** An installed home-screen app and Safari keep separate storage on iPhone, so add photos from inside the installed app.

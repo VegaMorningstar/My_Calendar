@@ -1,6 +1,6 @@
 /**
- * The demo page: a gear at the top left (photos and wallpaper settings), the
- * photo calendar, and an info button at the bottom left.
+ * The demo page: the photo calendar, and along the bottom left a gear (photos and
+ * wallpaper settings) with the info button beside it.
  *
  * The calendar shows whatever photos the user has imported from their device,
  * on top of the wallpaper they chose (or the plain page colour).
@@ -23,14 +23,12 @@ export default function App() {
       {wallpaper.url && (
         <div className="app-wallpaper" key={wallpaper.url} style={{ backgroundImage: `url("${wallpaper.url}")` }} />
       )}
-      <div className="stage-toolbar">
-        <SettingsMenu library={library} wallpaper={wallpaper} />
-      </div>
       <div className="stage-column">
         <PhotoCalendar photos={library.photos} />
         <LibraryHint library={library} />
       </div>
       <div className="stage-footer">
+        <SettingsMenu library={library} wallpaper={wallpaper} />
         <LibraryNote />
       </div>
     </main>
