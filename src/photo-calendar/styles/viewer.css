@@ -39,6 +39,7 @@
   -webkit-tap-highlight-color: transparent;
   transition: background .15s, transform .15s;
 }
+.pc-viewer-btn svg { display: block; }
 .pc-viewer-btn:hover { background: rgba(255,255,255,.26); }
 .pc-viewer-btn:active { transform: scale(.94); }
 .pc-viewer-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }

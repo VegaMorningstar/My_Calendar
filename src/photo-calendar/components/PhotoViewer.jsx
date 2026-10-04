@@ -40,6 +40,16 @@ const SNAP = 'transform .28s cubic-bezier(.2,.8,.2,1)'
 const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v))
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y)
 
+/** Drawn shapes for the buttons: unlike a text character, an SVG centres exactly whatever the font. */
+const icon = path => (
+  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d={path} />
+  </svg>
+)
+const CLOSE_ICON = icon('M6 6l12 12M18 6L6 18')
+const PREV_ICON = icon('M15 5l-7 7 7 7')
+const NEXT_ICON = icon('M9 5l7 7-7 7')
+
 /**
  * @param {string[]} srcs     the day's photos (full size)
  * @param {number}   index    which one is showing
@@ -300,11 +310,11 @@ export default function PhotoViewer({ srcs, index, onIndex, onClose }) {
       {/* Keyed by source so each photo fades in rather than snapping */}
       <img ref={imgRef} className="pc-viewer-img" key={srcs[index]} src={srcs[index]} alt={`Photo ${index + 1} of ${count}`} draggable="false" />
 
-      <button type="button" className="pc-viewer-btn pc-viewer-close" aria-label="Close photo" onClick={onClose}>×</button>
+      <button type="button" className="pc-viewer-btn pc-viewer-close" aria-label="Close photo" onClick={onClose}>{CLOSE_ICON}</button>
       {count > 1 && (
         <>
-          <button type="button" className="pc-viewer-btn pc-viewer-prev" aria-label="Previous photo" onClick={() => step(-1)}>‹</button>
-          <button type="button" className="pc-viewer-btn pc-viewer-next" aria-label="Next photo" onClick={() => step(1)}>›</button>
+          <button type="button" className="pc-viewer-btn pc-viewer-prev" aria-label="Previous photo" onClick={() => step(-1)}>{PREV_ICON}</button>
+          <button type="button" className="pc-viewer-btn pc-viewer-next" aria-label="Next photo" onClick={() => step(1)}>{NEXT_ICON}</button>
           <span className="pc-viewer-count">{index + 1} / {count}</span>
         </>
       )}
