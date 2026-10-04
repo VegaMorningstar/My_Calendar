@@ -64,8 +64,9 @@ export default function App() {
   return (
     <main className="stage">
       {underStatusBar && <div className="app-status-scrim" aria-hidden="true" />}
-      {/* A thin strip in the wallpaper's top-edge colour, there for iOS to tint the status bar from */}
-      {topColor && <div className="app-top-strip" style={{ background: topColor }} aria-hidden="true" />}
+      {/* A thin strip in the wallpaper's top-edge colour, there for iOS to tint the status bar from.
+          Only needed when the page cannot run under the bar; when it does, the strip would show as a band. */}
+      {!underStatusBar && topColor && <div className="app-top-strip" style={{ background: topColor }} aria-hidden="true" />}
       {wallpaper.url && (
         <div className="app-wallpaper" key={wallpaper.url} style={{ backgroundImage: `url("${wallpaper.url}")` }} />
       )}
