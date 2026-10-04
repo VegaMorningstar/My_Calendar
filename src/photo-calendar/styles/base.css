@@ -59,14 +59,6 @@
     inset 1.5px 1.5px 7px rgba(255,255,255,.75),
     inset -2px -2px 9px rgba(120,90,40,.10);
 }
-/* frost grain over the whole slab */
-.pc-panel::before {
-  content: '';
-  position: absolute; inset: 0; border-radius: var(--pc-panel-r); z-index: -1; pointer-events: none;
-  opacity: .22; mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-
 /*
  * Readability veil. Over a photo background the glass shows a blurred copy of the
  * photo, which can be busy; a soft wash in the tone opposite the text keeps the
