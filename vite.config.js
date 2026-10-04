@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto'
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 
+const defaultWallpaper = JSON.parse(readFileSync(new URL('./src/photo-library/default-wallpaper-meta.json', import.meta.url), 'utf8'))
+
 /**
  * Where the app is served from.
  *
@@ -49,8 +51,20 @@ function pwaPrecache() {
   }
 }
 
+/** Fills the default wallpaper's preview and colours into index.html's early-paint script. */
+function defaultWallpaperInHtml() {
+  return {
+    name: 'default-wallpaper-in-html',
+    transformIndexHtml: html => html
+      .replaceAll('%DEFAULT_PREVIEW%', defaultWallpaper.preview)
+      .replaceAll('%DEFAULT_AVERAGE%', defaultWallpaper.averageCss)
+      .replaceAll('%DEFAULT_TOP%', defaultWallpaper.top)
+      .replaceAll('%DEFAULT_BOTTOM%', defaultWallpaper.bottom),
+  }
+}
+
 // unplugin-typegpu compiles the glass shaders and has to come before the React plugin.
 export default defineConfig({
   base: BASE,
-  plugins: [typegpu({ include: [/\.m?[jt]sx?/] }), react(), pwaPrecache()],
+  plugins: [typegpu({ include: [/\.m?[jt]sx?/] }), react(), defaultWallpaperInHtml(), pwaPrecache()],
 })

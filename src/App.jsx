@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from 'react'
 import { PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
-import { LibraryHint, LibraryNote, SettingsMenu, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
+import { LibraryHint, LibraryNote, SettingsMenu, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
 /**
  * True when the page runs under the iPhone status bar. Then the top safe-area inset is more
@@ -42,7 +42,11 @@ function useTopEdgeColor(wallpaper) {
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', next)
       // The page behind the wallpaper takes the bottom edge's colour, so anything the wallpaper
       // does not reach (the screen is briefly taller than the page on launch) blends in, not white
-      document.documentElement.style.background = bottomEdgeColor()
+      const bottom = bottomEdgeColor()
+      document.documentElement.style.background = bottom
+      // Remember both edge colours for a custom wallpaper, so the next launch can tint the status
+      // bar and the page behind the wallpaper before anything has loaded (see index.html)
+      if (!wallpaper.isDefault) rememberWallpaperEdges(next, bottom)
     }
     update()
     window.addEventListener('resize', update)
@@ -60,6 +64,13 @@ export default function App() {
   useEffect(() => {
     setBackgroundImage(wallpaper.image, wallpaper.averageCss)
   }, [wallpaper.image, wallpaper.averageCss])
+
+  // Once the full wallpaper has faded in, drop the blurred preview that index.html painted first
+  useEffect(() => {
+    if (!wallpaper.url) return
+    const timer = setTimeout(() => document.getElementById('early-wallpaper')?.remove(), 900)
+    return () => clearTimeout(timer)
+  }, [wallpaper.url])
 
   // Declared after the effect above, so the glass already knows the wallpaper when this reads it
   const topColor = useTopEdgeColor(wallpaper)

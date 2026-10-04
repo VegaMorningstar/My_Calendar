@@ -15,7 +15,7 @@
  */
 import { useEffect, useState } from 'react'
 import { PHOTO_BAND, backdropLuma, inkFor } from '../lib/adaptive-ink.js'
-import { getBackgroundImage, onPaperChange, syncPaperFromBody } from '../wwn-glass/index.js'
+import { isWallpaperActive, onPaperChange, syncPaperFromBody } from '../wwn-glass/index.js'
 
 /** Opacity of the readability veil laid over the glass when the page has a photo background. */
 const PHOTO_VEIL = 0.16
@@ -57,7 +57,7 @@ function read(el, region) {
   }
   const usable = rect && rect.width > 0 && rect.height > 0
   // A firm light-or-dark choice (narrow band): a blended grey in between is the least readable ink
-  return { ...inkFor(backdropLuma(usable ? rect : null), PHOTO_BAND), veil: getBackgroundImage() ? PHOTO_VEIL : 0 }
+  return { ...inkFor(backdropLuma(usable ? rect : null), PHOTO_BAND), veil: isWallpaperActive() ? PHOTO_VEIL : 0 }
 }
 
 /**

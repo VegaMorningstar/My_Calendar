@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "icons": "node scripts/gen-icons.mjs"
+    "icons": "node scripts/gen-icons.mjs",
+    "default-wallpaper": "node scripts/gen-default-wallpaper.mjs"
   },
   "dependencies": {
     "@typegpu/noise": "0.12.0",

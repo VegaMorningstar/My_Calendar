@@ -40,6 +40,20 @@ export function setPaperColor(css) {
 }
 
 /**
+ * Tell the page the wallpaper's average colour before the image itself is ready (it is remembered
+ * from the last visit), so the text colours and the readability veil are right from the first frame
+ * instead of changing when the image arrives.
+ */
+export function setBackgroundAverage(average) {
+  state.bgAverage = average
+  state.version++
+  emit()
+}
+
+/** True once there is a wallpaper, or at least its remembered average colour. */
+export const isWallpaperActive = () => !!(state.bgImage || state.bgAverage)
+
+/**
  * Tell the glass the page has a photo as its background, so it refracts the
  * photo rather than a flat colour. `average` is the photo's average colour as a
  * CSS string, used wherever one colour has to stand for the page (text ink).

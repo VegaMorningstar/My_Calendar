@@ -28,4 +28,4 @@ export { bottomEdgeColor, topEdgeColor } from './lib/adaptive-ink.js'
 export { WALLPAPER_OVERSCAN_PX } from './wwn-glass/index.js'
 
 // Tell the glass what the page behind it looks like, if that changes after load
-export { setPaperColor, setBackgroundImage } from './wwn-glass/index.js'
+export { setPaperColor, setBackgroundImage, setBackgroundAverage } from './wwn-glass/index.js'

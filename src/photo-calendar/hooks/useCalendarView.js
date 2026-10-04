@@ -17,8 +17,11 @@ import { useEffect, useRef, useState } from 'react'
 export default function useCalendarView({ initialDate, enabled = true } = {}) {
   const [start] = useState(() => initialDate ?? new Date())
   const [view, setView] = useState({ y: start.getFullYear(), m: start.getMonth(), mode: 'month' })
-  /** 'next' | 'prev' | 'zoom-in' | 'zoom-out': names the entry animation. */
-  const [anim, setAnim] = useState('next')
+  /**
+   * 'next' | 'prev' | 'zoom-in' | 'zoom-out': names the entry animation of a page change. Empty at first, so
+   * the calendar is simply there when the app opens instead of sliding in.
+   */
+  const [anim, setAnim] = useState('')
 
   /** Month view steps a month, year view steps a year. */
   const go = delta => {

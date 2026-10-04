@@ -5,10 +5,20 @@
  * It is stored as a JPEG no larger than MAX_SIDE px, with its average colour
  * beside it. The average is what the calendar's text colours are chosen against,
  * so they stay readable over any photo.
+ *
+ * The full image lives in IndexedDB, which is asynchronous, so it cannot be painted
+ * on the first frame. A small "hint" is therefore also kept in localStorage, which
+ * can be read instantly: a tiny blurred preview (a few KB), the average colour and
+ * the colours of the top and bottom edges. The page paints the preview straight
+ * away (see the script in index.html) and the full image fades in over it.
  */
 import { deleteSetting, getSetting, putSetting } from './photo-store.js'
 
 const KEY = 'wallpaper'
+/** localStorage key of the hint. index.html reads the same key. */
+const HINT_KEY = 'mycal.wallpaper'
+/** Width of the preview in px: it is blurred anyway, and small keeps it to a few KB. */
+const PREVIEW_W = 48
 /** Longest side of the stored wallpaper, in px. Plenty for a phone or a laptop screen. */
 const MAX_SIDE = 2400
 /** The average is taken over the middle of the photo, where the calendar sits. */
@@ -42,7 +52,37 @@ export async function prepareWallpaper(file) {
 
   const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.86))
   if (!blob) throw new Error('Could not encode the wallpaper')
-  return { blob, average: { r: Math.round(r / n), g: Math.round(g / n), b: Math.round(b / n) } }
+  const average = { r: Math.round(r / n), g: Math.round(g / n), b: Math.round(b / n) }
+  return { blob, average, preview: makePreview(canvas) }
+}
+
+/** A tiny JPEG data URL of a canvas or a loaded image, keeping its proportions. */
+function makePreview(source) {
+  const sw = source.naturalWidth || source.width
+  const sh = source.naturalHeight || source.height
+  const small = document.createElement('canvas')
+  small.width = PREVIEW_W
+  small.height = Math.min(96, Math.max(16, Math.round((PREVIEW_W * sh) / sw)))
+  small.getContext('2d').drawImage(source, 0, 0, small.width, small.height)
+  return small.toDataURL('image/jpeg', 0.7)
+}
+
+/** A preview of an already loaded image, for a wallpaper whose hint has gone missing. */
+export const previewOf = makePreview
+
+/** The remembered hint, or null: { preview, average, top?, bottom? }. Read synchronously. */
+export function readWallpaperHint() {
+  try { return JSON.parse(localStorage.getItem(HINT_KEY)) } catch { return null }
+}
+
+/** Remembers (or updates) the hint. Storage can be unavailable (private mode), and that is fine. */
+export function writeWallpaperHint(partial) {
+  try { localStorage.setItem(HINT_KEY, JSON.stringify({ ...readWallpaperHint(), ...partial })) } catch { /* no storage */ }
+}
+
+/** Forgets the hint, so the next launch shows the default wallpaper. */
+export function clearWallpaperHint() {
+  try { localStorage.removeItem(HINT_KEY) } catch { /* no storage */ }
 }
 
 /** Saves the wallpaper, replacing any earlier one. */

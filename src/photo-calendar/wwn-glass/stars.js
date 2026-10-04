@@ -11,14 +11,16 @@
  */
 import { getBackgroundImage, wallpaperBoxScale } from './theme.js'
 
-/** Cover-fitted copies of the photo, by target size, so each frame is one cheap blit. */
-const fitted = new Map()
+/** Cover-fitted copies of each photo, by target size, so each frame is one cheap blit. */
+const fitted = new WeakMap() // image -> Map('WxH' -> canvas)
 const MAX_FITTED = 4
 
 /** The photo cropped to cover a w x h area, cached. */
 function coverCanvas(image, w, h) {
-  const key = `${image.src}|${Math.round(w)}x${Math.round(h)}`
-  let canvas = fitted.get(key)
+  let sizes = fitted.get(image)
+  if (!sizes) fitted.set(image, (sizes = new Map()))
+  const key = `${Math.round(w)}x${Math.round(h)}`
+  let canvas = sizes.get(key)
   if (!canvas) {
     canvas = document.createElement('canvas')
     canvas.width = Math.max(1, Math.round(w))
@@ -27,8 +29,8 @@ function coverCanvas(image, w, h) {
     const dw = image.naturalWidth * scale
     const dh = image.naturalHeight * scale
     canvas.getContext('2d').drawImage(image, (canvas.width - dw) / 2, (canvas.height - dh) / 2, dw, dh)
-    if (fitted.size >= MAX_FITTED) fitted.delete(fitted.keys().next().value)
-    fitted.set(key, canvas)
+    if (sizes.size >= MAX_FITTED) sizes.delete(sizes.keys().next().value)
+    sizes.set(key, canvas)
   }
   return canvas
 }

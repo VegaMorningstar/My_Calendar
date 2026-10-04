@@ -18,9 +18,44 @@
     <link rel="apple-touch-icon" href="%BASE_URL%icons/apple-touch-icon.png" />
     <link rel="icon" type="image/svg+xml" href="%BASE_URL%icons/icon.svg" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+    <!-- Fonts are hosted with the app (src/fonts.css); preload the two used on first paint -->
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="%BASE_URL%fonts/PlayfairDisplay-normal-nuFiD-vYSZvi.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="%BASE_URL%fonts/DMMono-normal-aFTU7PB1QTsU.woff2" />
+
+    <!--
+      Paint the wallpaper before anything else loads. The wallpaper in use is remembered as a tiny
+      blurred preview (a few KB) in localStorage, which can be read instantly, unlike the full image
+      in IndexedDB. This runs before the stylesheet and the app, so the first frame already shows the
+      wallpaper, and the full image fades in over it. The defaults below are filled in at build time
+      from src/photo-library/default-wallpaper-meta.json (npm run default-wallpaper).
+    -->
+    <script>
+      (function () {
+        var fallback = { preview: '%DEFAULT_PREVIEW%', average: '%DEFAULT_AVERAGE%', top: '%DEFAULT_TOP%', bottom: '%DEFAULT_BOTTOM%' }
+        var wp = fallback
+        try {
+          var saved = JSON.parse(localStorage.getItem('mycal.wallpaper'))
+          if (saved && saved.preview) wp = saved
+        } catch (e) {}
+        // The page colour behind everything, then the preview itself, blurred so a 48px image reads as
+        // frosted glass rather than blocks. It is removed once the full wallpaper has faded in (App.jsx).
+        document.documentElement.style.background = wp.bottom || '#ddd'
+        var early = document.createElement('div')
+        early.id = 'early-wallpaper'
+        early.style.cssText = 'position:fixed;top:-40px;left:-40px;right:-40px;bottom:-160px;z-index:-1;pointer-events:none;' +
+          'background:url("' + wp.preview + '") center / cover no-repeat;filter:blur(14px)'
+        document.documentElement.appendChild(early)
+        var theme = document.querySelector('meta[name="theme-color"]')
+        if (theme && wp.top) theme.setAttribute('content', wp.top)
+        if (wp === fallback) {
+          // Using the default wallpaper: start fetching its image now
+          var link = document.createElement('link')
+          link.rel = 'preload'; link.as = 'image'; link.href = '%BASE_URL%wallpaper/default.jpg'
+          document.head.appendChild(link)
+        }
+        window.__wallpaper = wp
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -2,7 +2,7 @@
  * The user's imported photos as React state.
  *
  * Loads whatever is stored on the device, turns it into the { src, full, date }
- * list PhotoCalendar takes, and exposes import and remove actions. The blob
+ * list PhotoCalendar takes (`full` is a function that makes the full-size URL on first use), and exposes import and remove actions. The blob
  * URLs are revoked whenever the list changes, so memory is released.
  */
 import { useCallback, useEffect, useState } from 'react'
@@ -35,10 +35,16 @@ export default function usePhotoLibrary() {
         const list = records
           .sort((a, b) => a.date.localeCompare(b.date) || a.name.localeCompare(b.name))
           .map(r => {
-            const full = URL.createObjectURL(r.blob)
+            // The full-size URL is made only when a photo is opened full screen (the calendar calls
+            // `full()`), so launching does not create one for every photo in the library
+            let fullUrl = null
+            const full = () => {
+              if (!fullUrl) { fullUrl = URL.createObjectURL(r.blob); urls.push(fullUrl) }
+              return fullUrl
+            }
             // Without a preview (the browser could not decode it) the full photo stands in
-            const src = r.thumb ? URL.createObjectURL(r.thumb) : full
-            urls.push(full, ...(r.thumb ? [src] : []))
+            const src = r.thumb ? URL.createObjectURL(r.thumb) : full()
+            if (r.thumb) urls.push(src)
             return { src, full, date: r.date }
           })
         setPhotos(list)

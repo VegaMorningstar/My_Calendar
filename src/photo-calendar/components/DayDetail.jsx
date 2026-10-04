@@ -27,7 +27,7 @@ const SWIPE_PX = 70
 /**
  * @param {{year:number, month:number, day:number}} date  the day to show
  * @param {string[]} srcs          the day's photos (previews, if there are any)
- * @param {Map<string,string>} [fullBySrc]  preview URL -> full-size URL for the viewer
+ * @param {Map<string,string|Function>} [fullBySrc]  preview URL -> full-size URL (or a function making it) for the viewer
  * @param {boolean}  hasPrev       an earlier date with photos exists
  * @param {boolean}  hasNext       a later date with photos exists
  * @param {Function} onStep        (delta:-1|1) => void, go to the previous / next such date
@@ -111,6 +111,12 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
     }
   }
 
+  // A photo's full-size source can be a URL or a function that makes one on first use
+  const resolveFull = s => {
+    const full = fullBySrc?.get(s)
+    return typeof full === 'function' ? full() : full ?? s
+  }
+
   const weekday = FULL_WEEKDAYS[new Date(year, month, day).getDay()]
   const navItems = [
     { key: 'prev-day', label: '←', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round' },
@@ -178,7 +184,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         </div>
       </div>
       {viewing !== null && (
-        <PhotoViewer srcs={srcs.map(s => fullBySrc?.get(s) ?? s)} index={viewing} onIndex={setViewing} onClose={closeViewer} />
+        <PhotoViewer srcs={srcs.map(resolveFull)} index={viewing} onIndex={setViewing} onClose={closeViewer} />
       )}
     </div>,
     document.body,

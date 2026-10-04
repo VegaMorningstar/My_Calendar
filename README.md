@@ -23,9 +23,20 @@ Tap the **gear** at the bottom left, then **Import photos**. The system photo pi
 
 ## Wallpaper
 
-The calendar sits on a wallpaper. By default it is a frosted wash of peach and light pastel blue, drawn by the app (`src/photo-library/default-wallpaper.js`). In the gear menu, **Set wallpaper** opens the photo picker and uses the photo you choose instead (**Change wallpaper** once one is set), and **Reset wallpaper** brings the default back. The wallpaper is shrunk to screen size and kept on the device like the photos.
+The calendar sits on a wallpaper. By default it is a frosted wash of peach and light pastel blue, a ready-made image (`public/wallpaper/default.jpg`, drawn once by `npm run default-wallpaper`). In the gear menu, **Set wallpaper** opens the photo picker and uses the photo you choose instead (**Change wallpaper** once one is set), and **Reset wallpaper** brings the default back. The wallpaper is shrunk to screen size and kept on the device like the photos.
 
 The glass refracts the wallpaper, using Write-With-Nature's liquid glass, so it bends and blurs whatever is behind it. All text adapts to how dark the wallpaper is directly behind it: light text over dark areas, dark text over light areas, chosen separately for the calendar, the day view, the gear menu and the note under the calendar. A soft wash over the glass keeps text readable on busy photos.
+
+## Fast start
+
+The app is meant to look finished on its first frame, with no flash of a different background:
+
+- **The wallpaper is painted before the app loads.** The wallpaper in use is remembered as a tiny blurred preview (about 3 KB) in `localStorage`, which can be read instantly, unlike the full image in IndexedDB. A small script at the top of `index.html` paints it, blurred, together with the status bar tint and the page colour, and the full image fades in over it.
+- **Text colours are right from the start.** The wallpaper's average colour is remembered too, so the ink and the readability veil are chosen before the image arrives.
+- **Nothing is drawn at launch.** The default wallpaper is a plain image file, and the fonts are hosted with the app (`public/fonts`). The service worker caches both, so they load without the network.
+- **No entry animation on the first view,** and full-size photo URLs are made only when a photo is opened, not for the whole library at launch.
+
+Re-draw the default wallpaper with `npm run default-wallpaper` (needs Chrome installed).
 
 ## Install it as an app (PWA)
 
