@@ -49,7 +49,7 @@
 .pc-sheet::after {
   --pc-frost-feather: 48px;
   content: ''; position: absolute; inset: var(--pc-edge, 0px); border-radius: calc(var(--pc-panel-r) - var(--pc-edge, 0px)); z-index: -1; pointer-events: none;
-  background: rgba(var(--pc-hi), calc(var(--pc-veil, 0) + var(--pc-frost, .34)));
+  background: rgba(var(--pc-hi), calc(var(--pc-veil, 0) + var(--pc-frost, .52)));
   /* Fade out towards all four edges: two gradients (across and down), kept only where both are opaque */
   -webkit-mask-image:
     linear-gradient(to right, transparent, #000 var(--pc-frost-feather), #000 calc(100% - var(--pc-frost-feather)), transparent),

@@ -22,7 +22,7 @@ import '../styles/base.css'
 import '../styles/detail.css'
 
 /** How much the sheet's glass blurs the wallpaper behind its middle (the calendar panel uses 1.2). */
-const SHEET_BLUR = 4
+const SHEET_BLUR = 5
 
 /**
  * The glass buttons on the sheet are frosted like the sheet itself: the wallpaper behind them blurred as much, and no
