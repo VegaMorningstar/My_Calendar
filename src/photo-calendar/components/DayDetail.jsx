@@ -17,7 +17,7 @@ import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, photoCountLabel } from '.
 import PhotoViewer from './PhotoViewer.jsx'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
-import { BURGUNDY_TINT, CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
+import { CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
 
@@ -30,13 +30,14 @@ const SHEET_BLUR = 4
  */
 const SHEET_BUTTON_BLUR = 4
 /** The arrows' teal (more saturated than the header's), how much of the frost colour it is mixed with, and how strong the cast is. */
-const ARROW_TEAL = { r: 0.0, g: 0.64, b: 0.62 }
-const ARROW_TEAL_MIX = 0.9
-const ARROW_TINT_STRENGTH = 0.78
-/** The close button's burgundy, stronger than elsewhere so the cast reads clearly behind the white cross. */
-const CLOSE_TINT = { ...BURGUNDY_TINT, strength: 0.66 }
-/** px inside the rim over which a button's tint fades out towards its clear edge, so there is no line between them. */
-const TINT_BLEND_PX = 16
+const ARROW_TEAL = { r: 0.0, g: 0.66, b: 0.64 }
+const ARROW_TEAL_MIX = 1 // all teal, none of the frost colour: the hue must show
+const ARROW_TINT_STRENGTH = 0.92 // almost opaque in the middle, so the wallpaper barely shows through the colour
+/** The close button's red: a saturated crimson, almost opaque in the middle, so the cast reads clearly behind the white cross. */
+const CLOSE_TINT = { r: 0.74, g: 0.04, b: 0.2, strength: 0.92 }
+/** px inside the rim where a button's tint starts to fade out towards its clear edge. Small, so the colour holds across
+    the whole middle and only gives way to the refractive edge near the rim. */
+const TINT_BLEND_PX = 5
 /** The glyphs on these buttons are pure white on any wallpaper. */
 const WHITE_INK = { letterR: 255, letterG: 255, letterB: 255, letterLightR: 255, letterLightG: 255, letterLightB: 255 }
 
