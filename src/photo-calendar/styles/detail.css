@@ -24,7 +24,8 @@
    from the plain strip below the page. Normally --pc-fade is 0 and the veil simply ends at the screen's edge. */
 .pc-overlay::before {
   content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background: rgba(var(--pc-hi), .5);
+  /* A neutral dim, the same on every day: the page behind the sheet is blurred and slightly dimmed, whatever the wallpaper */
+  background: rgba(0, 0, 0, .14);
   -webkit-backdrop-filter: blur(14px) saturate(1.1); backdrop-filter: blur(14px) saturate(1.1);
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - var(--pc-fade, 0px)), transparent);
   mask-image: linear-gradient(to bottom, #000 calc(100% - var(--pc-fade, 0px)), transparent);
@@ -43,14 +44,14 @@
 
 @keyframes pc-rise { from { opacity: 0; transform: translateY(14px) scale(.97); } }
 
-/* The frost: a wash in the colour opposite the text (white behind black text, black behind white text), over the glass
-   and under the text and photos, so they stay clear whatever the wallpaper. It starts at the inside of the glass rim
+/* The frost: a wash over the glass and under the text and photos, so they stay clear whatever the wallpaper. Its colour is
+   the wallpaper's own average behind the sheet, tilted towards the colour opposite the text (--pc-frost-rgb, DayDetail.jsx). It starts at the inside of the glass rim
    (--pc-edge, from usePanelEdge) so the bent, colour-fringed edge stays clear, and fades in over --pc-frost-feather
    so there is no line where it begins. It is on top of the readability veil the calendar panel has. */
 .pc-sheet::after {
   --pc-frost-feather: 48px;
   content: ''; position: absolute; inset: var(--pc-edge, 0px); border-radius: calc(var(--pc-panel-r) - var(--pc-edge, 0px)); z-index: -1; pointer-events: none;
-  background: rgba(var(--pc-hi), calc(var(--pc-veil, 0) + var(--pc-frost, .52)));
+  background: rgba(var(--pc-frost-rgb, var(--pc-hi)), var(--pc-frost, .52));
   /* Fade out towards all four edges: two gradients (across and down), kept only where both are opaque */
   -webkit-mask-image:
     linear-gradient(to right, transparent, #000 var(--pc-frost-feather), #000 calc(100% - var(--pc-frost-feather)), transparent),
