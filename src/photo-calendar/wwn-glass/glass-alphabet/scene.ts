@@ -107,6 +107,7 @@ const Params = d.struct({
   edgeBlurMultiplier: d.f32,
   tintStrength: d.f32,
   ringTint: d.f32, // LOCAL CHANGE (calendar): how much of the tint reaches the rim (1 = all of it, 0 = none)
+  ringTintBlend: d.f32, // LOCAL CHANGE (calendar): how far inside the rim (canvas heights) the tint starts to fade towards that
   tintColor: d.vec3f,
   chromaticFalloff: d.f32,
   edgeCurve: d.f32,
@@ -157,6 +158,8 @@ export type SceneParams = {
   tintStrength: number;
   /** LOCAL CHANGE (calendar): how much of the tint reaches the rim; 1 (the default) is all of it, 0 leaves the rim untinted. */
   ringTint?: number;
+  /** LOCAL CHANGE (calendar): the distance inside the rim, in canvas heights, over which the tint fades towards `ringTint`. */
+  ringTintBlend?: number;
   tintR: number;
   tintG: number;
   tintB: number;
@@ -293,6 +296,7 @@ export async function setupTileGlass(
     edgeBlurMultiplier: 0.7,
     tintStrength: 0.05,
     ringTint: 1,
+    ringTintBlend: 0,
     tintColor: d.vec3f(0.58, 0.44, 0.96),
     chromaticFalloff: 1,
     edgeCurve: 1,
@@ -510,10 +514,13 @@ export async function setupTileGlass(
 
     // LOCAL CHANGE (calendar): the ink goes on after the tint. The tint used to be laid over the letters too, which
     // shifted pure white towards the tint colour; now a letter is exactly the ink colour wherever it fully covers.
-    const tintedBlur = d.vec4f(std.mix(applyTint(paperBody, tint).rgb, ink, maskBody), 1);
-    // LOCAL CHANGE (calendar): the rim can be left untinted (ringTint 0), so it keeps the full colour of what it refracts
-    const ringTintParams = TintParams({ color: tint.color, strength: tint.strength * paramsUniform.$.ringTint });
-    const tintedRing = d.vec4f(std.mix(applyTint(paperRing, ringTintParams).rgb, ink, maskRing), 1);
+    // LOCAL CHANGE (calendar): the tint can fade smoothly towards the rim (ringTint), starting `ringTintBlend` inside it,
+    // so a tinted, frosted button has no hard line between its tinted middle and its clear, refracting edge. With
+    // ringTint 1 (the default) this changes nothing.
+    const tintFade = std.mix(d.f32(1), paramsUniform.$.ringTint, std.smoothstep(paramsUniform.$.start - paramsUniform.$.ringTintBlend, paramsUniform.$.end, sdfDist));
+    const fadedTint = TintParams({ color: tint.color, strength: tint.strength * tintFade });
+    const tintedBlur = d.vec4f(std.mix(applyTint(paperBody, fadedTint).rgb, ink, maskBody), 1);
+    const tintedRing = d.vec4f(std.mix(applyTint(paperRing, fadedTint).rgb, ink, maskRing), 1);
 
     // Their third term is the untouched background at weights.outside. Between
     // tiles that would paint our reconstruction of the page over the real page,
@@ -696,6 +703,7 @@ export async function setupTileGlass(
         edgeBlurMultiplier: p.edgeBlurMultiplier,
         tintStrength: p.tintStrength,
         ringTint: p.ringTint ?? 1,
+        ringTintBlend: p.ringTintBlend ?? 0,
         tintColor: d.vec3f(p.tintR, p.tintG, p.tintB),
         chromaticFalloff: Math.max(p.chromaticFalloff ?? 1, 0.05),
         edgeCurve: Math.max(p.edgeCurve ?? 1, 0.05),

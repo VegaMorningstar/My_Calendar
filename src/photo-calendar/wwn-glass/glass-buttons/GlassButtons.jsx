@@ -254,6 +254,7 @@ export default function GlassButtons({
             edgeBlurMultiplier: mm.edgeBlurMultiplier,
             tintStrength: mm.tintStrength,
             ringTint: mm.ringTint, // LOCAL CHANGE (calendar): 0 leaves the rim untinted
+            ringTintBlend: (mm.ringTintBlend ?? 0) / H, // px, from the material; the shader wants canvas heights
             tintR: mm.tintR, tintG: mm.tintG, tintB: mm.tintB,
             chromaticFalloff: mm.chromaticFalloff,
             edgeCurve: mm.edgeCurve,

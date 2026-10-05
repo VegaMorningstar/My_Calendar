@@ -17,7 +17,7 @@ import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, photoCountLabel } from '.
 import PhotoViewer from './PhotoViewer.jsx'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
-import { BURGUNDY_TINT, CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK, TEAL_TINT } from '../lib/glass-config.js'
+import { BURGUNDY_TINT, CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
 
@@ -29,9 +29,16 @@ const SHEET_BLUR = 4
  * date photos in what they refract. Arrows get a teal cast; the close button keeps its burgundy.
  */
 const SHEET_BUTTON_BLUR = 4
-/** How much of the arrows' colour is the teal (the rest is the frost colour) and how strong the cast is. */
-const ARROW_TEAL_MIX = 0.55
-const ARROW_TINT_STRENGTH = 0.5
+/** The arrows' teal (more saturated than the header's), how much of the frost colour it is mixed with, and how strong the cast is. */
+const ARROW_TEAL = { r: 0.0, g: 0.64, b: 0.62 }
+const ARROW_TEAL_MIX = 0.9
+const ARROW_TINT_STRENGTH = 0.78
+/** The close button's burgundy, stronger than elsewhere so the cast reads clearly behind the white cross. */
+const CLOSE_TINT = { ...BURGUNDY_TINT, strength: 0.66 }
+/** px inside the rim over which a button's tint fades out towards its clear edge, so there is no line between them. */
+const TINT_BLEND_PX = 16
+/** The glyphs on these buttons are pure white on any wallpaper. */
+const WHITE_INK = { letterR: 255, letterG: 255, letterB: 255, letterLightR: 255, letterLightG: 255, letterLightB: 255 }
 
 /** A horizontal drag longer than this many px (and mostly sideways) changes day. */
 const SWIPE_PX = 70
@@ -136,22 +143,22 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   // sheet as pale teal discs on a light page and deep teal ones on a dark page
   const frost = pageInk.halo.split(',').map(n => Number(n) / 255)
   const arrowTint = {
-    r: frost[0] + (TEAL_TINT.r - frost[0]) * ARROW_TEAL_MIX,
-    g: frost[1] + (TEAL_TINT.g - frost[1]) * ARROW_TEAL_MIX,
-    b: frost[2] + (TEAL_TINT.b - frost[2]) * ARROW_TEAL_MIX,
+    r: frost[0] + (ARROW_TEAL.r - frost[0]) * ARROW_TEAL_MIX,
+    g: frost[1] + (ARROW_TEAL.g - frost[1]) * ARROW_TEAL_MIX,
+    b: frost[2] + (ARROW_TEAL.b - frost[2]) * ARROW_TEAL_MIX,
     strength: ARROW_TINT_STRENGTH,
   }
   // Frosted in the middle only: the rim is neither blurred (edgeBlurMultiplier 0) nor tinted (ringTint 0), so the edge
   // still refracts crisply and keeps the full colour of what it bends
-  const navMaterial = { ...NAV_MATERIAL, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0 }
-  const closeMaterial = { ...CLOSE_MATERIAL, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0 }
+  const navMaterial = { ...NAV_MATERIAL, letterSize: 22, ...WHITE_INK, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0, ringTintBlend: TINT_BLEND_PX }
+  const closeMaterial = { ...CLOSE_MATERIAL, ...WHITE_INK, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0, ringTintBlend: TINT_BLEND_PX }
   const navItems = [
-    { key: 'prev-day', label: '←', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round', tint: arrowTint },
-    { key: 'next-day', label: '→', title: hasNext ? 'Next day with photos' : 'No later day', onClick: () => stepDay(1), fallbackClass: 'pc-round', tint: arrowTint },
+    { key: 'prev-day', label: '<', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round', tint: arrowTint },
+    { key: 'next-day', label: '>', title: hasNext ? 'Next day with photos' : 'No later day', onClick: () => stepDay(1), fallbackClass: 'pc-round', tint: arrowTint },
   ]
   const closeItem = [{
     key: 'close', label: '×', title: 'Close', onClick: onClose,
-    fallbackClass: 'pc-round pc-burgundy', tint: BURGUNDY_TINT,
+    fallbackClass: 'pc-round pc-burgundy', tint: CLOSE_TINT,
   }]
 
   return createPortal(
