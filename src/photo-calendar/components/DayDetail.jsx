@@ -162,7 +162,6 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         <LiquidGlassPanel params={sheetGlass} showPhotos={false} />
         <div
           className="pc-sheet-scroll"
-          ref={scrollRef}
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
           onClickCapture={e => { if (swiped.current) { e.stopPropagation(); e.preventDefault(); swiped.current = false } }}
@@ -183,19 +182,22 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
               </div>
             </header>
 
-            <div className="pc-gallery">
-              {srcs.map((src, i) => (
-                <button
-                  type="button"
-                  key={src}
-                  className="pc-thumb"
-                  style={{ animationDelay: `${Math.min(i, 16) * 30}ms` }}
-                  aria-label={`Open photo ${i + 1} of ${srcs.length}`}
-                  onClick={() => setViewing(i)}
-                >
-                  <img src={src} alt="" loading="lazy" decoding="async" draggable="false" />
-                </button>
-              ))}
+            {/* The photos have a scroll area of their own: the date and the buttons above stay put */}
+            <div className="pc-gallery-scroll" ref={scrollRef}>
+              <div className="pc-gallery">
+                {srcs.map((src, i) => (
+                  <button
+                    type="button"
+                    key={src}
+                    className="pc-thumb"
+                    style={{ animationDelay: `${Math.min(i, 16) * 30}ms` }}
+                    aria-label={`Open photo ${i + 1} of ${srcs.length}`}
+                    onClick={() => setViewing(i)}
+                  >
+                    <img src={src} alt="" loading="lazy" decoding="async" draggable="false" />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
