@@ -66,5 +66,7 @@ function defaultWallpaperInHtml() {
 // unplugin-typegpu compiles the glass shaders and has to come before the React plugin.
 export default defineConfig({
   base: BASE,
+  // When this build was made: shown on the diagnostics card, so it is easy to tell which version a phone is running
+  define: { __BUILD_TIME__: JSON.stringify(new Date().toISOString()) },
   plugins: [typegpu({ include: [/\.m?[jt]sx?/] }), react(), defaultWallpaperInHtml(), pwaPrecache()],
 })

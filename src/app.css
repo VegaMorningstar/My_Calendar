@@ -96,3 +96,10 @@ body {
 .debug-panel dl div { display: flex; gap: 8px; justify-content: space-between; padding: 2px 0; border-top: 1px solid rgba(255, 255, 255, .1); }
 .debug-panel dt { opacity: .7; flex: none; max-width: 48%; }
 .debug-panel dd { margin: 0; text-align: right; word-break: break-word; }
+
+/* "New version available, tap to reload": above the bottom buttons, centred (GlassButtons pads its canvas, so it sits a little lower than it looks) */
+.update-prompt {
+  position: fixed; z-index: 1250; left: 50%; transform: translateX(-50%);
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + 52px);
+  line-height: 0;
+}

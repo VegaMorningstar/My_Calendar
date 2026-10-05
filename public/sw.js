@@ -5,7 +5,11 @@
  *   in at build time by the `pwa-precache` plugin in vite.config.js (the
  *   placeholder is replaced in dist/sw.js), and the cache name carries a hash of
  *   it, so each deploy gets a fresh cache and the old one is deleted.
- * - Pages: network first, falling back to the cached app shell when offline.
+ * - Pages: network first (skipping the browser's own 10 minute cache, so a deploy shows up at once), falling back to
+ *   the cached app shell when offline.
+ * - Updates: a new version is installed in the background and then WAITS. The page shows "New version available, tap to
+ *   reload"; tapping it sends SKIP_WAITING, the new version takes over and the page reloads. Nothing is deleted under a
+ *   page that is still running. The very first install has nothing to wait for and activates at once.
  * - Google Fonts: stale-while-revalidate.
  *
  * Everything is relative to the worker's own location, so the app works from a
@@ -23,9 +27,20 @@ self.addEventListener('install', event => {
   const list = Array.isArray(PRECACHE) ? PRECACHE : []
   event.waitUntil(
     caches.open(SHELL_CACHE)
-      .then(cache => cache.addAll(['./', ...list].map(urlOf)))
-      .then(() => self.skipWaiting()),
+      // cache: 'reload' skips the browser's own cache, which on GitHub Pages can hold the previous main page for 10 minutes
+      .then(cache => Promise.all(['./', ...list].map(urlOf).map(async url => {
+        const response = await fetch(new Request(url, { cache: 'reload' }))
+        if (!response.ok) throw new Error(`${url}: ${response.status}`)
+        await cache.put(url, response)
+      })))
+      // An update waits for the page's go-ahead (see the message handler below); a first install has nothing to wait for
+      .then(() => { if (!self.registration.active) return self.skipWaiting() }),
   )
+})
+
+// The page sends this when the person taps "New version available"
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting()
 })
 
 self.addEventListener('activate', event => {
@@ -50,10 +65,10 @@ async function cacheFirst(request, cacheName) {
 }
 
 /** Try the network and keep the answer; use the cache if the network fails. */
-async function networkFirst(request, cacheName, fallbackUrl) {
+async function networkFirst(request, cacheName, fallbackUrl, fetchOptions) {
   const cache = await caches.open(cacheName)
   try {
-    const response = await fetch(request)
+    const response = await fetch(fetchOptions ? request.url : request, fetchOptions)
     if (response.ok) cache.put(request, response.clone())
     return response
   } catch (err) {
@@ -86,7 +101,8 @@ self.addEventListener('fetch', event => {
 
   // Page loads
   if (request.mode === 'navigate') {
-    event.respondWith(networkFirst(request, SHELL_CACHE, urlOf('./')))
+    // no-cache: always ask the server if the page changed (cheap when it has not), never trust the 10 minute copy
+    event.respondWith(networkFirst(request, SHELL_CACHE, urlOf('./'), { cache: 'no-cache' }))
     return
   }
 

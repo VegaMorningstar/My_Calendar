@@ -38,6 +38,7 @@ export function collectMetrics() {
     'screen (w x h)': `${screen.width} x ${screen.height}`,
     'visualViewport (w x h)': vv ? `${Math.round(vv.width)} x ${Math.round(vv.height)}` : 'n/a',
     'visualViewport offsetTop / pageTop': vv ? `${Math.round(vv.offsetTop)} / ${Math.round(vv.pageTop)}` : 'n/a',
+    'build': typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'dev',
     'viewport deficit (screen - inner)': `${viewportDeficit()} px`,
     // The glass draws only when something changed; these count the frames it drew and the frames it skipped
     'glass frames drawn / skipped': `${globalThis.__glassStats?.draws ?? 0} / ${globalThis.__glassStats?.skipped ?? 0}`,

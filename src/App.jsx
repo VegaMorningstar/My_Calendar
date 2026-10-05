@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 import { viewportDeficit } from './diagnostics.js'
 import { PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
 import TileStyleToggle, { initialGlassTiles } from './TileStyleToggle.jsx'
+import UpdatePrompt from './pwa/UpdatePrompt.jsx'
 import { LibraryHint, LibraryNote, SettingsMenu, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
 /**
@@ -124,6 +125,7 @@ export default function App() {
         <LibraryNote />
         <TileStyleToggle glass={glassTiles} onChange={setGlassTiles} />
       </div>
+      <UpdatePrompt />
     </main>
   )
 }
