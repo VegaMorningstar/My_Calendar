@@ -4,10 +4,10 @@
  *
  * Pressing and holding the info button for a second opens a small diagnostics card (see DebugPanel). The
  * info button is a Write-With-Nature glass tile labelled "info" in italics, like the gear. Tapping it
- * slides a note open beside it; tapping it again slides it shut. The text has no
+ * slides a note open beside it; tapping it again, or pressing anywhere else, slides it shut. The text has no
  * panel behind it: its colour follows how dark the wallpaper is directly behind it.
  */
-import { useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import DebugPanel from '../DebugPanel.jsx'
 import { BUTTON_MATERIAL, GlassButtons, usePageInk } from '../photo-calendar/index.js'
 import './library-ui.css'
@@ -37,6 +37,14 @@ export default function LibraryNote() {
   const noteId = useId()
   const holdTimer = useRef(0)
   const held = useRef(false)
+  // While the note is open, a press anywhere closes it. The info button is left out: it toggles the note itself on its click,
+  // and closing it here as well would make that click open it again.
+  useEffect(() => {
+    if (!open) return
+    const close = e => { if (!e.target.closest?.('.lib-info-slot')) setOpen(false) }
+    document.addEventListener('pointerdown', close, true)
+    return () => document.removeEventListener('pointerdown', close, true)
+  }, [open])
   const startHold = () => { held.current = false; clearTimeout(holdTimer.current); holdTimer.current = setTimeout(() => { held.current = true; setDebug(true) }, HOLD_MS) }
   const endHold = () => clearTimeout(holdTimer.current)
 
