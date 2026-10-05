@@ -92,7 +92,7 @@
   text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 .pc-detail-meta {
-  margin: 10px 0 0; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+  margin: 10px 0 0; font-size: .82rem; letter-spacing: .04em;
   color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 

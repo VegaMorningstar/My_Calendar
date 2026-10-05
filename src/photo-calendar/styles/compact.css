@@ -24,7 +24,7 @@
   .pc-nav { margin: -12px 0; }
 
   .pc-weekdays { margin: 3px 0 2px; }
-  .pc-weekdays span { font-size: .55rem; letter-spacing: .1em; }
+  .pc-weekdays span { font-size: .62rem; letter-spacing: .03em; }
 
   .pc-dow, .pc-photo .pc-badge { display: none; }
   .pc-empty .pc-num, .pc-photo .pc-num { top: 3px; left: 6px; font-size: .8rem; }

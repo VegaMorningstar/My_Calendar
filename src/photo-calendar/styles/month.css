@@ -4,7 +4,7 @@
 .pc-weekdays, .pc-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--pc-gap); }
 .pc-weekdays { margin-bottom: 8px; }
 .pc-weekdays span {
-  text-align: center; font-size: .66rem; letter-spacing: .18em; text-transform: uppercase;
+  text-align: center; font-size: .74rem; letter-spacing: .05em;
   color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 
@@ -33,7 +33,7 @@
 .pc-empty .pc-dow {
   --pc-ink: var(--dow-ink); --pc-hi: var(--dow-hi);
   position: absolute; bottom: 8px; left: 10px;
-  font-size: .58rem; letter-spacing: .16em; text-transform: uppercase;
+  font-size: .66rem; letter-spacing: .04em;
   color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 
@@ -63,13 +63,13 @@ button.pc-photo:focus-visible { outline: 2px solid rgba(var(--pc-teal), .85); ou
   color: rgb(var(--num-ink, 255, 255, 255)); text-shadow: 0 1px 2px rgba(var(--num-halo, 0, 0, 0), .55);
 }
 .pc-photo .pc-dow {
-  bottom: 7px; left: 10px; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase;
+  bottom: 7px; left: 10px; font-size: .66rem; letter-spacing: .04em;
   color: rgb(var(--dow-ink, 255, 255, 255)); text-shadow: 0 1px 2px rgba(var(--dow-halo, 0, 0, 0), .55);
 }
 /* Photo count, shown on hover (or keyboard focus) instead of dots. */
 .pc-photo .pc-badge {
   right: 7px; bottom: 6px; padding: 2px 7px; border-radius: 999px;
-  font-size: .56rem; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap;
+  font-size: .62rem; letter-spacing: .03em; white-space: nowrap;
   color: rgb(var(--badge-ink, 255, 255, 255));
   background: rgba(var(--badge-halo, 0, 0, 0), .28);
   -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
@@ -85,7 +85,7 @@ button.pc-photo:focus-visible { outline: 2px solid rgba(var(--pc-teal), .85); ou
   .pc-dow { display: none; }
   .pc-photo .pc-badge { display: none; }
   .pc-empty .pc-num, .pc-photo .pc-num { top: 5px; left: 7px; font-size: .95rem; }
-  .pc-weekdays span { font-size: .56rem; letter-spacing: .08em; }
+  .pc-weekdays span { font-size: .64rem; letter-spacing: .03em; }
 }
 
 
