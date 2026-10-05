@@ -64,7 +64,7 @@ A photo calendar built around one reusable element, `src/photo-calendar/`. See `
 Decide these together before building. Items 1, 4 and 5 have longer write-ups below.
 
 1. **Updates that keep user data, and backup.** Part 1 (the update prompt) is built; part 2 (export and import a backup) is still to discuss. Questions to settle are listed in its section.
-2. **Photo storage size.** Each import keeps a full copy (about 2 to 4 MB) plus a 720px preview used in the tiles. A resized copy (about 3000px on the long side) would take roughly a third of the space and still look sharp on every screen; only zooming into the full-screen view would show a difference. Existing photos would need a one-off shrink step. Undecided.
+2. **Photo storage: keep references instead of copies, or make the copies smaller.** A web app cannot keep references into the Photos app, so the choices are a smaller copy in the PWA or a native app. Undecided; full write-up below.
 3. **Load jump on refresh.** The first frame shows the "No photos yet" hint and smaller date boxes, because `App.jsx` decides the library is empty before the photos have loaded. Then the photos arrive, the hint disappears and the panel grows by about 56px. Fix: hold the hint and its extra height until `ready` from `usePhotoLibrary`. Agreed to come back to it.
 4. **Native iOS app.** Write-up below.
 5. **iPhone widget.** Write-up below.
@@ -156,6 +156,46 @@ Not started, written down for discussion. The problem: after a new version, the 
 - Reload prompt, or reload by itself when idle?
 - Export as one file, or in parts for big libraries?
 - Cap the stored photo copy at 3000px first?
+
+### Photo storage: references instead of copies, and making the copies smaller
+
+Discussed, nothing changed. The question was whether the app could store a path to each photo in the Photos app and load it from there, instead of storing the photo.
+
+**What the app stores today** (`src/photo-library/`): for each imported photo, one record `{ id, name, size, date, blob, thumb }`. `blob` is the full file exactly as the picker handed it over (about 2 to 4 MB for a 12 megapixel photo), `thumb` is a 720px JPEG (quality 0.82, about 60 to 100 KB) made at import. The tiles and the day view use `thumb`; only the full-screen viewer uses `blob`. The id is `name|size|date` of the original file, so picking the same photo twice adds it once. The wallpaper is a JPEG up to 2400px on its long side, plus a tiny blurred preview.
+
+**Why a PWA cannot store a reference** (iOS Safari and Home Screen apps):
+- The file picker returns a temporary copy (a `File`), not a location. The real path is hidden; the page learns only the name, size and type (for example `IMG_1234.HEIC`).
+- The Photos app's internal id for each photo (`PHAsset.localIdentifier`) is not available to web pages.
+- The file handle API that lets a page reopen a file later (`showOpenFilePicker` with a stored handle) is not supported in Safari. Only the origin private file system is, and that is the app's own storage, not the user's files.
+- iOS has no supported web link that opens a specific photo in the Photos app.
+So the only way to show a photo later is to keep a copy of it.
+
+**The version of the idea that works: a native iOS app.** It asks for Photos permission once (full or limited access), stores only each photo's `localIdentifier` and date (a few bytes), and loads the picture through PhotoKit when needed. No copies, so almost no storage, and new photos can appear without importing. This is the "native iOS app" idea above; the web UI could be wrapped (Capacitor or a `WKWebView`) with a small plugin that hands PhotoKit thumbnails and dates to the page. If the native app goes ahead, build the "ids only" design there from the start and do not spend much on shrinking PWA copies.
+
+**Strategies to cut the PWA's storage** (sizes per photo are estimates, not measured on real photos):
+
+| What is kept | Per photo | 100 photos | Full-screen quality |
+|---|---|---|---|
+| Full copy (today) | about 2 to 4 MB | 200 to 400 MB | original |
+| Copy shrunk to 3000px | about 1 MB | about 100 MB | sharp on every screen, slightly soft only when zoomed far in |
+| Copy shrunk to 1600px | about 300 KB | about 30 MB | sharp at full screen on a phone, soft when zoomed |
+| 720px preview only | about 60 to 100 KB | 6 to 10 MB | visibly upscaled at full screen (a phone is about 1170px wide) |
+
+Options, from most to least conservative:
+1. **Cap the stored copy at 3000px** (already agreed as the likely first step). About a third of the space, near-identical look.
+2. **Cap it at 1600px.** About a tenth of the space; still sharp at full screen on a phone.
+3. **Keep a mid-size copy by default, and make "keep full quality" an option** for photos the person chooses.
+4. **Keep only the preview and the date**, and show the preview at full screen. Smallest, but visibly softer.
+5. **Smaller previews too:** the 720px preview could be 480 to 600px at quality 0.75 for roughly half its size, since tiles are small (the day view's grid is the largest use).
+6. **WebP instead of JPEG** for the copies and previews, if Safari's encoder is reliable for it (smaller at the same quality; needs a quick test on the target iOS).
+7. **Wallpaper at about 1500px** instead of 2400px: it is blurred under the glass and cover-fitted to a phone, so it is stored larger than anything can show.
+
+How it would be built: shrink at import with `createImageBitmap(file, { resizeWidth, resizeHeight, resizeQuality: 'high' })` (it applies the EXIF rotation and avoids holding the full decoded bitmap in memory), keep computing the id from the original file so duplicate detection still works, and add a one-off step that shrinks the copies already stored (the existing library). HEIC files: check that the iOS picker converts or that `createImageBitmap` decodes them. Photos shot in Portrait or Live modes may carry extra data that shrinking drops, which is fine.
+
+**Questions to settle:**
+1. How much does sharp full-screen and zoom matter compared with storage?
+2. Is the native app a real plan or a someday idea? If real, the PWA copies only need to be small enough for now.
+3. Which cap: 3000px, 1600px, or mid-size by default with an optional full-quality copy?
 
 ## Other open items and known issues
 
