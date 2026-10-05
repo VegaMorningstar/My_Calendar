@@ -74,3 +74,5 @@ as in WWN). 0.12.6 renders the panel shader black.
 **Local change: `showPhotos`.** `LiquidGlassPanel` takes `showPhotos` (default true). With it false the panel uses a second shared backdrop (`getSharedBackdrop({ fluid: false })` in `liquid-glass/backdrop.js`) that leaves out the layer drawn over the wallpaper (the day photos of the glass date tiles). The day sheet uses it, because it covers the calendar and the photos would otherwise show through it.
 
 **Local change: `showPhotos` on `GlassButtons`** (default true). With it false the buttons' own backdrop (`createTileBackdrop({ fluid: false })` in `glass-alphabet/backdrop.js`) leaves out the date photos' layer, as `LiquidGlassPanel` does. The day sheet's buttons use it.
+
+**Local change: `ringTint`** (a tile material setting, default 1) in `glass-alphabet/scene.ts` and `GlassButtons.jsx`: how much of the tint reaches the rim of a tile. 0 leaves the rim untinted, so a tinted, frosted button keeps a rim that shows the full colour of what it refracts. The day sheet's buttons use 0, together with `edgeBlurMultiplier: 0`.

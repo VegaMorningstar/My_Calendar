@@ -106,6 +106,7 @@ const Params = d.struct({
   edgeFeather: d.f32,
   edgeBlurMultiplier: d.f32,
   tintStrength: d.f32,
+  ringTint: d.f32, // LOCAL CHANGE (calendar): how much of the tint reaches the rim (1 = all of it, 0 = none)
   tintColor: d.vec3f,
   chromaticFalloff: d.f32,
   edgeCurve: d.f32,
@@ -154,6 +155,8 @@ export type SceneParams = {
   edgeFeather: number;
   edgeBlurMultiplier: number;
   tintStrength: number;
+  /** LOCAL CHANGE (calendar): how much of the tint reaches the rim; 1 (the default) is all of it, 0 leaves the rim untinted. */
+  ringTint?: number;
   tintR: number;
   tintG: number;
   tintB: number;
@@ -289,6 +292,7 @@ export async function setupTileGlass(
     edgeFeather: 2,
     edgeBlurMultiplier: 0.7,
     tintStrength: 0.05,
+    ringTint: 1,
     tintColor: d.vec3f(0.58, 0.44, 0.96),
     chromaticFalloff: 1,
     edgeCurve: 1,
@@ -507,7 +511,9 @@ export async function setupTileGlass(
     // LOCAL CHANGE (calendar): the ink goes on after the tint. The tint used to be laid over the letters too, which
     // shifted pure white towards the tint colour; now a letter is exactly the ink colour wherever it fully covers.
     const tintedBlur = d.vec4f(std.mix(applyTint(paperBody, tint).rgb, ink, maskBody), 1);
-    const tintedRing = d.vec4f(std.mix(applyTint(paperRing, tint).rgb, ink, maskRing), 1);
+    // LOCAL CHANGE (calendar): the rim can be left untinted (ringTint 0), so it keeps the full colour of what it refracts
+    const ringTintParams = TintParams({ color: tint.color, strength: tint.strength * paramsUniform.$.ringTint });
+    const tintedRing = d.vec4f(std.mix(applyTint(paperRing, ringTintParams).rgb, ink, maskRing), 1);
 
     // Their third term is the untouched background at weights.outside. Between
     // tiles that would paint our reconstruction of the page over the real page,
@@ -689,6 +695,7 @@ export async function setupTileGlass(
         edgeFeather: p.edgeFeather,
         edgeBlurMultiplier: p.edgeBlurMultiplier,
         tintStrength: p.tintStrength,
+        ringTint: p.ringTint ?? 1,
         tintColor: d.vec3f(p.tintR, p.tintG, p.tintB),
         chromaticFalloff: Math.max(p.chromaticFalloff ?? 1, 0.05),
         edgeCurve: Math.max(p.edgeCurve ?? 1, 0.05),

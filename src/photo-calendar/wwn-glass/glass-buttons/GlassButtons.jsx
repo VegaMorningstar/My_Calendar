@@ -253,6 +253,7 @@ export default function GlassButtons({
             edgeFeather: mm.edgeFeather,
             edgeBlurMultiplier: mm.edgeBlurMultiplier,
             tintStrength: mm.tintStrength,
+            ringTint: mm.ringTint, // LOCAL CHANGE (calendar): 0 leaves the rim untinted
             tintR: mm.tintR, tintG: mm.tintG, tintB: mm.tintB,
             chromaticFalloff: mm.chromaticFalloff,
             edgeCurve: mm.edgeCurve,

@@ -141,8 +141,10 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
     b: frost[2] + (TEAL_TINT.b - frost[2]) * ARROW_TEAL_MIX,
     strength: ARROW_TINT_STRENGTH,
   }
-  const navMaterial = { ...NAV_MATERIAL, blur: SHEET_BUTTON_BLUR }
-  const closeMaterial = { ...CLOSE_MATERIAL, blur: SHEET_BUTTON_BLUR }
+  // Frosted in the middle only: the rim is neither blurred (edgeBlurMultiplier 0) nor tinted (ringTint 0), so the edge
+  // still refracts crisply and keeps the full colour of what it bends
+  const navMaterial = { ...NAV_MATERIAL, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0 }
+  const closeMaterial = { ...CLOSE_MATERIAL, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0 }
   const navItems = [
     { key: 'prev-day', label: '←', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round', tint: arrowTint },
     { key: 'next-day', label: '→', title: hasNext ? 'Next day with photos' : 'No later day', onClick: () => stepDay(1), fallbackClass: 'pc-round', tint: arrowTint },
