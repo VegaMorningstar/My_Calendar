@@ -43,12 +43,22 @@
 @keyframes pc-rise { from { opacity: 0; transform: translateY(14px) scale(.97); } }
 
 /* The frost: a wash in the colour opposite the text (white behind black text, black behind white text), over the glass
-   and under the text and photos, so they stay clear whatever the wallpaper. It is on top of the readability veil the
-   calendar panel has. */
+   and under the text and photos, so they stay clear whatever the wallpaper. It starts at the inside of the glass rim
+   (--pc-edge, from usePanelEdge) so the bent, colour-fringed edge stays clear, and fades in over --pc-frost-feather
+   so there is no line where it begins. It is on top of the readability veil the calendar panel has. */
 .pc-sheet::after {
-  /* Inside the glass rim only (--pc-edge, from usePanelEdge), so the bent, colour-fringed edge stays clear */
+  --pc-frost-feather: 48px;
   content: ''; position: absolute; inset: var(--pc-edge, 0px); border-radius: calc(var(--pc-panel-r) - var(--pc-edge, 0px)); z-index: -1; pointer-events: none;
-  background: rgba(var(--pc-hi), calc(var(--pc-veil, 0) + var(--pc-frost, .42)));
+  background: rgba(var(--pc-hi), calc(var(--pc-veil, 0) + var(--pc-frost, .34)));
+  /* Fade out towards all four edges: two gradients (across and down), kept only where both are opaque */
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 var(--pc-frost-feather), #000 calc(100% - var(--pc-frost-feather)), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--pc-frost-feather), #000 calc(100% - var(--pc-frost-feather)), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 var(--pc-frost-feather), #000 calc(100% - var(--pc-frost-feather)), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--pc-frost-feather), #000 calc(100% - var(--pc-frost-feather)), transparent);
+  mask-composite: intersect;
 }
 
 /* The sheet is the glass; the scroll area inside it is separate so the glass canvas does not scroll. */
