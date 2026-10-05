@@ -14,7 +14,10 @@ const m = MATERIAL_DEFAULTS
 const DARK = [m.letterR, m.letterG, m.letterB]
 const LIGHT = [m.letterLightR, m.letterLightG, m.letterLightB]
 
+// LOCAL CHANGE (calendar): a band no wider than 0.02 is a hard switch at its middle, so the text is exactly the dark ink or
+// exactly the light one and never a grey in between. (A wider band still blends smoothly.)
 const smoothstep = (lo, hi, x) => {
+  if (hi - lo <= 0.02) return x >= (lo + hi) / 2 ? 1 : 0
   const t = Math.min(1, Math.max(0, (x - lo) / (hi - lo)))
   return t * t * (3 - 2 * t)
 }
@@ -29,7 +32,7 @@ export const luma = (r, g, b) => (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
  * rarely cleanly light or dark, and WWN's wide band leaves mid-tones with mid-grey
  * type that reads on neither.
  */
-export const PHOTO_BAND = [0.4, 0.5]
+export const PHOTO_BAND = [0.495, 0.505]
 export function inkFor(lum, band = [m.inkLumLo, m.inkLumHi]) {
   const t = smoothstep(band[0], band[1], lum) // 0 = dark behind, 1 = bright behind
   const mix = (a, b) => a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(', ')

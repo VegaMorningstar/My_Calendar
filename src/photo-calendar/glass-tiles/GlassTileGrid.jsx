@@ -35,8 +35,8 @@ const TILE_MATERIAL = {
   letterWeight: 600,
   // The shader picks dark or light ink from what is behind a number. A narrow band (a firm switch,
   // not a blend) matches how every other piece of text in the calendar chooses its colour.
-  inkLumLo: 0.42,
-  inkLumHi: 0.5,
+  inkLumLo: 0.495,
+  inkLumHi: 0.505,
   // No tint: the body of an empty tile is clear glass, the wallpaper seen straight through it. The tile
   // is made visible by the bevel alone, a bright highlight along the rim (the shader fades it out over the body).
   tintR: 1, tintG: 1, tintB: 1, tintStrength: 0,

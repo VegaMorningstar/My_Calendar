@@ -87,7 +87,8 @@ export const MATERIAL_DEFAULTS = {
   letterSize: 20,
   letterWeight: 600,
   letterBlur: 0,
-  letterR: 28, letterG: 26, letterB: 16,
+  // LOCAL CHANGE (calendar): pure black and pure white, with a firm switch between them (see below)
+  letterR: 0, letterG: 0, letterB: 0,
   letterOpacity: 1,
 
   // The ink to use where what is behind the glyph has gone dark, and the
@@ -99,9 +100,10 @@ export const MATERIAL_DEFAULTS = {
   // Warm parchment rather than white: a black-to-white flip reads as a toggle,
   // and this type belongs to a palette. The band is wide on purpose, so the
   // change is something you notice having happened rather than watch happen.
-  letterLightR: 246, letterLightG: 241, letterLightB: 226,
-  inkLumLo: 0.30,
-  inkLumHi: 0.55,
+  letterLightR: 255, letterLightG: 255, letterLightB: 255,
+  // LOCAL CHANGE (calendar): a narrow band, so the type is black or white and never a grey in between
+  inkLumLo: 0.495,
+  inkLumHi: 0.505,
   // Which mip of the backdrop the brightness is read from: high enough to be a
   // local average rather than this pixel, low enough to still be local.
   inkSampleLevel: 4,

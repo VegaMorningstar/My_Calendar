@@ -75,12 +75,12 @@
 }
 .pc-detail-date {
   margin: 8px 0 0; font-family: var(--pc-serif); font-style: italic;
-  font-size: clamp(1.1rem, 2.6vw, 1.6rem); color: rgba(var(--pc-ink), .92);
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem); color: rgb(var(--pc-ink));
   text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 .pc-detail-meta {
   margin: 10px 0 0; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
-  color: rgba(var(--pc-ink), .85); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
+  color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 
 /* The day's photos as a grid of square thumbnails, like the Photos app's album view */

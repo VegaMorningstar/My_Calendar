@@ -493,9 +493,6 @@ export async function setupTileGlass(
       std.smoothstep(paramsUniform.$.inkLumLo, paramsUniform.$.inkLumHi, behindLum),
     );
 
-    const bodyColor = std.mix(paperBody, ink, maskBody);
-    const ringColor = std.mix(paperRing, ink, maskRing);
-
     // The winning tile's own tint if it has one, the scene's if it does not.
     const tintIsOwn = ownTint.w >= 0;
     const tint = TintParams({
@@ -507,8 +504,10 @@ export async function setupTileGlass(
       strength: std.select(paramsUniform.$.tintStrength, ownTint.w, tintIsOwn),
     });
 
-    const tintedBlur = applyTint(bodyColor, tint);
-    const tintedRing = applyTint(ringColor, tint);
+    // LOCAL CHANGE (calendar): the ink goes on after the tint. The tint used to be laid over the letters too, which
+    // shifted pure white towards the tint colour; now a letter is exactly the ink colour wherever it fully covers.
+    const tintedBlur = d.vec4f(std.mix(applyTint(paperBody, tint).rgb, ink, maskBody), 1);
+    const tintedRing = d.vec4f(std.mix(applyTint(paperRing, tint).rgb, ink, maskRing), 1);
 
     // Their third term is the untouched background at weights.outside. Between
     // tiles that would paint our reconstruction of the page over the real page,

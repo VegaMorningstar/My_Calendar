@@ -88,7 +88,7 @@ body {
 /* The diagnostics card (press and hold the info button) */
 .debug-panel {
   position: fixed; z-index: 1300; left: 8px; right: 8px; bottom: 80px; max-height: 70dvh; overflow: auto;
-  padding: 12px 14px; border-radius: 14px; color: #f6f1e2; background: rgba(28, 24, 16, .92);
+  padding: 12px 14px; border-radius: 14px; color: #fff; background: rgba(28, 24, 16, .92);
   font: .66rem/1.45 'DM Mono', ui-monospace, monospace; box-shadow: 0 10px 30px rgba(0, 0, 0, .35);
 }
 .debug-panel strong { display: block; margin-bottom: 6px; font-size: .72rem; }
