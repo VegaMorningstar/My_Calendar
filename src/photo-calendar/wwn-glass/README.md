@@ -70,3 +70,5 @@ package (a workspace package or a git submodule) that both repos import, with
 as in WWN). 0.12.6 renders the panel shader black.
 
 **Local change: pure black and white type.** `glass-alphabet/constants.ts` sets the letter inks to `0,0,0` and `255,255,255` (WWN uses a warm near-black and a parchment) and narrows the dark/light switch to a 0.495 to 0.505 luminance band. In `glass-alphabet/scene.ts` the ink is mixed in after the tint is applied to the glass, so the tint no longer shifts the letters' colour. The DOM text follows the same rule (`src/photo-calendar/lib/adaptive-ink.js`).
+
+**Local change: `showPhotos`.** `LiquidGlassPanel` takes `showPhotos` (default true). With it false the panel uses a second shared backdrop (`getSharedBackdrop({ fluid: false })` in `liquid-glass/backdrop.js`) that leaves out the layer drawn over the wallpaper (the day photos of the glass date tiles). The day sheet uses it, because it covers the calendar and the photos would otherwise show through it.

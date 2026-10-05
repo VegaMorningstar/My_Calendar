@@ -97,21 +97,28 @@ export function paintPaper(ctx, w, h, { stars = 'all' } = {}) {
  * and upload it three times. update() is idempotent within a frame, so callers
  * can each ask for it and only the first does the work.
  */
-let _shared = null
+const _shared = {}
 
-export function getSharedBackdrop({ scale = 0.5 } = {}) {
-  if (!_shared) {
-    const backdrop = createBackdrop({ scale })
+/**
+ * LOCAL CHANGE (calendar): `fluid` says whether the layer drawn over the wallpaper (the day photos in the glass date
+ * tiles) is part of the picture the glass refracts. The calendar panel keeps it. A sheet that covers the whole
+ * calendar (the day view) must not: through the sheet the photos showed up as blurred shapes behind its text.
+ * There is one shared backdrop of each kind.
+ */
+export function getSharedBackdrop({ scale = 0.5, fluid = true } = {}) {
+  const kind = fluid ? 'fluid' : 'plain'
+  if (!_shared[kind]) {
+    const backdrop = createBackdrop({ scale, fluid })
     // LOCAL CHANGE (calendar): the page behind the glass is repainted only when it changed (its size, the wallpaper
     // or theme, or what is drawn over it), not on every frame. `stamp` goes up with each repaint; every panel keeps
     // the last stamp it drew with and redraws when it has moved on, so several panels can share the one backdrop.
     let lastKey = ''
     let stamp = 0
-    _shared = {
+    _shared[kind] = {
       canvas: backdrop.canvas,
       resize: backdrop.resize,
       update() {
-        const key = `${backdrop.width}x${backdrop.height}|${theme()}|${contentVersion()}`
+        const key = `${backdrop.width}x${backdrop.height}|${theme()}|${fluid ? contentVersion() : 0}`
         if (key !== lastKey) {
           lastKey = key
           backdrop.update()
@@ -123,10 +130,10 @@ export function getSharedBackdrop({ scale = 0.5 } = {}) {
       get height() { return backdrop.height },
     }
   }
-  return _shared
+  return _shared[kind]
 }
 
-export function createBackdrop({ scale = 0.5 } = {}) {
+export function createBackdrop({ scale = 0.5, fluid: withFluid = true } = {}) {
   const composite = document.createElement('canvas')
   const ctx = composite.getContext('2d', { willReadFrequently: false })
 
@@ -182,8 +189,8 @@ export function createBackdrop({ scale = 0.5 } = {}) {
     if (tokens().stars) drawTwinklers(ctx, w, h)
 
     // The tune page runs its own instance under a different id
-    const fluid = document.getElementById('fluid-cursor-canvas') ||
-      document.getElementById('tune-fluid-canvas')
+    const fluid = withFluid && (document.getElementById('fluid-cursor-canvas') ||
+      document.getElementById('tune-fluid-canvas'))
     if (fluid && fluid.width > 0 && fluid.height > 0) {
       try {
         // Same blend the real canvas uses, so the glass refracts what is

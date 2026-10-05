@@ -26,7 +26,7 @@ const gpuSupported = typeof navigator !== 'undefined' && !!navigator.gpu
  * the canvas lets the real DOM through instead, which matters wherever the glass
  * floats over content rather than sitting on the page's own background.
  */
-export default function LiquidGlassPanel({ params, fill = true, backdropScale = 0.5, opacity = 1 }) {
+export default function LiquidGlassPanel({ params, fill = true, backdropScale = 0.5, opacity = 1, showPhotos = true }) {
   const canvasRef = useRef(null)
   const sceneRef = useRef(null)
   const cleanupRef = useRef(null)
@@ -97,7 +97,7 @@ export default function LiquidGlassPanel({ params, fill = true, backdropScale = 
         // Shared: every panel refracts the same page, and repainting the whole
         // viewport once per panel per frame is three times the work for one
         // result. The shared one repaints at most once a frame.
-        backdrop = getSharedBackdrop({ scale: backdropScale })
+        backdrop = getSharedBackdrop({ scale: backdropScale, fluid: showPhotos }) // LOCAL CHANGE (calendar): showPhotos
 
         const sync = scene => {
           const rect = host.getBoundingClientRect()
@@ -180,7 +180,7 @@ export default function LiquidGlassPanel({ params, fill = true, backdropScale = 
       cleanupRef.current = null
       sceneRef.current = null
     }
-  }, [backdropScale])
+  }, [backdropScale, showPhotos])
 
   if (!gpuSupported) return null
 

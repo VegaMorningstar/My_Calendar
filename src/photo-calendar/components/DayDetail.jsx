@@ -10,7 +10,7 @@
  * <body> so it covers the whole viewport whatever the calendar's own layout is,
  * and it puts focus back where it was on close.
  */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { GlassButtons, LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
 import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, photoCountLabel } from '../lib/dates.js'
@@ -20,6 +20,9 @@ import usePanelEdge from '../hooks/usePanelEdge.js'
 import { BURGUNDY_TINT, CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
+
+/** How much the sheet's glass blurs the wallpaper behind its middle (the calendar panel uses 1.2). */
+const SHEET_BLUR = 4
 
 /** A horizontal drag longer than this many px (and mostly sideways) changes day. */
 const SWIPE_PX = 70
@@ -39,6 +42,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   // Text colours follow what is behind the sheet, which is not what is behind the calendar
   const pageInk = usePageInk(sheetRef)
   const glassEdge = usePanelEdge(sheetRef)
+  // Frostier than the calendar panel: more blur in the middle, so the text and photos on the sheet stay clear
+  const sheetGlass = useMemo(() => ({ ...glassEdge, blur: SHEET_BLUR }), [glassEdge])
   const scrollRef = useRef(null)
   /** Index of the photo open full screen, or null for the grid. */
   const [viewing, setViewing] = useState(null)
@@ -142,7 +147,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         aria-label={`${weekday} ${day} ${MONTHS[month]} ${year}`}
         tabIndex={-1}
       >
-        <LiquidGlassPanel params={glassEdge} />
+        {/* showPhotos off: the sheet covers the calendar, so the date photos must not show through it */}
+        <LiquidGlassPanel params={sheetGlass} showPhotos={false} />
         <div
           className="pc-sheet-scroll"
           ref={scrollRef}
