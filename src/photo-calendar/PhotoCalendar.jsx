@@ -99,8 +99,9 @@ export default function PhotoCalendar({
         ...(isYear ? { '--pc-tile-max': '9999px' } : null),
       }}
     >
-      <div className="pc-panel" ref={panelRef} {...swipe}>
-        <LiquidGlassPanel params={glassEdge} />
+      <div className={`pc-panel${isYear ? ' pc-bare' : ''}`} ref={panelRef} {...swipe}>
+        {/* The year view has no glass surface: its contents sit straight on the wallpaper */}
+        {!isYear && <LiquidGlassPanel params={glassEdge} />}
         <CalendarHeader view={view} isYear={isYear} photoCount={photoCount} onStep={go} onToggleZoom={toggleZoom} />
 
         {isYear ? (
