@@ -26,13 +26,9 @@ const SHEET_BLUR = 4
 
 /**
  * The glass buttons on the sheet are frosted like the sheet itself: the wallpaper behind them blurred as much, and no
- * date photos in what they refract. They have no colour of their own; a neutral smoke tint darkens the middle just
- * enough for the white glyphs to read on any wallpaper (set it to 0 for fully clear glass).
+ * date photos in what they refract. They have no tint at all, so the glass is clear and only the white glyph is on it.
  */
 const SHEET_BUTTON_BLUR = 4
-const BUTTON_SMOKE = 0.3
-/** px inside the rim where the smoke starts to fade out towards the clear, refractive edge, so no line shows between them. */
-const TINT_BLEND_PX = 5
 /** The glyphs on these buttons are pure white on any wallpaper. */
 const WHITE_INK = { letterR: 255, letterG: 255, letterB: 255, letterLightR: 255, letterLightG: 255, letterLightB: 255 }
 
@@ -135,11 +131,9 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   }
 
   const weekday = FULL_WEEKDAYS[new Date(year, month, day).getDay()]
-  // Frosted and lightly smoked in the middle only: the rim is neither blurred (edgeBlurMultiplier 0) nor tinted (ringTint 0),
-  // so the edge still refracts crisply and keeps the full colour of what it bends
-  const smoke = { tintR: 0, tintG: 0, tintB: 0, tintStrength: BUTTON_SMOKE }
-  const navMaterial = { ...NAV_MATERIAL, letterSize: 22, ...WHITE_INK, ...smoke, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0, ringTintBlend: TINT_BLEND_PX }
-  const closeMaterial = { ...CLOSE_MATERIAL, ...WHITE_INK, ...smoke, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0, ringTintBlend: TINT_BLEND_PX }
+  // Blurred in the middle, but not at the rim: edgeBlurMultiplier 0 keeps the edge at full sharpness, so it still refracts crisply
+  const navMaterial = { ...NAV_MATERIAL, letterSize: 22, ...WHITE_INK, tintStrength: 0, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0 }
+  const closeMaterial = { ...CLOSE_MATERIAL, ...WHITE_INK, tintStrength: 0, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0 }
   const navItems = [
     { key: 'prev-day', label: '<', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round' },
     { key: 'next-day', label: '>', title: hasNext ? 'Next day with photos' : 'No later day', onClick: () => stepDay(1), fallbackClass: 'pc-round' },
