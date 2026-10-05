@@ -22,6 +22,8 @@ of em dashes from comments, and one local addition (below), they are unchanged.
 passes `material.letterFamily`; both are marked `LOCAL CHANGE`. Left unset, the font is
 WWN's Playfair Display exactly as before.
 
+**Local change: draw only when something changed.** The WWN glass redrew every canvas on every frame. Here each scene (`glass-alphabet/scene.ts` for the buttons and date tiles, `liquid-glass/overlay.ts` for panels) compares what its setters are given with the last values (rounded to a millionth, so a spring that has all but settled does not count) and skips the texture upload and the draw when nothing changed. The callers call `scene.invalidate(reason)` when a backdrop canvas was repainted or the canvas was resized. The backdrops repaint only when their inputs changed: the shared panel backdrop (`liquid-glass/backdrop.js`) by a key of size, `theme()` and `contentVersion()`; the tile backdrop (`glass-alphabet/backdrop.js`) by its own position, the page size, `theme()` and `contentVersionIn(rect)`, so a photo fading in the date tiles does not repaint the buttons that are nowhere near it. `theme.js` (ours) holds the counters, and `glass-tiles/photoLayer.js` bumps them with the region the photos touch. A `LiquidGlassPanel` canvas is also resized only when its size changed. `globalThis.__glassStats` counts frames drawn and skipped (shown on the diagnostics card). Any new glass piece must call `invalidate()` when it changes its backdrop or canvas, or it will stay stale.
+
 ## The two seams
 
 WWN's glass reaches into the rest of WWN in exactly two places. Everything else

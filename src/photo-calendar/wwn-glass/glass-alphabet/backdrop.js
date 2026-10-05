@@ -28,7 +28,7 @@
  * comes through and the fluid does not.
  */
 import { paintPaper } from '../liquid-glass/backdrop.js'
-import { tokens } from '../theme.js'
+import { tokens, theme, contentVersionIn } from '../theme.js'
 import { LETTER_TEX_W, LETTER_TEX_H } from './scene.ts'
 
 export function createTileBackdrop() {
@@ -62,60 +62,88 @@ export function createTileBackdrop() {
    * laid out in - so the caller hands over the wobbled centres directly and a
    * letter stays under its tile as it moves.
    */
+  // LOCAL CHANGE (calendar): each half is repainted only when its inputs changed, and update() says whether either
+  // was, so the caller can ask the scene for a redraw. The paper (the wallpaper slice behind this canvas) depends on
+  // where the canvas is, the page size, the wallpaper and what is drawn over it; the letters on the glyphs and style.
+  let paperKey = ''
+  let letterKey = ''
+
+  /** Repaints whatever is out of date. Returns true if anything was repainted. */
   function update(glyphs, style) {
-    if (!paper.width || !paper.height) return
+    if (!paper.width || !paper.height) return false
 
     const vw = window.innerWidth
     const vh = window.innerHeight
 
-    // ── Paper: the page, shifted so the slice behind this canvas lands on it.
-    // Painting the gradients at their true scale rather than squeezing the whole
-    // page into a small canvas is what keeps the colour behind the grid the same
-    // colour the page has there.
-    paperCtx.setTransform(1, 0, 0, 1, 0, 0)
-    paperCtx.globalCompositeOperation = 'source-over'
-    paperCtx.clearRect(0, 0, paper.width, paper.height)
-    paperCtx.save()
-    paperCtx.scale(dpr, dpr)
-    paperCtx.translate(-rect.left, -rect.top)
-    paintPaper(paperCtx, vw, vh)
+    const nextPaperKey = [rect.left.toFixed(1), rect.top.toFixed(1), paper.width, paper.height, dpr, vw, vh, theme(), contentVersionIn(rect)].join('|')
+    // positions rounded to a hundredth of a pixel, so a settling spring does not count as movement
+    const nextLetterKey = JSON.stringify([glyphs, style, letters.width, letters.height, rect.width, rect.height], (_k, v) => (typeof v === 'number' ? Math.round(v * 100) / 100 : v))
+    const paperChanged = nextPaperKey !== paperKey
+    const lettersChanged = nextLetterKey !== letterKey
+    if (!paperChanged && !lettersChanged) return false
+    const reasons = globalThis.__glassStats?.reasons
+    if (reasons) {
+      if (paperChanged) reasons.paperRepainted = (reasons.paperRepainted ?? 0) + 1
+      if (lettersChanged) reasons.lettersRepainted = (reasons.lettersRepainted ?? 0) + 1
+    }
+    paperKey = nextPaperKey
+    letterKey = nextLetterKey
 
-    const fluid = document.getElementById('fluid-cursor-canvas') ||
-      document.getElementById('tune-fluid-canvas')
-    if (fluid && fluid.width > 0 && fluid.height > 0) {
-      try {
-        // The blend the real canvas uses, so the glass refracts what is on
-        // screen rather than a brighter version of it. Five places make this
-        // same decision - the real canvas in FluidCursor, and each of the four
-        // glass backdrops - so all five read it from theme.js. When this one
-        // was a literal it was missed, and the alphabet tiles alone refracted
-        // a fluid multiplied against black, which is to say no fluid at all.
-        paperCtx.globalCompositeOperation = tokens().fluidBlend
-        paperCtx.drawImage(fluid, 0, 0, vw, vh)
-      } catch (_) { /* tainted or mid-frame; the paper still stands */ }
+    if (paperChanged) {
+
+      // ── Paper: the page, shifted so the slice behind this canvas lands on it.
+      // Painting the gradients at their true scale rather than squeezing the whole
+      // page into a small canvas is what keeps the colour behind the grid the same
+      // colour the page has there.
+      paperCtx.setTransform(1, 0, 0, 1, 0, 0)
       paperCtx.globalCompositeOperation = 'source-over'
-    }
-    paperCtx.restore()
+      paperCtx.clearRect(0, 0, paper.width, paper.height)
+      paperCtx.save()
+      paperCtx.scale(dpr, dpr)
+      paperCtx.translate(-rect.left, -rect.top)
+      paintPaper(paperCtx, vw, vh)
 
-    // ── Letters: a coverage mask, drawn in the canvas's CSS pixels but scaled
-    // to fill the texture. The scale is slightly anisotropic where the grid is
-    // not exactly 2:1, which stretches the glyphs - and the shader's sampling
-    // squeezes them back by precisely the same factor, so what lands on screen
-    // is undistorted and rasterized at the texture's resolution rather than the
-    // canvas's. In y that is more than twice the detail.
-    letterCtx.setTransform(1, 0, 0, 1, 0, 0)
-    letterCtx.clearRect(0, 0, letters.width, letters.height)
-    letterCtx.save()
-    letterCtx.scale(letters.width / rect.width, letters.height / rect.height)
-    // LOCAL CHANGE (calendar): an optional `style.family`; WWN's own font stays the default
-    letterCtx.font = `${style.weight} ${style.size}px ${style.family ?? "'Playfair Display', Georgia, serif"}`
-    letterCtx.textAlign = 'center'
-    letterCtx.textBaseline = 'middle'
-    for (const g of glyphs) {
-      letterCtx.fillStyle = `rgba(255,255,255,${(style.opacity * g.alpha).toFixed(3)})`
-      letterCtx.fillText(g.letter, g.x, g.y)
+      const fluid = document.getElementById('fluid-cursor-canvas') ||
+        document.getElementById('tune-fluid-canvas')
+      if (fluid && fluid.width > 0 && fluid.height > 0) {
+        try {
+          // The blend the real canvas uses, so the glass refracts what is on
+          // screen rather than a brighter version of it. Five places make this
+          // same decision - the real canvas in FluidCursor, and each of the four
+          // glass backdrops - so all five read it from theme.js. When this one
+          // was a literal it was missed, and the alphabet tiles alone refracted
+          // a fluid multiplied against black, which is to say no fluid at all.
+          paperCtx.globalCompositeOperation = tokens().fluidBlend
+          paperCtx.drawImage(fluid, 0, 0, vw, vh)
+        } catch (_) { /* tainted or mid-frame; the paper still stands */ }
+        paperCtx.globalCompositeOperation = 'source-over'
+      }
+      paperCtx.restore()
     }
-    letterCtx.restore()
+
+    if (lettersChanged) {
+      // ── Letters: a coverage mask, drawn in the canvas's CSS pixels but scaled
+      // to fill the texture. The scale is slightly anisotropic where the grid is
+      // not exactly 2:1, which stretches the glyphs - and the shader's sampling
+      // squeezes them back by precisely the same factor, so what lands on screen
+      // is undistorted and rasterized at the texture's resolution rather than the
+      // canvas's. In y that is more than twice the detail.
+      letterCtx.setTransform(1, 0, 0, 1, 0, 0)
+      letterCtx.clearRect(0, 0, letters.width, letters.height)
+      letterCtx.save()
+      letterCtx.scale(letters.width / rect.width, letters.height / rect.height)
+      // LOCAL CHANGE (calendar): an optional `style.family`; WWN's own font stays the default
+      letterCtx.font = `${style.weight} ${style.size}px ${style.family ?? "'Playfair Display', Georgia, serif"}`
+      letterCtx.textAlign = 'center'
+      letterCtx.textBaseline = 'middle'
+      for (const g of glyphs) {
+        letterCtx.fillStyle = `rgba(255,255,255,${(style.opacity * g.alpha).toFixed(3)})`
+        letterCtx.fillText(g.letter, g.x, g.y)
+      }
+      letterCtx.restore()
+    }
+
+    return true
   }
 
   return { paper, letters, resize, update }

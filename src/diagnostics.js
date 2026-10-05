@@ -39,6 +39,8 @@ export function collectMetrics() {
     'visualViewport (w x h)': vv ? `${Math.round(vv.width)} x ${Math.round(vv.height)}` : 'n/a',
     'visualViewport offsetTop / pageTop': vv ? `${Math.round(vv.offsetTop)} / ${Math.round(vv.pageTop)}` : 'n/a',
     'viewport deficit (screen - inner)': `${viewportDeficit()} px`,
+    // The glass draws only when something changed; these count the frames it drew and the frames it skipped
+    'glass frames drawn / skipped': `${globalThis.__glassStats?.draws ?? 0} / ${globalThis.__glassStats?.skipped ?? 0}`,
     'safe area (top right bottom left)': (({ top, right, bottom, left }) => `${top} ${right} ${bottom} ${left}`)(safeAreaInsets()),
     'standalone': String(isStandalone()),
     'display-mode: standalone': String(window.matchMedia('(display-mode: standalone)').matches),

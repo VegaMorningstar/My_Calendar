@@ -175,6 +175,7 @@ export default function GlassButtons({
           if (canvas.width !== cw || canvas.height !== ch) {
             canvas.width = cw
             canvas.height = ch
+            scene.invalidate('canvas-resized') // LOCAL CHANGE (calendar): resizing clears the canvas, so draw again
           }
           scene.setShapeScale(rect.width, rect.height)
           backdrop.resize(rect, dpr)
@@ -285,12 +286,14 @@ export default function GlassButtons({
             specR: mm.specR, specG: mm.specG, specB: mm.specB,
           })
 
-          backdrop.update(glyphs, {
+          // LOCAL CHANGE (calendar): update() says whether it repainted anything; if so the scene must draw again
+          const repainted = backdrop.update(glyphs, {
             size: mm.letterSize,
             weight: mm.letterWeight,
             opacity: mm.letterOpacity,
             family: mm.letterFamily, // LOCAL CHANGE (calendar): optional font family
           })
+          if (repainted) scene.invalidate('backdrop-repainted')
         }
 
         if (!cancelled) setGlassReady(true)

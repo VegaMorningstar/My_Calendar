@@ -33,7 +33,7 @@
 // sees - and it cannot read --paper either. theme.js carries the same value,
 // and is read per repaint so a theme change lands on the next frame with no
 // invalidation needed here.
-import { tokens, theme } from '../theme.js'
+import { tokens, theme, contentVersion } from '../theme.js'
 import { drawStars, drawBakedStars, drawTwinklers } from '../stars.js'
 
 // centreX, centreY, radiusX, radiusY, 'r,g,b', alpha, stop - all as fractions,
@@ -102,17 +102,22 @@ let _shared = null
 export function getSharedBackdrop({ scale = 0.5 } = {}) {
   if (!_shared) {
     const backdrop = createBackdrop({ scale })
-    let lastPaint = -1
+    // LOCAL CHANGE (calendar): the page behind the glass is repainted only when it changed (its size, the wallpaper
+    // or theme, or what is drawn over it), not on every frame. `stamp` goes up with each repaint; every panel keeps
+    // the last stamp it drew with and redraws when it has moved on, so several panels can share the one backdrop.
+    let lastKey = ''
+    let stamp = 0
     _shared = {
       canvas: backdrop.canvas,
       resize: backdrop.resize,
       update() {
-        // rAF callbacks in a frame land within a millisecond or two of each
-        // other; a repaint 8ms later is genuinely the next frame.
-        const now = performance.now()
-        if (now - lastPaint < 8) return backdrop.canvas
-        lastPaint = now
-        return backdrop.update()
+        const key = `${backdrop.width}x${backdrop.height}|${theme()}|${contentVersion()}`
+        if (key !== lastKey) {
+          lastKey = key
+          backdrop.update()
+          stamp++
+        }
+        return stamp
       },
       get width() { return backdrop.width },
       get height() { return backdrop.height },

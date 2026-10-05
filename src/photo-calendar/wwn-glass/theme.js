@@ -16,6 +16,7 @@ function bodyColour() {
 
 const state = {
   version: 0,
+  content: 0,
   tokens: {
     paperBase: bodyColour(),
     // WWN draws its fluid cursor over the paper with this blend. The calendar has no fluid cursor; the same
@@ -101,3 +102,38 @@ export const paperColor = () => state.bgAverage ?? state.tokens.paperBase
 // A changing return value is what makes backdrop.js repaint its cached paper.
 export const theme = () => state.version
 export const tokens = () => state.tokens
+
+/**
+ * LOCAL CHANGE (calendar): a second counter, for changes to what is drawn over the wallpaper (the day photos in the
+ * glass date tiles, see glass-tiles/photoLayer.js). The glass redraws only when something changed, and the backdrops
+ * compare this number (with `theme()`) to know whether their copy of the page is out of date.
+ */
+export const contentVersion = () => state.content
+
+/** The latest changes to what is drawn over the wallpaper, each with the region of the viewport it touched. */
+const contentChanges = []
+
+/**
+ * Records that what is drawn over the wallpaper changed. `region` ({ x0, y0, x1, y1 }, viewport px) says where;
+ * omit it for "everywhere". A glass piece that is nowhere near the region has no reason to redraw.
+ */
+export const bumpContent = region => {
+  state.content++
+  contentChanges.push({ v: state.content, x0: -Infinity, y0: -Infinity, x1: Infinity, y1: Infinity, ...region })
+  if (contentChanges.length > 32) contentChanges.shift()
+}
+
+/** The latest content version that touched the given rect ({ left, top, width, height }); changes elsewhere are ignored. */
+export function contentVersionIn(rect) {
+  let latest = 0
+  for (const c of contentChanges) {
+    if (c.v > latest && c.x0 < rect.left + rect.width && c.x1 > rect.left && c.y0 < rect.top + rect.height && c.y1 > rect.top) latest = c.v
+  }
+  return latest
+}
+
+// A font that finishes loading changes how the glass letters are drawn
+if (typeof document !== 'undefined' && document.fonts) {
+  document.fonts.addEventListener?.('loadingdone', bumpContent)
+  document.fonts.ready?.then(bumpContent)
+}

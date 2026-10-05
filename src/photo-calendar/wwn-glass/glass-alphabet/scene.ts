@@ -587,10 +587,36 @@ export async function setupTileGlass(
   let frameId = 0;
   let onFrame: (() => void) | null = null;
 
+  // LOCAL CHANGE (calendar): draw only when something changed. Every setter below compares what it is given with what it
+  // was given last, and the callers call invalidate() when a backdrop canvas was repainted or the canvas was resized.
+  // A frame with nothing new skips the texture upload and the draw entirely, so an idle page costs next to nothing.
+  const stats = ((globalThis as any).__glassStats ??= { draws: 0, skipped: 0, reasons: {} as Record<string, number> });
+  const why = (r: string) => { stats.reasons[r] = (stats.reasons[r] ?? 0) + 1; };
+  const NAME = 'tiles';
+  let dirty = true;
+  const lastSeen: Record<string, string> = {};
+  /** True (and marks the scene dirty) when `value` differs from what was last given under `key`. */
+  const changed = (key: string, value: unknown) => {
+    // Rounded to a millionth: a spring that has all but settled keeps moving by far less than a pixel for seconds,
+    // and that must not count as a change
+    const s = JSON.stringify(value, (_k, v) => (typeof v === 'number' ? Math.round(v * 1e6) / 1e6 : v));
+    if (lastSeen[key] === s) return false;
+    lastSeen[key] = s;
+    dirty = true;
+    why(`${NAME}:${key}`);
+    return true;
+  };
+  // A tab brought back to the front may have lost the canvas contents
+  const onVisible = () => { if (!document.hidden) dirty = true; };
+  document.addEventListener('visibilitychange', onVisible);
+
   function render() {
     frameId = requestAnimationFrame(render);
     try {
       onFrame?.();
+      if (!dirty) { stats.skipped++; return; }
+      dirty = false;
+      stats.draws++;
       paperTexture.write(paperCanvas, { fit: 'stretch' });
       paperTexture.generateMipmaps();
       letterTexture.write(letterCanvas, { fit: 'stretch' });
@@ -612,6 +638,7 @@ export async function setupTileGlass(
      * and params is then measured in canvas heights.
      */
     setShapeScale(w: number, h: number) {
+      if (!changed('shape', [w, h])) return;
       shapeScaleUniform.write(d.vec2f(h > 0 ? w / h : 1, 1));
     },
     /**
@@ -630,6 +657,7 @@ export async function setupTileGlass(
         tint?: { r: number; g: number; b: number; strength: number };
       }[],
     ) {
+      if (!changed('tiles', tiles)) return;
       tilesUniform.write(
         tiles.map(t => d.vec4f(t.cx, t.cy, Math.max(t.hx, 0.0005), Math.max(t.hy, 0.0005))),
       );
@@ -651,6 +679,7 @@ export async function setupTileGlass(
      * See the header for the time this took the masthead off production.
      */
     setParams(p: SceneParams) {
+      if (!changed('params', p)) return;
       paramsUniform.write({
         radius: p.radius,
         start: p.start,
@@ -701,8 +730,14 @@ export async function setupTileGlass(
         specularColor: d.vec3f(p.specR / 255, p.specG / 255, p.specB / 255),
       });
     },
+    /** LOCAL CHANGE (calendar): ask for a redraw, because a backdrop canvas was repainted or the canvas was resized. */
+    invalidate(reason = 'invalidate') {
+      dirty = true;
+      why(`${NAME}:${reason}`);
+    },
     onCleanup() {
       cancelAnimationFrame(frameId);
+      document.removeEventListener('visibilitychange', onVisible);
     },
   };
 }

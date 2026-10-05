@@ -109,7 +109,7 @@ export default function GlassTileGrid({ className = '', animKey, enabled = true,
           const dpr = Math.min(window.devicePixelRatio || 1, 2)
           const cw = Math.max(2, Math.round(rect.width * dpr))
           const ch = Math.max(2, Math.round(rect.height * dpr))
-          if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch }
+          if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; scene.invalidate('canvas-resized') } // resizing clears the canvas
           scene.setShapeScale(rect.width, rect.height)
           backdrop.resize(rect, dpr)
           const H = rect.height
@@ -214,7 +214,8 @@ export default function GlassTileGrid({ className = '', animKey, enabled = true,
 
           // Photos go into the layer first, because backdrop.update composites it over the wallpaper
           paintPhotoLayer(photoTiles)
-          backdrop.update(glyphs, { size: fontSize, weight: mm.letterWeight, opacity: mm.letterOpacity, family: mm.letterFamily })
+          // The backdrop repaints only what changed and says so; then the scene has to draw again
+          if (backdrop.update(glyphs, { size: fontSize, weight: mm.letterWeight, opacity: mm.letterOpacity, family: mm.letterFamily })) scene.invalidate('backdrop-repainted')
         }
 
         cleanup = () => { scene.onCleanup(); root.destroy() }

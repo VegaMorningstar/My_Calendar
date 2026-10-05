@@ -114,15 +114,22 @@ export default function LiquidGlassPanel({ params, fill = true, backdropScale = 
           const w = host.offsetWidth || rect.width
           const h = host.offsetHeight || rect.height
 
+          // LOCAL CHANGE (calendar): the canvas is resized only when its size changed. Assigning width or height
+          // clears a WebGPU canvas and rebuilds its buffer even when the value is the same, which was done every frame.
           const dpr = Math.min(window.devicePixelRatio || 1, 2)
-          canvas.width = Math.max(2, Math.round(w * dpr))
-          canvas.height = Math.max(2, Math.round(h * dpr))
+          const cw = Math.max(2, Math.round(w * dpr))
+          const ch = Math.max(2, Math.round(h * dpr))
+          if (canvas.width !== cw || canvas.height !== ch) {
+            canvas.width = cw
+            canvas.height = ch
+            scene?.invalidate('canvas-resized')
+          }
 
           scene?.setShapeScale(w, h)
 
           const vw = window.innerWidth
           const vh = window.innerHeight
-          backdrop.resize(vw, vh)
+          if (backdrop.resize(vw, vh)) scene?.invalidate('backdrop-resized')
           scene?.setViewportRect(
             { x: rect.left, y: rect.top, w: rect.width, h: rect.height }, vw, vh,
           )
@@ -137,7 +144,15 @@ export default function LiquidGlassPanel({ params, fill = true, backdropScale = 
 
         // The panel moves with scroll and resizes with the layout, so its slice
         // of the backdrop is recomputed every frame rather than on an event.
-        scene.beforeFrame = () => { backdrop.update(); sync(scene) }
+        // LOCAL CHANGE (calendar): redraw only when the shared backdrop was repainted since this panel last drew
+        // (it repaints when the page size, the wallpaper or what is drawn over it changes) or when sync() finds the
+        // panel moved or resized; a frame with neither costs almost nothing.
+        let drawnStamp = -1
+        scene.beforeFrame = () => {
+          const stamp = backdrop.update()
+          if (stamp !== drawnStamp) { drawnStamp = stamp; scene.invalidate('backdrop-repainted') }
+          sync(scene)
+        }
         sync(scene)
         if (paramsRef.current) scene.setParams(resolveParams(paramsRef.current, host))
 

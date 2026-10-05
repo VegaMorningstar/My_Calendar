@@ -223,10 +223,36 @@ export async function setupOverlay(
   let frameId = 0;
   let onFrame: (() => void) | null = null;
 
+  // LOCAL CHANGE (calendar): draw only when something changed. Every setter below compares what it is given with what it
+  // was given last, and the callers call invalidate() when a backdrop canvas was repainted or the canvas was resized.
+  // A frame with nothing new skips the texture upload and the draw entirely, so an idle page costs next to nothing.
+  const stats = ((globalThis as any).__glassStats ??= { draws: 0, skipped: 0, reasons: {} as Record<string, number> });
+  const why = (r: string) => { stats.reasons[r] = (stats.reasons[r] ?? 0) + 1; };
+  const NAME = 'panel';
+  let dirty = true;
+  const lastSeen: Record<string, string> = {};
+  /** True (and marks the scene dirty) when `value` differs from what was last given under `key`. */
+  const changed = (key: string, value: unknown) => {
+    // Rounded to a millionth: a spring that has all but settled keeps moving by far less than a pixel for seconds,
+    // and that must not count as a change
+    const s = JSON.stringify(value, (_k, v) => (typeof v === 'number' ? Math.round(v * 1e6) / 1e6 : v));
+    if (lastSeen[key] === s) return false;
+    lastSeen[key] = s;
+    dirty = true;
+    why(`${NAME}:${key}`);
+    return true;
+  };
+  // A tab brought back to the front may have lost the canvas contents
+  const onVisible = () => { if (!document.hidden) dirty = true; };
+  document.addEventListener('visibilitychange', onVisible);
+
   function render() {
     frameId = requestAnimationFrame(render);
     try {
       onFrame?.();
+      if (!dirty) { stats.skipped++; return; }
+      dirty = false;
+      stats.draws++;
       backdropTexture.write(backdropCanvas, { fit: 'stretch' });
       backdropTexture.generateMipmaps();
       pipeline.withColorAttachment({ view: context }).draw(3);
@@ -247,16 +273,19 @@ export async function setupOverlay(
      * come out circular rather than stretched.
      */
     setShapeScale(w: number, h: number) {
+      if (!changed('shape', [w, h])) return;
       shapeScaleUniform.write(d.vec2f(h > 0 ? w / h : 1, 1));
     },
     /** Which slice of the viewport-sized backdrop sits behind this canvas. */
     setViewportRect(rect: { x: number; y: number; w: number; h: number }, vw: number, vh: number) {
+      if (!changed('rect', [rect.x, rect.y, rect.w, rect.h, vw, vh])) return;
       uvScaleUniform.write(d.vec2f(rect.w / vw, rect.h / vh));
       uvOffsetUniform.write(d.vec2f(rect.x / vw, rect.y / vh));
     },
     /** Kept for callers; the texture is a fixed size and stretches to fit. */
     resizeBackdrop(_w: number, _h: number) {},
     setParams(p: typeof overlayDefaults) {
+      if (!changed('params', p)) return;
       centerUniform.write(d.vec2f(p.centerX, p.centerY));
       paramsUniform.write({
         rectDims: d.vec2f(p.rectW, p.rectH),
@@ -273,8 +302,14 @@ export async function setupOverlay(
         chromaticFalloff: Math.max(p.chromaticFalloff ?? 1, 0.05),
       });
     },
+    /** LOCAL CHANGE (calendar): ask for a redraw, because the backdrop canvas was repainted or the canvas was resized. */
+    invalidate(reason = 'invalidate') {
+      dirty = true;
+      why(`${NAME}:${reason}`);
+    },
     onCleanup() {
       cancelAnimationFrame(frameId);
+      document.removeEventListener('visibilitychange', onVisible);
     },
   };
 }
