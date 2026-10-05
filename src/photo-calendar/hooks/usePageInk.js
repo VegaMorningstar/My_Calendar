@@ -14,7 +14,7 @@
  * work is batched into one animation frame.
  */
 import { useEffect, useState } from 'react'
-import { PHOTO_BAND, backdropColor, backdropLuma, inkFor } from '../lib/adaptive-ink.js'
+import { PHOTO_BAND, backdropLuma, inkFor } from '../lib/adaptive-ink.js'
 import { isWallpaperActive, onPaperChange, syncPaperFromBody } from '../wwn-glass/index.js'
 
 /** Opacity of the readability veil laid over the glass when the page has a photo background. */
@@ -50,9 +50,6 @@ function subscribe(fn) {
  * [left, top, right, bottom] as fractions of the element, to measure only the
  * part where the text actually sits.
  */
-/** 'r, g, b' from a CSS colour string like 'rgb(12, 34, 56)'; null if it is in some other format. */
-const rgbOf = css => { const m = String(css).match(/\d+(\.\d+)?/g); return m && m.length >= 3 ? m.slice(0, 3).map(n => Math.round(Number(n))).join(', ') : null }
-
 function read(el, region) {
   let rect = el?.getBoundingClientRect()
   if (rect && region) {
@@ -61,17 +58,15 @@ function read(el, region) {
   }
   const usable = rect && rect.width > 0 && rect.height > 0
   // A firm light-or-dark choice (narrow band): a blended grey in between is the least readable ink
-  const area = usable ? rect : null
-  return { ...inkFor(backdropLuma(area), PHOTO_BAND), veil: isWallpaperActive() ? PHOTO_VEIL : 0, avg: rgbOf(backdropColor(area)) }
+  return { ...inkFor(backdropLuma(usable ? rect : null), PHOTO_BAND), veil: isWallpaperActive() ? PHOTO_VEIL : 0 }
 }
 
 /**
  * @param {{current: Element|null}} [ref]  the element the text sits in
  * @param {boolean} [enabled]  false skips all measuring (for text that picks its colour another way)
  * @param {number[]} [region]   [left, top, right, bottom] fractions of the element to measure, for text in one corner
- * @returns {{ ink: string, halo: string, veil: number, avg: string|null }} 'r, g, b' strings (text colour, its
- *   glow colour, and the wallpaper's average colour behind the element) and the veil opacity: 0 on a plain page,
- *   a soft wash over a photo
+ * @returns {{ ink: string, halo: string, veil: number }} 'r, g, b' strings (text colour and its
+ *   glow colour) and the veil opacity: 0 on a plain page, a soft wash over a photo
  */
 export default function usePageInk(ref, enabled = true, region) {
   const [value, setValue] = useState(() => read(null))
@@ -82,7 +77,7 @@ export default function usePageInk(ref, enabled = true, region) {
     // Only replace the state when the answer actually changed, so scrolling does not re-render
     const update = () => {
       const next = read(ref?.current, region)
-      setValue(prev => (prev.ink === next.ink && prev.halo === next.halo && prev.veil === next.veil && prev.avg === next.avg ? prev : next))
+      setValue(prev => (prev.ink === next.ink && prev.halo === next.halo && prev.veil === next.veil ? prev : next))
     }
     update()
     const unsubscribe = subscribe(update)

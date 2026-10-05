@@ -21,20 +21,6 @@ import { CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-confi
 import '../styles/base.css'
 import '../styles/detail.css'
 
-/**
- * The frost wash on the sheet is the wallpaper's own average colour behind the sheet, tilted this far towards the
- * colour opposite the text (white behind black text, black behind white text). Mostly wallpaper, so the sheet reads as
- * the wallpaper frosted and does not turn into a white or a black panel; the tilt keeps the text readable.
- */
-const FROST_TILT = 0.4
-
-/** The two 'r, g, b' strings mixed: `amount` of the way from `a` to `b`. */
-function mixRgb(a, b, amount) {
-  const x = a.split(',').map(Number)
-  const y = b.split(',').map(Number)
-  return x.map((v, i) => Math.round(v + (y[i] - v) * amount)).join(', ')
-}
-
 /** How much the sheet's glass blurs the wallpaper behind its middle (the calendar panel uses 1.2). */
 const SHEET_BLUR = 5
 
@@ -160,7 +146,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   return createPortal(
     <div
       className="pc-overlay"
-      style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo, '--pc-veil': pageInk.veil, '--pc-frost-rgb': mixRgb(pageInk.avg ?? pageInk.halo, pageInk.halo, FROST_TILT) }}
+      style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo, '--pc-veil': pageInk.veil }}
       // Only a press on the veil itself counts as "clicking away", not one inside the sheet
       onMouseDown={e => { if (e.target === e.currentTarget && performance.now() - viewerClosedAt.current > 500) onClose() }}
     >
