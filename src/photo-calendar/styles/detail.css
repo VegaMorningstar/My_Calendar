@@ -75,6 +75,8 @@
 }
 .pc-sheet-scroll {
   overflow-y: auto; overscroll-behavior: contain;
+  /* The photos still scroll (touch, trackpad, wheel, keys), but there is no scroll bar to see */
+  scrollbar-width: none; -ms-overflow-style: none;
   padding: clamp(18px, 3vw, 36px);
   /* keep the glass's rounded corners clean while scrolling */
   border-radius: inherit;
@@ -124,3 +126,4 @@
   .pc-detail-date { margin-top: 2px; font-size: 1rem; }
   .pc-detail-meta { margin-top: 4px; font-size: .62rem; }
 }
+.pc-sheet-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
