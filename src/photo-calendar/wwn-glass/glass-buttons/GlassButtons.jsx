@@ -38,6 +38,7 @@ export default function GlassButtons({
   items,
   material = BUTTON_MATERIAL,
   pointer = POINTER_DEFAULTS,
+  showPhotos = true, // LOCAL CHANGE (calendar): false leaves the date photos out of the picture these buttons refract
 }) {
   const hostRef = useRef(null)
   const canvasRef = useRef(null)
@@ -120,7 +121,7 @@ export default function GlassButtons({
         const { createTileBackdrop } = await import('../glass-alphabet/backdrop.js')
         if (cancelled) return
 
-        const backdrop = createTileBackdrop()
+        const backdrop = createTileBackdrop({ fluid: showPhotos })
         const root = await tgpu.init()
         const context = root.configureContext({ canvas, alphaMode: 'premultiplied' })
         const scene = await setupTileGlass(root, context, backdrop.paper, backdrop.letters, {
@@ -310,7 +311,7 @@ export default function GlassButtons({
       cleanup?.()
       setGlassReady(false)
     }
-  }, [items.length])
+  }, [items.length, showPhotos])
 
   // ── Impulses ──────────────────────────────────────────────────────────────
   const kick = (index, squashAmount, liftAmount) => {

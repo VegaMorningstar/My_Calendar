@@ -17,12 +17,21 @@ import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, photoCountLabel } from '.
 import PhotoViewer from './PhotoViewer.jsx'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
-import { BURGUNDY_TINT, CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
+import { BURGUNDY_TINT, CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK, TEAL_TINT } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
 
 /** How much the sheet's glass blurs the wallpaper behind its middle (the calendar panel uses 1.2). */
 const SHEET_BLUR = 4
+
+/**
+ * The glass buttons on the sheet are frosted like the sheet itself: the wallpaper behind them blurred as much, and no
+ * date photos in what they refract. Arrows get a teal cast; the close button keeps its burgundy.
+ */
+const SHEET_BUTTON_BLUR = 4
+/** How much of the arrows' colour is the teal (the rest is the frost colour) and how strong the cast is. */
+const ARROW_TEAL_MIX = 0.55
+const ARROW_TINT_STRENGTH = 0.5
 
 /** A horizontal drag longer than this many px (and mostly sideways) changes day. */
 const SWIPE_PX = 70
@@ -123,9 +132,20 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   }
 
   const weekday = FULL_WEEKDAYS[new Date(year, month, day).getDay()]
+  // The arrows' tint: the teal mixed into the frost colour (the opposite of the text colour), so they sit in the frosted
+  // sheet as pale teal discs on a light page and deep teal ones on a dark page
+  const frost = pageInk.halo.split(',').map(n => Number(n) / 255)
+  const arrowTint = {
+    r: frost[0] + (TEAL_TINT.r - frost[0]) * ARROW_TEAL_MIX,
+    g: frost[1] + (TEAL_TINT.g - frost[1]) * ARROW_TEAL_MIX,
+    b: frost[2] + (TEAL_TINT.b - frost[2]) * ARROW_TEAL_MIX,
+    strength: ARROW_TINT_STRENGTH,
+  }
+  const navMaterial = { ...NAV_MATERIAL, blur: SHEET_BUTTON_BLUR }
+  const closeMaterial = { ...CLOSE_MATERIAL, blur: SHEET_BUTTON_BLUR }
   const navItems = [
-    { key: 'prev-day', label: '←', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round' },
-    { key: 'next-day', label: '→', title: hasNext ? 'Next day with photos' : 'No later day', onClick: () => stepDay(1), fallbackClass: 'pc-round' },
+    { key: 'prev-day', label: '←', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round', tint: arrowTint },
+    { key: 'next-day', label: '→', title: hasNext ? 'Next day with photos' : 'No later day', onClick: () => stepDay(1), fallbackClass: 'pc-round', tint: arrowTint },
   ]
   const closeItem = [{
     key: 'close', label: '×', title: 'Close', onClick: onClose,
@@ -167,8 +187,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
                 </p>
               </div>
               <div className="pc-detail-actions">
-                <GlassButtons items={navItems} material={NAV_MATERIAL} />
-                <GlassButtons items={closeItem} material={CLOSE_MATERIAL} />
+                <GlassButtons items={navItems} material={navMaterial} showPhotos={false} />
+                <GlassButtons items={closeItem} material={closeMaterial} showPhotos={false} />
               </div>
             </header>
 

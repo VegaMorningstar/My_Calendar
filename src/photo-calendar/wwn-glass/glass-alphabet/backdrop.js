@@ -31,7 +31,7 @@ import { paintPaper } from '../liquid-glass/backdrop.js'
 import { tokens, theme, contentVersionIn } from '../theme.js'
 import { LETTER_TEX_W, LETTER_TEX_H } from './scene.ts'
 
-export function createTileBackdrop() {
+export function createTileBackdrop({ fluid: withFluid = true } = {}) {
   const paper = document.createElement('canvas')
   const letters = document.createElement('canvas')
   const paperCtx = paper.getContext('2d')
@@ -75,7 +75,7 @@ export function createTileBackdrop() {
     const vw = window.innerWidth
     const vh = window.innerHeight
 
-    const nextPaperKey = [rect.left.toFixed(1), rect.top.toFixed(1), paper.width, paper.height, dpr, vw, vh, theme(), contentVersionIn(rect)].join('|')
+    const nextPaperKey = [rect.left.toFixed(1), rect.top.toFixed(1), paper.width, paper.height, dpr, vw, vh, theme(), withFluid ? contentVersionIn(rect) : 0].join('|')
     // positions rounded to a hundredth of a pixel, so a settling spring does not count as movement
     const nextLetterKey = JSON.stringify([glyphs, style, letters.width, letters.height, rect.width, rect.height], (_k, v) => (typeof v === 'number' ? Math.round(v * 100) / 100 : v))
     const paperChanged = nextPaperKey !== paperKey
@@ -103,8 +103,8 @@ export function createTileBackdrop() {
       paperCtx.translate(-rect.left, -rect.top)
       paintPaper(paperCtx, vw, vh)
 
-      const fluid = document.getElementById('fluid-cursor-canvas') ||
-        document.getElementById('tune-fluid-canvas')
+      const fluid = withFluid && (document.getElementById('fluid-cursor-canvas') ||
+        document.getElementById('tune-fluid-canvas'))
       if (fluid && fluid.width > 0 && fluid.height > 0) {
         try {
           // The blend the real canvas uses, so the glass refracts what is on
