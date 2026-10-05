@@ -26,17 +26,12 @@ const SHEET_BLUR = 4
 
 /**
  * The glass buttons on the sheet are frosted like the sheet itself: the wallpaper behind them blurred as much, and no
- * date photos in what they refract. Arrows get a teal cast; the close button keeps its burgundy.
+ * date photos in what they refract. They have no colour of their own; a neutral smoke tint darkens the middle just
+ * enough for the white glyphs to read on any wallpaper (set it to 0 for fully clear glass).
  */
 const SHEET_BUTTON_BLUR = 4
-/** The arrows' teal (more saturated than the header's), how much of the frost colour it is mixed with, and how strong the cast is. */
-const ARROW_TEAL = { r: 0.0, g: 0.66, b: 0.64 }
-const ARROW_TEAL_MIX = 1 // all teal, none of the frost colour: the hue must show
-const ARROW_TINT_STRENGTH = 0.92 // almost opaque in the middle, so the wallpaper barely shows through the colour
-/** The close button's red: a saturated crimson, almost opaque in the middle, so the cast reads clearly behind the white cross. */
-const CLOSE_TINT = { r: 0.74, g: 0.04, b: 0.2, strength: 0.92 }
-/** px inside the rim where a button's tint starts to fade out towards its clear edge. Small, so the colour holds across
-    the whole middle and only gives way to the refractive edge near the rim. */
+const BUTTON_SMOKE = 0.3
+/** px inside the rim where the smoke starts to fade out towards the clear, refractive edge, so no line shows between them. */
 const TINT_BLEND_PX = 5
 /** The glyphs on these buttons are pure white on any wallpaper. */
 const WHITE_INK = { letterR: 255, letterG: 255, letterB: 255, letterLightR: 255, letterLightG: 255, letterLightB: 255 }
@@ -140,26 +135,18 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   }
 
   const weekday = FULL_WEEKDAYS[new Date(year, month, day).getDay()]
-  // The arrows' tint: the teal mixed into the frost colour (the opposite of the text colour), so they sit in the frosted
-  // sheet as pale teal discs on a light page and deep teal ones on a dark page
-  const frost = pageInk.halo.split(',').map(n => Number(n) / 255)
-  const arrowTint = {
-    r: frost[0] + (ARROW_TEAL.r - frost[0]) * ARROW_TEAL_MIX,
-    g: frost[1] + (ARROW_TEAL.g - frost[1]) * ARROW_TEAL_MIX,
-    b: frost[2] + (ARROW_TEAL.b - frost[2]) * ARROW_TEAL_MIX,
-    strength: ARROW_TINT_STRENGTH,
-  }
-  // Frosted in the middle only: the rim is neither blurred (edgeBlurMultiplier 0) nor tinted (ringTint 0), so the edge
-  // still refracts crisply and keeps the full colour of what it bends
-  const navMaterial = { ...NAV_MATERIAL, letterSize: 22, ...WHITE_INK, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0, ringTintBlend: TINT_BLEND_PX }
-  const closeMaterial = { ...CLOSE_MATERIAL, ...WHITE_INK, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0, ringTintBlend: TINT_BLEND_PX }
+  // Frosted and lightly smoked in the middle only: the rim is neither blurred (edgeBlurMultiplier 0) nor tinted (ringTint 0),
+  // so the edge still refracts crisply and keeps the full colour of what it bends
+  const smoke = { tintR: 0, tintG: 0, tintB: 0, tintStrength: BUTTON_SMOKE }
+  const navMaterial = { ...NAV_MATERIAL, letterSize: 22, ...WHITE_INK, ...smoke, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0, ringTintBlend: TINT_BLEND_PX }
+  const closeMaterial = { ...CLOSE_MATERIAL, ...WHITE_INK, ...smoke, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0, ringTint: 0, ringTintBlend: TINT_BLEND_PX }
   const navItems = [
-    { key: 'prev-day', label: '<', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round', tint: arrowTint },
-    { key: 'next-day', label: '>', title: hasNext ? 'Next day with photos' : 'No later day', onClick: () => stepDay(1), fallbackClass: 'pc-round', tint: arrowTint },
+    { key: 'prev-day', label: '<', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round' },
+    { key: 'next-day', label: '>', title: hasNext ? 'Next day with photos' : 'No later day', onClick: () => stepDay(1), fallbackClass: 'pc-round' },
   ]
   const closeItem = [{
     key: 'close', label: '×', title: 'Close', onClick: onClose,
-    fallbackClass: 'pc-round pc-burgundy', tint: CLOSE_TINT,
+    fallbackClass: 'pc-round',
   }]
 
   return createPortal(
