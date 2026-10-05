@@ -85,6 +85,17 @@ body {
   .lib-hint { display: none; }
 }
 
+/*
+ * While a day is open (DayDetail adds pc-day-open to the root element) the month panel and the bottom buttons are cleared
+ * away, so only the day's sheet and the wallpaper behind it show. They fade out, and back in when the day closes. They
+ * could not be used anyway: the day view covers the whole screen.
+ */
+.stage-column, .stage-footer { transition: opacity .25s ease; }
+.pc-day-open .stage-column, .pc-day-open .stage-footer {
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .25s ease, visibility 0s linear .25s;
+}
+
 /* The diagnostics card (press and hold the info button) */
 .debug-panel {
   position: fixed; z-index: 1300; left: 8px; right: 8px; bottom: 80px; max-height: 70dvh; overflow: auto;

@@ -79,6 +79,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
     const opener = document.activeElement
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden' // the page behind must not scroll
+    // Tells the page a day is open, so it can clear the calendar and the buttons from behind the sheet (see app.css)
+    document.documentElement.classList.add('pc-day-open')
     sheetRef.current?.focus()
 
     // Capture phase, so these run before any page-level handler sees the key
@@ -100,6 +102,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
     return () => {
       window.removeEventListener('keydown', onKey, true)
       document.body.style.overflow = previousOverflow
+      document.documentElement.classList.remove('pc-day-open')
       opener?.focus?.()
     }
   }, [])
