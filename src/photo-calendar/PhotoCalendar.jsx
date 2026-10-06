@@ -25,6 +25,7 @@ import { LiquidGlassPanel, usePanelGlass } from './wwn-glass/index.js'
 import CalendarHeader from './components/CalendarHeader.jsx'
 import DayDetail from './components/DayDetail.jsx'
 import MonthView from './components/MonthView.jsx'
+import PhotoCount from './components/PhotoCount.jsx'
 import YearView from './components/YearView.jsx'
 import useCalendarView from './hooks/useCalendarView.js'
 import usePageInk from './hooks/usePageInk.js'
@@ -117,7 +118,7 @@ export default function PhotoCalendar({
       <div className={`pc-panel${isYear ? ' pc-bare' : ''}`} ref={panelRef} {...swipe}>
         {/* The year view has no glass surface: its contents sit straight on the wallpaper */}
         {!isYear && <LiquidGlassPanel params={glassEdge} />}
-        <CalendarHeader view={view} isYear={isYear} photoCount={photoCount} onStep={go} onToggleZoom={toggleZoom} />
+        <CalendarHeader view={view} isYear={isYear} onStep={go} onToggleZoom={toggleZoom} />
 
         {isYear ? (
           <YearView
@@ -143,6 +144,9 @@ export default function PhotoCalendar({
           />
         )}
       </div>
+
+      {/* How many photos, under the panel at its left */}
+      <PhotoCount count={photoCount} isYear={isYear} />
 
       {openDay && (
         <DayDetail

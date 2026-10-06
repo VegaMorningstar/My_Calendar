@@ -13,11 +13,10 @@ import { COMPACT_NAV_MATERIAL, COMPACT_QUERY, COMPACT_YEAR_BUTTON_WIDTH, NAV_MAT
 /**
  * @param {{y:number, m:number}} view  the month or year on screen
  * @param {boolean}  isYear            year view rather than month view
- * @param {number}   photoCount        photos in the visible month or year
  * @param {Function} onStep            (delta) => void, previous or next
  * @param {Function} onToggleZoom      () => void, month view <-> year view
  */
-export default function CalendarHeader({ view, isYear, photoCount, onStep, onToggleZoom }) {
+export default function CalendarHeader({ view, isYear, onStep, onToggleZoom }) {
   const noun = isYear ? 'year' : 'month'
   const compact = useMediaQuery(COMPACT_QUERY) // a phone on its side: smaller buttons
   const titleRef = useRef(null)
@@ -45,7 +44,6 @@ export default function CalendarHeader({ view, isYear, photoCount, onStep, onTog
           <h2 className="pc-month">{isYear ? view.y : MONTHS[view.m]}</h2>
           <div className="pc-zoom"><GlassButtons items={zoomItems} material={material} /></div>
         </div>
-        <span className="pc-count">{`${photoCount} ${photoCount === 1 ? 'photo' : 'photos'} this ${noun}`}</span>
       </div>
       <nav className="pc-nav">
         <GlassButtons items={stepItems} material={material} />
