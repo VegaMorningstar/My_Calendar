@@ -187,7 +187,9 @@
 .ec-format:focus-visible { outline: 2px solid rgba(var(--pc-teal), 1); outline-offset: 2px; }
 .ec-format-name { display: block; font-family: var(--pc-serif); font-weight: 600; font-size: 1.05rem; margin-bottom: 4px; }
 .ec-format-what { display: block; font-size: .76rem; line-height: 1.45; }
-.ec-picker-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+.ec-picker-actions { display: flex; gap: 8px; justify-content: space-between; margin-top: 12px; }
+/* The Save dialog has only Cancel, which stays at the right */
+.ec-formats .ec-picker-actions { justify-content: flex-end; }
 
 /* A phone on its side: little height, so the bar and the tools share a row */
 @media (orientation: landscape) and (max-height: 520px) {

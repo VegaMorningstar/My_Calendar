@@ -355,7 +355,8 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
               ))}
             </div>
             <div className="ec-picker-actions">
-              <button type="button" className="ec-pill" aria-pressed={(choice[dateKey(year, month, picking)] ?? 0) === -1} onClick={() => pick(picking, -1)}>No photo</button>
+              {/* Leave blank at the left, Cancel at the right */}
+              <button type="button" className="ec-pill" aria-pressed={(choice[dateKey(year, month, picking)] ?? 0) === -1} onClick={() => pick(picking, -1)}>Leave blank</button>
               <button type="button" className="ec-pill" onClick={() => setPicking(null)}>Cancel</button>
             </div>
           </div>
