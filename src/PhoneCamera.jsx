@@ -8,6 +8,8 @@
  * on today's date) and the camera stays open for more; the close button, or a tap on the last photo, finishes.
  * What is saved is exactly what is shown: the picture is cut to the view's shape and zoom (see captureFrame).
  *
+ * Double-tapping the picture flips between the front and back camera, as in the phone's own app.
+ *
  * Zoom: the stops are the phone's real lenses where it shows them to the page (0.5 is the ultra wide camera) and a digital 2x;
  * pinching zooms in smoothly up to 10x. Zooming within a lens is instant; changing lens or flipping restarts the camera, which
  * takes a moment, so the last frame stays on screen, blurred, until the new one is ready.
@@ -26,6 +28,10 @@ const FLASH_LEAD_MS = 380
 const DARK_BELOW = 70
 /** The most the picture can be zoomed in, as the number the pill shows (10 means 10x). */
 const MAX_ZOOM = 10
+/** Two taps within this many ms, and this many px of each other, are a double tap; a tap moves less than TAP_SLOP_PX. */
+const DOUBLE_TAP_MS = 320
+const DOUBLE_TAP_PX = 40
+const TAP_SLOP_PX = 12
 const FLASH_KEY = 'mycal.camFlash'
 const FLASH_NEXT = { auto: 'on', on: 'off', off: 'auto' }
 const FLASH_WORD = { auto: 'Auto', on: 'On', off: 'Off' }
@@ -148,10 +154,14 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
   // Two fingers on the picture zoom it. The ultra wide only goes up to the main lens's width; the main lens to MAX_ZOOM.
   const fingers = useRef(new Map())
   const pinch = useRef(null)
+  const tapStart = useRef(null) // the one finger now down on the picture, if it could still turn out to be a tap
+  const lastTap = useRef(null) // the previous tap, for spotting a double tap
   const gap = () => { const [a, b] = [...fingers.current.values()]; return Math.hypot(a.x - b.x, a.y - b.y) }
   const onDown = e => {
     if (e.target.closest('button')) return
     fingers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    // One finger could be a tap; a second finger makes it a pinch instead
+    tapStart.current = fingers.current.size === 1 ? { x: e.clientX, y: e.clientY, t: e.timeStamp } : null
     if (fingers.current.size === 2) pinch.current = { d0: gap() || 1, z0: zoom }
   }
   const onMove = e => {
@@ -160,6 +170,16 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
     if (pinch.current && fingers.current.size === 2) setZoom(clamp(pinch.current.z0 * gap() / pinch.current.d0, lensZoom, lens === 'ultra' ? 1 : MAX_ZOOM))
   }
   const onUp = e => {
+    const tap = tapStart.current
+    tapStart.current = null
+    // A short press that stayed put is a tap; two close together, in the same place, flip the camera (not while one is restarting)
+    if (e.type === 'pointerup' && tap && fingers.current.size === 1 && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < TAP_SLOP_PX && e.timeStamp - tap.t < 300) {
+      const prev = lastTap.current
+      if (prev && e.timeStamp - prev.t < DOUBLE_TAP_MS && Math.hypot(e.clientX - prev.x, e.clientY - prev.y) < DOUBLE_TAP_PX) {
+        lastTap.current = null
+        if (!snap && state === 'live') flip()
+      } else lastTap.current = { x: e.clientX, y: e.clientY, t: e.timeStamp }
+    }
     fingers.current.delete(e.pointerId)
     if (fingers.current.size < 2) pinch.current = null
   }
