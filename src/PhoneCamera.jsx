@@ -18,6 +18,7 @@
  * "Auto" fires only when the picture is dark.
  */
 import { useEffect, useRef, useState } from 'react'
+import { viewportDeficit } from './diagnostics.js'
 import { listLenses } from './cameraLenses.js'
 import { captureFrame, useCameraStream } from './useCameraStream.js'
 import './phone-camera.css'
@@ -74,6 +75,7 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
   const [flashMode, setFlashMode] = useState(savedFlash)
   const [screenFlash, setScreenFlash] = useState(false) // the white screen that lights a selfie
   const [snap, setSnap] = useState(null) // while a camera restarts: the transform of the frozen last frame
+  const [deficit, setDeficit] = useState(viewportDeficit) // the strip an installed iPhone app cannot paint below the page, in px
   const [busy, setBusy] = useState(false)
   const [flash, setFlash] = useState(0) // changes with every shot, to replay the quick white flash
   const [thumb, setThumb] = useState(null) // an object URL for the last photo taken
@@ -99,9 +101,10 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
     const before = { bg: html.style.background, theme: meta?.getAttribute('content') }
     const black = () => { html.style.background = '#000'; meta?.setAttribute('content', '#000000') }
     black()
-    window.addEventListener('resize', black) // the page repaints its wallpaper when the screen turns; this runs after it
+    const onResize = () => { black(); setDeficit(viewportDeficit()) } // the page repaints its wallpaper when the screen turns; this runs after it
+    window.addEventListener('resize', onResize)
     return () => {
-      window.removeEventListener('resize', black)
+      window.removeEventListener('resize', onResize)
       html.style.background = before.bg
       if (before.theme != null) meta?.setAttribute('content', before.theme)
     }
@@ -258,6 +261,8 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
           </svg>
         </button>
       </div>
+      {/* Where there is such a strip it can only be plain black, so the picture fades into black down to it and the two read as one */}
+      {deficit >= 20 && <div className="pcam-fade" style={{ height: deficit + 110 }} aria-hidden="true" />}
       {screenFlash && <div className="pcam-screenflash" aria-hidden="true" />}
     </div>
   )
