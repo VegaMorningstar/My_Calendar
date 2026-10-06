@@ -2,22 +2,26 @@
  * The camera button, under the calendar panel at the right (level with the photo count): take a photo and it is added to the calendar on the day it was taken.
  *
  * It is a Write-With-Nature glass tile with a drawn camera over it, like the gear. What a press does depends on the device:
- *   - a phone or tablet (a touch screen): opens the device's own camera app straight away (a file picker with `capture`), and
- *     the picture comes back to the page;
- *   - a computer: opens a small camera inside the page (CameraDialog).
+ *   - a phone or tablet (a touch screen): opens a camera inside the page drawn like the phone's own (PhoneCamera). The phone's
+ *     own camera screen (a file picker with `capture`) cannot be restyled, so it is only the fallback, offered when the in-page
+ *     camera cannot start or when the browser has no camera access at all;
+ *   - a computer: opens a small camera inside the page, drawn as a Polaroid (CameraDialog).
  * Either way the picture goes through the same import as any other photo (usePhotoLibrary's addFiles), so its capture date
  * decides the day: the date written in the photo by the camera, or else the moment it came back, which is now.
  */
 import { useCallback, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { BUTTON_MATERIAL, GlassButtons, usePageInk } from './photo-calendar/index.js'
-import CameraDialog, { cameraFileName } from './CameraDialog.jsx'
+import CameraDialog from './CameraDialog.jsx'
+import PhoneCamera from './PhoneCamera.jsx'
+import { cameraFileName } from './useCameraStream.js'
 import './photo-library/library-ui.css'
 
 const MATERIAL = { ...BUTTON_MATERIAL, size: 44, radius: 22, edge: 10 }
 
 /** True on a device whose main pointer is a finger: phones and tablets. */
 const isTouchDevice = () => window.matchMedia?.('(pointer: coarse)').matches ?? false
+
 
 /**
  * @param {(files: File[]) => void} onFiles  gets the photo; pass the library's addFiles
@@ -26,13 +30,16 @@ export default function CameraButton({ onFiles }) {
   const slotRef = useRef(null)
   const ink = usePageInk(slotRef)
   const input = useRef(null)
-  const [dialog, setDialog] = useState(false)
+  const [dialog, setDialog] = useState(null) // which in-page camera is open: null, 'phone' or 'desktop'
 
   const press = () => {
-    if (isTouchDevice()) input.current?.click()
-    else setDialog(true)
+    if (!isTouchDevice()) setDialog('desktop')
+    else if (navigator.mediaDevices?.getUserMedia) setDialog('phone')
+    else input.current?.click() // no camera access from the page: the phone's own camera app
   }
-  const closeDialog = useCallback(() => setDialog(false), [])
+  const closeDialog = useCallback(() => setDialog(null), [])
+  // Called from a tap, which the phone requires before it will open its camera app
+  const useCameraApp = () => { input.current?.click(); setDialog(null) }
 
   const onPicked = e => {
     const file = e.target.files?.[0]
@@ -60,7 +67,9 @@ export default function CameraButton({ onFiles }) {
         </svg>
       </div>
       {/* In the page itself, not inside the calendar: the calendar contains fixed-position children, which would trap the dialog in it */}
-      {dialog && createPortal(<CameraDialog onClose={closeDialog} onPhoto={file => { setDialog(false); onFiles([file]) }} />, document.body)}
+      {dialog === 'desktop' && createPortal(<CameraDialog onClose={closeDialog} onPhoto={file => { setDialog(null); onFiles([file]) }} />, document.body)}
+      {/* The phone camera stays open after a shot, for more; it closes with its own close button */}
+      {dialog === 'phone' && createPortal(<PhoneCamera onClose={closeDialog} onPhoto={file => onFiles([file])} onFallback={useCameraApp} />, document.body)}
     </div>
   )
 }
