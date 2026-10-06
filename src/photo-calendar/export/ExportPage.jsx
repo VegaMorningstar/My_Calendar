@@ -37,6 +37,16 @@ function loadImage(src) {
  * @param {number} [weekStartsOn]
  * @param {Function} onClose  () => void
  */
+/** Wraps a click handler so the button also does a small bounce when pressed (see `ec-pop` in export.css). */
+const pop = handler => e => {
+  const el = e.currentTarget
+  el.classList.remove('ec-pop')
+  void el.offsetWidth // restart the animation if it is still running
+  el.classList.add('ec-pop')
+  setTimeout(() => el.classList.remove('ec-pop'), 480) // the bounce lasts .42s; this also clears it if the animation is switched off
+  handler(e)
+}
+
 export default function ExportPage({ photos, year: startYear, month: startMonth, weekStartsOn = 0, onClose }) {
   const rootRef = useRef(null)
   const stageRef = useRef(null)
@@ -250,7 +260,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
       {/* Back and Save along the bottom, where a thumb reaches them */}
       <footer className="ec-foot">
         {/* Back: a return arrow (curving back to where you came from, so it is not mistaken for the previous-month arrow) */}
-        <button type="button" className="ec-pill ec-round ec-back" onClick={onClose} aria-label="Back to the calendar" title="Back to the calendar">
+        <button type="button" className="ec-pill ec-round ec-back" onClick={pop(onClose)} aria-label="Back to the calendar" title="Back to the calendar">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M9 14 4 9l5-5" />
             <path d="M4 9h9.5a6 6 0 0 1 0 12H8" />
@@ -263,7 +273,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
             <button
               type="button"
               className="ec-pill ec-shape"
-              onClick={() => setOrientation(o => (o === 'landscape' ? 'portrait' : 'landscape'))}
+              onClick={pop(() => setOrientation(o => (o === 'landscape' ? 'portrait' : 'landscape')))}
               aria-label={`Page shape: ${orientation}. Press for ${orientation === 'landscape' ? 'portrait' : 'landscape'}`}
               title={orientation === 'landscape' ? 'Landscape page. Press for portrait' : 'Portrait page. Press for landscape'}
             >
@@ -278,7 +288,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
             <button
               type="button"
               className="ec-pill ec-shape ec-rainbow"
-              onClick={shuffle}
+              onClick={pop(shuffle)}
               disabled={!shufflable.length}
               aria-label="Shuffle the photos"
               title={shufflable.length ? 'Shuffle: a random photo for each day that has several' : 'No day this month has more than one photo'}
@@ -294,7 +304,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
           </div>
         </div>
         {/* Save: the download tray, an arrow going down into a tray. While it works, a turning arc */}
-        <button type="button" className="ec-pill ec-round ec-save" onClick={() => setChoosing(true)} disabled={busy} aria-label={busy ? 'Saving your calendar' : 'Save your calendar'} title={busy ? 'Saving...' : 'Save your calendar'}>
+        <button type="button" className="ec-pill ec-round ec-save" onClick={pop(() => setChoosing(true))} disabled={busy} aria-label={busy ? 'Saving your calendar' : 'Save your calendar'} title={busy ? 'Saving...' : 'Save your calendar'}>
           {busy ? (
             <svg className="ec-spin" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9" /></svg>
           ) : (

@@ -49,12 +49,34 @@
 .ec-rainbow {
   --ec-rainbow: linear-gradient(135deg, #e5484d 0%, #ee7a35 20%, #d9a21c 40%, #3fae78 60%, #3b82e6 80%, #8a5cea 100%);
   color: #fff; text-shadow: none; background: var(--ec-rainbow);
-  border-color: rgba(255, 255, 255, .55);
+  border-color: transparent; /* no white edge: the gradient runs to the rim */
   box-shadow: 0 0 10px 1px rgba(150, 120, 235, .4), inset 0 1px 1px rgba(255, 255, 255, .4);
 }
 .ec-rainbow:hover { background: var(--ec-rainbow); filter: saturate(1.15) brightness(1.06); }
 .ec-rainbow svg { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .35)); }
 .ec-rainbow:disabled { filter: grayscale(.85); opacity: .55; box-shadow: none; }
+/* The round buttons in the bottom bar wiggle gently when hovered or focused, and bounce when pressed (a class added on click by
+   `pop` in ExportPage.jsx, so a tap on a phone, which has no hover, gets it too) */
+.ec-round:not(:disabled):hover, .ec-round:not(:disabled):focus-visible,
+.ec-shape:not(:disabled):hover, .ec-shape:not(:disabled):focus-visible { animation: ec-jiggle .5s ease-out; }
+.ec-pill.ec-pop:not(:disabled), .ec-pill.ec-pop:not(:disabled):hover, .ec-pill.ec-pop:not(:disabled):focus-visible { animation: ec-pop .42s cubic-bezier(.3, .7, .4, 1); }
+@keyframes ec-jiggle {
+  0%   { transform: scale(1) rotate(0); }
+  25%  { transform: scale(1.07) rotate(-4deg); }
+  50%  { transform: scale(.97) rotate(3deg); }
+  75%  { transform: scale(1.03) rotate(-1.5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@keyframes ec-pop {
+  0%   { transform: scale(1); }
+  22%  { transform: scale(.86); }
+  58%  { transform: scale(1.09); }
+  80%  { transform: scale(.97); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ec-round:not(:disabled):hover, .ec-round:not(:disabled):focus-visible, .ec-shape:not(:disabled):hover, .ec-shape:not(:disabled):focus-visible, .ec-pill.ec-pop:not(:disabled), .ec-pill.ec-pop:not(:disabled):hover { animation: none; }
+}
 /* Back and Save are round, with a symbol instead of a word */
 .ec-round { width: 36px; height: 36px; min-height: 0; padding: 0; border-radius: 50%; display: grid; place-items: center; }
 .ec-round svg { display: block; }
