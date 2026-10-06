@@ -2,9 +2,9 @@
  * Compact layout: a phone held on its side (landscape, under 520px tall).
  *
  * The screen is wide but very short, so the calendar fits the height it is given: a one-line
- * header, and date boxes sized to the height that is left, in a panel just wide enough for them. The boxes are wider than
- * tall here (--pc-tile-ratio), because the height is all there is: a square could not be any bigger, but a wider box
- * uses the spare width and shows more of each photo. App-level rules (the buttons below the calendar) are in src/app.css, and use the
+ * header, and date boxes sized to the height that is left, in a panel just wide enough for them. The boxes are squares
+ * (--pc-tile-ratio: 1), the same as everywhere else; a wider box was tried (1.7, then 4:3) to use the spare width but
+ * cropped upright photos too much. App-level rules (the buttons below the calendar) are in src/app.css, and use the
  * same media query. This uses the viewport, not the container, on purpose: it is about the
  * screen's shape, which the calendar's own width cannot tell it.
  */
@@ -16,7 +16,7 @@
      Their width is that times the ratio, and the panel is just as wide as seven of them (or the whole width, if that is less),
      centred. Set the ratio to 1 for squares. */
   .pc-root {
-    --pc-tile-ratio: 1.333; /* 4:3, the shape of a typical landscape photo; 1.7 cropped photos too much */
+    --pc-tile-ratio: 1; /* squares: most phone photos are upright, and a wider box (1.7, then 4:3) cropped them badly */
     --pc-tile-h: max(30px, calc((100dvh - max(8px, env(safe-area-inset-top)) - max(8px, env(safe-area-inset-bottom)) - 68px - (var(--pc-rows, 6) - 1) * 3px) / var(--pc-rows, 6)));
     --pc-tile-max: calc(var(--pc-tile-h) * var(--pc-tile-ratio));
     /* Exactly seven boxes, six 3px gaps and the panel's 14px side padding, so a box is as wide as --pc-tile-max says (the
