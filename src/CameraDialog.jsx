@@ -1,13 +1,18 @@
 /**
  * A small camera inside the page, for computers (a phone opens its own camera app instead, see CameraButton).
  *
- * Shows what the camera sees; the round button takes the picture and hands it back as a JPEG file named for the moment it was
+ * Drawn as a Polaroid: a white frame with the live picture in it and, in the thick strip underneath, today's date in italics, as if
+ * written on the print. The picture is not cropped, so what is shown is exactly what is saved. The round button below the frame
+ * takes the picture and hands it back as a JPEG file named for the moment it was
  * taken (so it lands on today's date). The camera is switched off as soon as the dialog closes, whichever way it closes.
  */
 import { useEffect, useRef, useState } from 'react'
 import './camera.css'
 
 const pad = n => String(n).padStart(2, '0')
+
+/** '6 October 2026': the date written on the print. */
+export const printDate = (d = new Date()) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
 
 /** 'camera-2026-10-12-143005.jpg' for now (local time). */
 export function cameraFileName(d = new Date()) {
@@ -23,6 +28,7 @@ export default function CameraDialog({ onPhoto, onClose }) {
   const streamRef = useRef(null)
   const [state, setState] = useState('starting') // starting | live | error
   const [message, setMessage] = useState('')
+  const [today, setToday] = useState(() => printDate())
 
   useEffect(() => {
     let cancelled = false
@@ -44,10 +50,13 @@ export default function CameraDialog({ onPhoto, onClose }) {
       }
     }
     start()
+    // A dialog left open past midnight must still write the right date
+    const clock = setInterval(() => setToday(printDate()), 30000)
     const onKey = e => { if (e.key === 'Escape') { e.stopPropagation(); onClose() } }
     window.addEventListener('keydown', onKey, true)
     return () => {
       cancelled = true
+      clearInterval(clock)
       window.removeEventListener('keydown', onKey, true)
       streamRef.current?.getTracks().forEach(t => t.stop())
       streamRef.current = null
@@ -71,9 +80,15 @@ export default function CameraDialog({ onPhoto, onClose }) {
 
   return (
     <div className="cam-scrim" role="dialog" aria-modal="true" aria-label="Take a photo" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="cam-box">
-        <video ref={videoRef} className="cam-video" playsInline muted autoPlay />
-        {state !== 'live' && <p className="cam-note" role="status">{state === 'error' ? message : 'Starting the camera...'}</p>}
+      <div className="cam-stack">
+        {/* The Polaroid: white frame, the picture, and the date written underneath */}
+        <figure className="cam-polaroid">
+          <div className="cam-window">
+            <video ref={videoRef} className="cam-video" playsInline muted autoPlay />
+            {state !== 'live' && <p className="cam-note" role="status">{state === 'error' ? message : 'Starting the camera...'}</p>}
+          </div>
+          <figcaption className="cam-date">{today}</figcaption>
+        </figure>
         <div className="cam-bar">
           <button type="button" className="cam-btn cam-close" onClick={onClose} aria-label="Close the camera" title="Close">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
