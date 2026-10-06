@@ -198,6 +198,20 @@ How it would be built: shrink at import with `createImageBitmap(file, { resizeWi
 2. Is the native app a real plan or a someday idea? If real, the PWA copies only need to be small enough for now.
 3. Which cap: 3000px, 1600px, or mid-size by default with an optional full-quality copy?
 
+### Swipe between months stopped working once (not reproduced, fix prepared and not shipped)
+
+Reported once, on the owner's iPhone, right after the pinch between levels went live: swiping sideways on the month panel did not change the month. A later check of the live app on the phone found it working, so nothing was changed. Not reproduced in headless Chrome either (phone portrait and landscape, with vertical drift, and after pinches that open and close a day).
+
+**The likely cause, from reading the code** (`src/photo-calendar/hooks/useSwipeNav.js` as it is now): it keeps a set of pointer ids that are down and decides on a swipe only on `pointerup`. If the phone cancels a touch part way (the page starts to scroll; in landscape the page now scrolls vertically, so a drag with some vertical drift can be taken for a scroll) or a lift is missed, a stale id stays in the set, `down.size` stays above 1 for later touches, and every later swipe is ignored until the app is reloaded. Opening a day with a pinch while two fingers are down (month panel to day sheet) is one way the stale id could appear. Proven in a test with synthetic pointer events: after a `pointercancel`, and after two fingers that never lifted, the current code makes no more swipes.
+
+**The fix, ready on the local branch `fix-swipe` (commit `16925d8`, based on `94a3b1d`; not pushed, so it exists only on this Mac):**
+- `useSwipeNav` decides the moment the drag passes the threshold (60px, mostly sideways), in `pointermove`, not on the lift, so a touch cancelled afterwards still counts.
+- No state is kept between touches: each first finger (`isPrimary`) starts afresh, and a second finger cancels the swipe (it is a pinch).
+- The same approach in the day sheet's swipe between days (`DayDetail.jsx`), and `usePinchZoom` forgets leftover fingers on a new first finger.
+- Side effect: the month changes while the finger is still moving, as soon as it has gone far enough, instead of after the lift.
+
+**If it happens again:** first note what was done just before (a pinch, rotating the phone, opening a day) and whether reloading the app fixes it (a stale-finger bug is cured by a reload). Then apply the prepared fix: `git cherry-pick 16925d8` from the `fix-swipe` branch, or re-create it from the description above, and test with a synthetic `pointercancel` and a never-lifted second finger (the two cases above) as well as a normal swipe, a swipe with vertical drift, and a swipe after pinching.
+
 ## Other open items and known issues
 
 - **Check on a real iPhone**: pinch to zoom between month and year (Safari's gesture events), the day view and photo viewer bottom fades, the day sheet's clearance of the status bar, and the header arrows wrapping for long month names.
