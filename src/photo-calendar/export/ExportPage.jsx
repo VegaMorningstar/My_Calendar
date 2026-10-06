@@ -210,13 +210,16 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
 
   return (
     <div className="ec-root" ref={rootRef} style={{ '--pc-ink': ink.ink, '--pc-hi': ink.halo }} role="dialog" aria-modal="true" aria-label="Your calendar">
-      <header className="ec-bar">
-        <div className="ec-nav">
-          <button type="button" className="ec-pill ec-arrow" onClick={() => step(-1)} aria-label="Previous month">&lsaquo;</button>
-          <h2 className="ec-title" aria-live="polite">{MONTHS[month]} {year}</h2>
-          <button type="button" className="ec-pill ec-arrow" onClick={() => step(1)} aria-label="Next month">&rsaquo;</button>
-        </div>
-      </header>
+      {/* The month is on the sheet itself, so it is not repeated here; this only tells a screen reader which month it has moved to */}
+      <h2 className="ec-sr" aria-live="polite">{MONTHS[month]} {year}</h2>
+
+      {/* Previous and next month at the sides of the screen, like the photo viewer's arrows */}
+      <button type="button" className="ec-arrow ec-prev" onClick={() => step(-1)} aria-label="Previous month">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 4.5 7.5 12l7.5 7.5" /></svg>
+      </button>
+      <button type="button" className="ec-arrow ec-next" onClick={() => step(1)} aria-label="Next month">
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 4.5 16.5 12 9 19.5" /></svg>
+      </button>
 
       <div className="ec-tools">
         {/* One button for the page's shape: a phone drawn upright or on its side, turning when pressed */}

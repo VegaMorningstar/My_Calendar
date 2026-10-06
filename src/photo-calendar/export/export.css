@@ -55,16 +55,43 @@
 .ec-back:hover { background: linear-gradient(135deg, rgb(250, 184, 184), rgb(243, 158, 162)); }
 .ec-save:hover { background: linear-gradient(135deg, rgb(222, 206, 248), rgb(210, 192, 245)); }
 
-.ec-bar { display: flex; align-items: center; justify-content: center; flex: none; }
+/* Previous and next month: just an arrow at each side of the screen, vertically centred, like the photo viewer's. No circle: the
+   arrow is the whole button. It is drawn in the page's ink (pure black or white). */
+.ec-arrow {
+  position: absolute; z-index: 1; top: 50%; margin-top: -22px; width: 44px; height: 44px; padding: 0; flex: none;
+  appearance: none; border: 0; background: none; cursor: pointer; display: grid; place-items: center;
+  color: rgb(var(--pc-ink)); filter: drop-shadow(0 1px 0 rgba(var(--pc-hi), .7));
+  -webkit-tap-highlight-color: transparent;
+}
+.ec-arrow svg { display: block; }
+.ec-prev { left: max(14px, env(safe-area-inset-left)); --nudge: -7px; }
+.ec-next { right: max(14px, env(safe-area-inset-right)); --nudge: 7px; }
+/* Hover (or keyboard focus, or the touch that starts a tap): the arrow wiggles like jelly, pushed out the way it points and
+   settling back; pressing squashes it. */
+.ec-arrow:hover, .ec-arrow:focus-visible { animation: ec-wiggle .62s cubic-bezier(.3, .6, .4, 1); }
+.ec-arrow:active { animation: none; transform: scale(.72, .84); transition: transform .08s ease-out; }
+.ec-arrow:focus-visible { outline: 2px solid rgba(var(--pc-teal), 1); outline-offset: -4px; border-radius: 50%; }
+@keyframes ec-wiggle {
+  0%   { transform: translateX(0) scale(1, 1); }
+  16%  { transform: translateX(var(--nudge)) scale(1.3, .78); }
+  34%  { transform: translateX(calc(var(--nudge) * -.35)) scale(.82, 1.22); }
+  52%  { transform: translateX(calc(var(--nudge) * .3)) scale(1.12, .92); }
+  70%  { transform: translateX(calc(var(--nudge) * -.1)) scale(.96, 1.05); }
+  100% { transform: translateX(0) scale(1, 1); }
+}
+@media (prefers-reduced-motion: reduce) { .ec-arrow:hover, .ec-arrow:focus-visible { animation: none; } }
+@media (max-width: 480px) {
+  .ec-arrow { width: 32px; height: 32px; margin-top: -16px; }
+  .ec-arrow svg { width: 22px; height: 22px; }
+  .ec-prev { left: max(2px, env(safe-area-inset-left)); }
+  .ec-next { right: max(2px, env(safe-area-inset-right)); }
+  /* The button is small, so the area that answers a tap is larger than it looks */
+  .ec-arrow::after { content: ''; position: absolute; inset: -8px; border-radius: 50%; }
+}
 /* Back and Save, along the bottom */
 .ec-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: none; }
-/* The month with its arrows */
-.ec-nav { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
-.ec-arrow { padding: 0; width: 36px; flex: none; font-size: 1.3rem; line-height: 1; display: grid; place-items: center; }
-.ec-title {
-  margin: 0; font-family: var(--pc-serif); font-weight: 600; font-size: clamp(1.1rem, 3.4vw, 1.7rem); line-height: 1;
-  color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); text-align: center;
-}
+/* Text for screen readers only */
+.ec-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .ec-tools { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; flex: none; }
 .ec-hint { margin: 0; font-size: .74rem; letter-spacing: .02em; color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
 
