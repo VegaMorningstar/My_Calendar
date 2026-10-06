@@ -277,7 +277,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
             {/* Shuffle: a random photo for every day that has several */}
             <button
               type="button"
-              className="ec-pill ec-shape"
+              className="ec-pill ec-shape ec-rainbow"
               onClick={shuffle}
               disabled={!shufflable.length}
               aria-label="Shuffle the photos"

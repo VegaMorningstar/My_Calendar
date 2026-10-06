@@ -45,6 +45,16 @@
   border-color: rgba(104, 72, 184, .95);
   box-shadow: 0 0 10px 1px rgba(170, 130, 245, .5), inset 0 1px 1px rgba(255, 255, 255, .35);
 }
+/* Shuffle: a rainbow gradient, with a pure white symbol (the hues are deep enough for white to read on) */
+.ec-rainbow {
+  --ec-rainbow: linear-gradient(135deg, #e5484d 0%, #ee7a35 20%, #d9a21c 40%, #3fae78 60%, #3b82e6 80%, #8a5cea 100%);
+  color: #fff; text-shadow: none; background: var(--ec-rainbow);
+  border-color: rgba(255, 255, 255, .55);
+  box-shadow: 0 0 10px 1px rgba(150, 120, 235, .4), inset 0 1px 1px rgba(255, 255, 255, .4);
+}
+.ec-rainbow:hover { background: var(--ec-rainbow); filter: saturate(1.15) brightness(1.06); }
+.ec-rainbow svg { filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .35)); }
+.ec-rainbow:disabled { filter: grayscale(.85); opacity: .55; box-shadow: none; }
 /* Back and Save are round, with a symbol instead of a word */
 .ec-round { width: 36px; height: 36px; min-height: 0; padding: 0; border-radius: 50%; display: grid; place-items: center; }
 .ec-round svg { display: block; }
