@@ -38,12 +38,12 @@ export function pageLayout(W, H, year, month, weekStartsOn = 0) {
   const weekTop = margin + titleSize * 1.25
   const weekH = weekSize * 2.2
 
-  // The boxes share what is left; a box is never much taller than wide, and the block is centred in its space
+  // The boxes share what is left, starting right under the weekday labels. A box is never much taller than wide (a little taller on
+  // an upright page, where tall photos fit better).
   const gridTop = weekTop + weekH + gap * 0.5
   const availH = H - margin - gridTop
-  const tileH = Math.min((availH - (rows - 1) * gap) / rows, tileW * 1.25)
-  const blockH = rows * tileH + (rows - 1) * gap
-  const gridY = gridTop + (availH - blockH) / 2
+  const tileH = Math.min((availH - (rows - 1) * gap) / rows, tileW * (landscape ? 1.25 : 1.45))
+  const gridY = gridTop
 
   const tiles = []
   cells.forEach((day, i) => {

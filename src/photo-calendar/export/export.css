@@ -27,17 +27,26 @@
 }
 .ec-pill:hover { background: rgba(var(--pc-hi), .24); }
 .ec-pill[aria-pressed='true'] { background: rgba(var(--pc-ink), .16); border-color: rgba(var(--pc-ink), .55); }
+/* The page-shape button: a phone, upright for a portrait page and turned on its side for a landscape one */
+.ec-shape { width: 44px; padding: 0; display: grid; place-items: center; }
+.ec-phone { display: block; transition: transform .28s cubic-bezier(.2, .8, .2, 1); }
+.ec-phone-portrait { transform: rotate(0deg); }
+.ec-phone-landscape { transform: rotate(90deg); }
 .ec-pill:disabled { opacity: .6; cursor: default; }
 .ec-pill:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; }
 .ec-save { border-color: rgba(var(--pc-ink), .55); }
 
-.ec-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: none; }
+.ec-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; flex: none; }
+/* The month with its arrows */
+.ec-nav { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
+.ec-arrow { padding: 0; width: 36px; flex: none; font-size: 1.3rem; line-height: 1; display: grid; place-items: center; }
+/* A narrow screen: the month and its arrows get a row of their own, under Back and Save */
+@media (max-width: 480px) { .ec-nav { order: 3; flex: 1 0 100%; } }
 .ec-title {
   margin: 0; font-family: var(--pc-serif); font-weight: 600; font-size: clamp(1.1rem, 3.4vw, 1.7rem); line-height: 1;
   color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); text-align: center;
 }
 .ec-tools { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; flex: none; }
-.ec-seg { display: flex; gap: 6px; }
 .ec-hint { margin: 0; font-size: .74rem; letter-spacing: .02em; color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
 
 /* The sheet, centred in the room that is left, with its edge and shadow so it reads as a page on the wallpaper */

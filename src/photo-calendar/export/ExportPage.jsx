@@ -2,11 +2,15 @@
  * The page where a month is laid out as a calendar sheet and saved: the wallpaper behind, the month's name, and a box for
  * every day holding one photo. Tap a day to choose which of that day's photos goes on the sheet; Save makes the file.
  *
+ * Months can be changed on this page too (the arrows, the left and right keys, or a swipe on the sheet); the photo chosen for
+ * each day is remembered per month, so going back to a month finds it as it was left.
+ *
  * The sheet on the screen is the same drawing that Save writes to the file (drawCalendarPage), just smaller, so what is
  * seen is what is saved. Plain styling like the year view: no glass, everything sits straight on the wallpaper.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import usePageInk from '../hooks/usePageInk.js'
+import useSwipeNav from '../hooks/useSwipeNav.js'
 import { getBackgroundImage, paperColor } from '../wwn-glass/index.js'
 import { MONTHS, dateKey, groupByDate, photoCountLabel } from '../lib/dates.js'
 import { drawCalendarPage, loadCalendarFonts } from './drawCalendarPage.js'
@@ -26,20 +30,22 @@ function loadImage(src) {
 
 /**
  * @param {Array} photos  the library's photos, { src, date, full? }
- * @param {number} year
+ * @param {number} year   the month to start on
  * @param {number} month  zero-based
  * @param {number} [weekStartsOn]
  * @param {Function} onClose  () => void
  */
-export default function ExportPage({ photos, year, month, weekStartsOn = 0, onClose }) {
+export default function ExportPage({ photos, year: startYear, month: startMonth, weekStartsOn = 0, onClose }) {
   const rootRef = useRef(null)
   const stageRef = useRef(null)
   const canvasRef = useRef(null)
   const ink = usePageInk(rootRef)
 
   // The sheet starts in the shape of the screen, so it uses it well: upright on a phone held upright, landscape otherwise
+  const [view, setView] = useState({ year: startYear, month: startMonth }) // the month on the sheet
+  const { year, month } = view
   const [orientation, setOrientation] = useState(() => (window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'))
-  const [choice, setChoice] = useState({}) // day -> index into that day's photos, or -1 for none; absent means the first
+  const [choice, setChoice] = useState({}) // 'YYYY-MM-DD' -> index into that day's photos, or -1 for none; absent means the first
   const [picking, setPicking] = useState(null) // the day whose photo is being chosen
   const [images, setImages] = useState(() => new Map()) // photo src -> loaded image
   const [fontsReady, setFontsReady] = useState(false)
@@ -63,14 +69,28 @@ export default function ExportPage({ photos, year, month, weekStartsOn = 0, onCl
   const chosenSrc = useCallback(day => {
     const srcs = byDay.get(day)
     if (!srcs) return null
-    const i = choice[day] ?? 0
+    const i = choice[dateKey(year, month, day)] ?? 0
     return i < 0 ? null : srcs[i] ?? null
-  }, [byDay, choice])
+  }, [byDay, choice, year, month])
+
+  /** Moves the sheet to the previous (-1) or next (+1) month. */
+  const step = delta => {
+    setPicking(null)
+    setStatus('')
+    setPending(null)
+    setView(v => { const d = new Date(v.year, v.month + delta, 1); return { year: d.getFullYear(), month: d.getMonth() } })
+  }
+  const swipe = useSwipeNav(delta => step(delta))
 
   // Clear the page behind (the stage, buttons and calendar) and keep the keys to ourselves while this screen is open
   useEffect(() => {
     document.documentElement.classList.add('pc-export-open')
     const onKey = e => {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.stopPropagation()
+        if (picking === null) setView(v => { const d = new Date(v.year, v.month + (e.key === 'ArrowRight' ? 1 : -1), 1); return { year: d.getFullYear(), month: d.getMonth() } })
+        return
+      }
       if (e.key !== 'Escape') return
       e.stopPropagation()
       if (picking !== null) setPicking(null)
@@ -144,29 +164,41 @@ export default function ExportPage({ photos, year, month, weekStartsOn = 0, onCl
     if (result !== 'needs-tap') { setStatus(result === 'cancelled' ? '' : result === 'shared' ? 'Sent to your share sheet.' : `Saved ${pending.filename}.`); setPending(null) }
   }
 
-  const pick = (day, index) => { setChoice(c => ({ ...c, [day]: index })); setPicking(null) }
+  const pick = (day, index) => { setChoice(c => ({ ...c, [dateKey(year, month, day)]: index })); setPicking(null) }
   const pickingSrcs = picking !== null ? byDay.get(picking) ?? [] : []
 
   return (
     <div className="ec-root" ref={rootRef} style={{ '--pc-ink': ink.ink, '--pc-hi': ink.halo }} role="dialog" aria-modal="true" aria-label="Your calendar">
       <header className="ec-bar">
         <button type="button" className="ec-pill" onClick={onClose}>Back</button>
-        <h2 className="ec-title">{MONTHS[month]} {year}</h2>
+        <div className="ec-nav">
+          <button type="button" className="ec-pill ec-arrow" onClick={() => step(-1)} aria-label="Previous month">&lsaquo;</button>
+          <h2 className="ec-title" aria-live="polite">{MONTHS[month]} {year}</h2>
+          <button type="button" className="ec-pill ec-arrow" onClick={() => step(1)} aria-label="Next month">&rsaquo;</button>
+        </div>
         <button type="button" className="ec-pill ec-save" onClick={save} disabled={busy}>{busy ? 'Saving...' : 'Save'}</button>
       </header>
 
       <div className="ec-tools">
-        <div className="ec-seg" role="group" aria-label="Page shape">
-          {['landscape', 'portrait'].map(o => (
-            <button key={o} type="button" className="ec-pill" aria-pressed={orientation === o} onClick={() => setOrientation(o)}>
-              {o === 'landscape' ? 'Landscape' : 'Portrait'}
-            </button>
-          ))}
-        </div>
+        {/* One button for the page's shape: a phone drawn upright or on its side, turning when pressed */}
+        <button
+          type="button"
+          className="ec-pill ec-shape"
+          onClick={() => setOrientation(o => (o === 'landscape' ? 'portrait' : 'landscape'))}
+          aria-label={`Page shape: ${orientation}. Press for ${orientation === 'landscape' ? 'portrait' : 'landscape'}`}
+          title={orientation === 'landscape' ? 'Landscape page. Press for portrait' : 'Portrait page. Press for landscape'}
+        >
+          <svg className={`ec-phone ec-phone-${orientation}`} viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            {/* An upright phone: the body, a speaker slot at the top and the home bar at the bottom */}
+            <rect x="6.5" y="2" width="11" height="20" rx="2.6" />
+            <path d="M10.5 4.7h3" />
+            <path d="M10.5 19.3h3" />
+          </svg>
+        </button>
         <p className="ec-hint">{byDay.size ? 'Tap a day to choose its photo' : 'No photos in this month yet'}</p>
       </div>
 
-      <div className="ec-stage" ref={stageRef}>
+      <div className="ec-stage" ref={stageRef} {...swipe}>
         <div className="ec-sheet" style={{ width: cssW, height: cssH }}>
           <canvas ref={canvasRef} className="ec-canvas" aria-hidden="true" />
           {layout.tiles.filter(t => byDay.has(t.day)).map(t => (
@@ -197,7 +229,7 @@ export default function ExportPage({ photos, year, month, weekStartsOn = 0, onCl
                   key={src}
                   type="button"
                   className="ec-thumb"
-                  aria-pressed={(choice[picking] ?? 0) === i}
+                  aria-pressed={(choice[dateKey(year, month, picking)] ?? 0) === i}
                   aria-label={`Photo ${i + 1} of ${pickingSrcs.length}`}
                   onClick={() => pick(picking, i)}
                 >
@@ -206,7 +238,7 @@ export default function ExportPage({ photos, year, month, weekStartsOn = 0, onCl
               ))}
             </div>
             <div className="ec-picker-actions">
-              <button type="button" className="ec-pill" aria-pressed={(choice[picking] ?? 0) === -1} onClick={() => pick(picking, -1)}>No photo</button>
+              <button type="button" className="ec-pill" aria-pressed={(choice[dateKey(year, month, picking)] ?? 0) === -1} onClick={() => pick(picking, -1)}>No photo</button>
               <button type="button" className="ec-pill" onClick={() => setPicking(null)}>Cancel</button>
             </div>
           </div>
