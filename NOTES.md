@@ -51,7 +51,7 @@ A photo calendar built around one reusable element, `src/photo-calendar/`. See `
 
 ### Gestures
 
-- Swipe steps the month or year (`useSwipeNav` for touch, `useTrackpadSwipe` for a laptop). Pinch zooms between month and year (`usePinchZoom`: two fingers, a ctrl+wheel trackpad pinch, and Safari's gesture events); fingers together goes to the year. The panel keeps `touch-action: pan-y` so the browser leaves pinches to the app. Safari's gesture events cannot be tested in headless Chrome, so check a real iPhone after changing them.
+- Swipe steps the month or year (`useSwipeNav` for touch, `useTrackpadSwipe` for a laptop). Pinch changes level, year / month / day (`usePinchZoom`: two fingers, a ctrl+wheel trackpad pinch, and Safari's gesture events): fingers together goes up a level (month to year; a day back to its month), fingers apart goes down (year to month; a month to its latest day that has photos, and nothing if the month has none). The month panel listens on the panel and the day sheet on its overlay; the hook is switched off while the photo viewer is open (pinching there zooms the photo), and one pinch changes only one level across all listeners (a shared lock that outlasts a trackpad's stream of events, otherwise closing a day would carry on to the year). The day sheet ignores a swipe when more than one finger was down. The panel and the overlay keep `touch-action: pan-y` so the browser leaves pinches to the app. Safari's gesture events cannot be tested in headless Chrome, so check a real iPhone after changing them.
 
 ### Wallpaper and first paint
 

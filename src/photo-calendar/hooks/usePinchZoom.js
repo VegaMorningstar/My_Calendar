@@ -24,22 +24,46 @@ const QUIET_MS = 220
 /** Two sources can report the same pinch (iOS sends pointer and gesture events); ignore a repeat this soon after a change. */
 const REPEAT_MS = 700
 
+/*
+ * One pinch changes one level, across every place that listens (the month panel and the day sheet are different elements with
+ * their own listeners). After a change nothing else may react until the gesture is over: a trackpad pinch keeps sending events
+ * for a while, and once the day sheet has closed they would land on the month panel underneath and zoom on to the year. While
+ * locked, any further pinch events (ctrl + wheel) keep the lock alive, so it ends a moment after the last of them.
+ */
+let locked = false
+let unlockTimer = 0
+const lockFor = ms => {
+  locked = true
+  clearTimeout(unlockTimer)
+  unlockTimer = setTimeout(() => { locked = false }, ms)
+}
+if (typeof window !== 'undefined') {
+  window.addEventListener('wheel', e => { if (locked && e.ctrlKey) lockFor(QUIET_MS + 80) }, true)
+}
+
 /**
  * @param {{current: HTMLElement|null}} ref  the element to listen on
- * @param {(direction: -1 | 1) => void} onPinch  -1 for a pinch in (zoom out to the year), 1 for a pinch out (zoom into the month)
+ * @param {(direction: -1 | 1) => void} onPinch  -1 for a pinch in (fingers together: up a level, month to year, day to month),
+ *   1 for a pinch out (fingers apart: down a level, year to month, month to day)
+ * @param {boolean} [enabled]  false makes the hook ignore everything, for a layer that has gestures of its own on top of it
+ *   (the photo viewer, inside the day sheet)
  */
-export default function usePinchZoom(ref, onPinch) {
+export default function usePinchZoom(ref, onPinch, enabled = true) {
   const callback = useRef(onPinch)
   callback.current = onPinch
+  const active = useRef(enabled)
+  active.current = enabled
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
     let lastFired = 0
     const fire = direction => {
+      if (!active.current || locked) return
       const now = performance.now()
       if (now - lastFired < REPEAT_MS) return
       lastFired = now
+      lockFor(REPEAT_MS)
       callback.current(direction)
     }
     const swallowClicksBriefly = () => { swallowUntil = performance.now() + 400 }
@@ -54,7 +78,7 @@ export default function usePinchZoom(ref, onPinch) {
       return Math.hypot(a.x - b.x, a.y - b.y)
     }
     const onDown = e => {
-      if (e.pointerType === 'mouse') return
+      if (!active.current || e.pointerType === 'mouse') return
       touches.set(e.pointerId, { x: e.clientX, y: e.clientY })
       if (touches.size === 2) { startDistance = distance(); spent = false }
     }
@@ -71,7 +95,7 @@ export default function usePinchZoom(ref, onPinch) {
       touches.delete(e.pointerId)
     }
     const onClick = e => {
-      if (performance.now() > swallowUntil) return
+      if (!active.current || performance.now() > swallowUntil) return
       e.stopPropagation()
       e.preventDefault()
     }
@@ -81,7 +105,7 @@ export default function usePinchZoom(ref, onPinch) {
     let wheelSpent = false
     let timer = 0
     const onWheel = e => {
-      if (!e.ctrlKey) return
+      if (!active.current || !e.ctrlKey) return
       e.preventDefault() // otherwise the browser zooms the whole page
       clearTimeout(timer)
       timer = setTimeout(() => { travelled = 0; wheelSpent = false }, QUIET_MS)
@@ -94,14 +118,15 @@ export default function usePinchZoom(ref, onPinch) {
 
     // ── Safari's gesture events ──
     let gestureSpent = false
-    const onGestureStart = e => { e.preventDefault(); gestureSpent = false }
+    const onGestureStart = e => { if (!active.current) return; e.preventDefault(); gestureSpent = false }
     const onGestureChange = e => {
+      if (!active.current) return
       e.preventDefault()
       if (gestureSpent) return
       if (e.scale <= IN_RATIO) { gestureSpent = true; swallowClicksBriefly(); fire(-1) }
       else if (e.scale >= OUT_RATIO) { gestureSpent = true; swallowClicksBriefly(); fire(1) }
     }
-    const onGestureEnd = e => e.preventDefault()
+    const onGestureEnd = e => { if (active.current) e.preventDefault() }
 
     el.addEventListener('pointerdown', onDown)
     el.addEventListener('pointermove', onMove)

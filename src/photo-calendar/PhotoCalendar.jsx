@@ -72,11 +72,18 @@ export default function PhotoCalendar({
   const swipe = useSwipeNav(go)
   useTrackpadSwipe(panelRef, go) // the same on a laptop: a two-finger sideways swipe over the panel
 
-  // Pinching the panel zooms between month and year, the same as the year button: fingers together (or a
-  // trackpad pinch-in) goes out to the year, fingers apart goes back into the month
+  // Pinching the panel changes level, like the Photos app: year, month, day. Fingers together (or a trackpad pinch-in) goes
+  // up a level (month to year), fingers apart goes down (year to month, then month to the latest day with photos).
+  // A pinch in on the day sheet itself goes back up to the month (see DayDetail).
   usePinchZoom(panelRef, direction => {
     if (direction < 0 && !isYear) zoom('year')
     else if (direction > 0 && isYear) zoom('month')
+    else if (direction > 0 && !openDay) {
+      // Fingers apart on a month goes one level further in: the latest day of the month that has photos (nothing if none)
+      const prefix = `${view.y}-${String(view.m + 1).padStart(2, '0')}-`
+      const latest = photoDays.filter(k => k.startsWith(prefix)).pop()
+      if (latest) setOpenDay({ year: view.y, month: view.m, day: Number(latest.slice(-2)) })
+    }
   })
 
   // Hands the panel's surface to the WebGPU glass, or to WWN's CSS glass without it

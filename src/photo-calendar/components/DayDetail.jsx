@@ -17,6 +17,7 @@ import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, photoCountLabel } from '.
 import PhotoViewer from './PhotoViewer.jsx'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
+import usePinchZoom from '../hooks/usePinchZoom.js'
 import { CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
@@ -53,6 +54,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   // Frostier than the calendar panel: more blur in the middle, so the text and photos on the sheet stay clear
   const sheetGlass = useMemo(() => ({ ...glassEdge, blur: SHEET_BLUR }), [glassEdge])
   const scrollRef = useRef(null)
+  const overlayRef = useRef(null)
   /** Index of the photo open full screen, or null for the grid. */
   const [viewing, setViewing] = useState(null)
   /** When the photo viewer last closed. A swipe-down that closes it can be followed by a stray press on the veil. */
@@ -107,16 +109,28 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
     }
   }, [])
 
+  // Pinching in anywhere on the day (fingers together on a phone, a trackpad pinch on a laptop) goes back up to the month.
+  // Off while a photo is open full screen: pinching there zooms the photo (PhotoViewer).
+  usePinchZoom(overlayRef, direction => { if (direction < 0) onClose() }, viewing === null)
+
   // A new day starts at the top of its photos
   useEffect(() => { scrollRef.current?.scrollTo({ top: 0 }) }, [year, month, day])
 
   // ── Swipe between days ──────────────────────────────────────────────────────
   const drag = useRef(null)
   const swiped = useRef(false)
-  const onPointerDown = e => { drag.current = { x: e.clientX, y: e.clientY }; swiped.current = false }
+  const fingers = useRef(new Set()) // touches currently down: two or more are a pinch, never a swipe
+  const wasPinch = useRef(false)
+  const onPointerDown = e => {
+    fingers.current.add(e.pointerId)
+    if (fingers.current.size > 1) wasPinch.current = true
+    drag.current = { x: e.clientX, y: e.clientY }; swiped.current = false
+  }
   const onPointerUp = e => {
+    fingers.current.delete(e.pointerId)
     const start = drag.current
     drag.current = null
+    if (wasPinch.current) { if (!fingers.current.size) wasPinch.current = false; return }
     if (!start) return
     const dx = e.clientX - start.x
     const dy = e.clientY - start.y
@@ -149,6 +163,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   return createPortal(
     <div
       className="pc-overlay"
+      ref={overlayRef}
       style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo, '--pc-veil': pageInk.veil }}
       // Only a press on the veil itself counts as "clicking away", not one inside the sheet
       onMouseDown={e => { if (e.target === e.currentTarget && performance.now() - viewerClosedAt.current > 500) onClose() }}
@@ -167,6 +182,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
           className="pc-sheet-scroll"
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
+          onPointerCancel={e => { fingers.current.delete(e.pointerId); drag.current = null; if (!fingers.current.size) wasPinch.current = false }}
           onClickCapture={e => { if (swiped.current) { e.stopPropagation(); e.preventDefault(); swiped.current = false } }}
         >
           {/* Keyed by date, so every day change replays the slide-in */}

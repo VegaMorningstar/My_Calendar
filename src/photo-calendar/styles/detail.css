@@ -3,7 +3,9 @@
  * and every photo taken that day. Rendered in a portal, so it carries its own
  * copy of the variables from base.css via the shared .pc-overlay selector.
  */
+/* touch-action pan-y: the browser leaves a pinch to the app (see usePinchZoom) and still scrolls up and down */
 .pc-overlay {
+  touch-action: pan-y;
   position: fixed; inset: 0; z-index: 1000;
   /* The one grid cell is exactly the screen less the padding (minmax(0, 1fr)), so a sheet with many photos is
      held to that height and its scroll area scrolls; with an auto-sized cell the sheet grew past the screen */
