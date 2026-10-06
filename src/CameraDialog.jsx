@@ -7,8 +7,12 @@
  * taken (so it lands on today's date). The camera is switched off as soon as the dialog closes, whichever way it closes.
  */
 import { useEffect, useRef, useState } from 'react'
+import { BUTTON_MATERIAL, GlassButtons } from './photo-calendar/index.js'
 import CameraFlorals from './CameraFlorals.jsx'
 import './camera.css'
+
+/** The shutter: a round WWN glass tile, 64px, with the white ring drawn over it. */
+const SHUTTER_MATERIAL = { ...BUTTON_MATERIAL, size: 64, radius: 32, edge: 11 }
 
 const pad = n => String(n).padStart(2, '0')
 
@@ -89,6 +93,10 @@ export default function CameraDialog({ onPhoto, onClose }) {
 
   return (
     <div className="cam-scrim" role="dialog" aria-modal="true" aria-label="Take a photo" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
+      {/* Close: the top left corner of the screen */}
+      <button type="button" className="cam-btn cam-close" onClick={onClose} aria-label="Close the camera" title="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+      </button>
       <div className="cam-stack">
         {/* The Polaroid: white frame, the picture, and the date written underneath */}
         <figure className="cam-polaroid" style={{ '--cam-ar': ratio }}>
@@ -100,11 +108,22 @@ export default function CameraDialog({ onPhoto, onClose }) {
           <CameraFlorals />
         </figure>
         <div className="cam-bar">
-          <button type="button" className="cam-btn cam-close" onClick={onClose} aria-label="Close the camera" title="Close">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-          </button>
-          <button type="button" className="cam-shutter" onClick={shoot} disabled={state !== 'live'} aria-label="Take the photo" title="Take the photo" />
-          <span className="cam-spacer" aria-hidden="true" />
+          {/* The shutter: liquid glass, with a white ring drawn over it like a phone's shutter. While the camera is still starting
+              it is dimmed and does nothing (a disabled button does not take a press). */}
+          <div className={`cam-shutter-slot${state === 'live' ? '' : ' cam-shutter-off'}`}>
+            <GlassButtons
+              material={SHUTTER_MATERIAL}
+              items={[{
+                key: 'shutter', label: '', title: 'Take the photo', width: SHUTTER_MATERIAL.size,
+                onClick: shoot, fallbackClass: 'cam-shutter',
+                aria: { disabled: state !== 'live' },
+              }]}
+            />
+            <svg className="cam-shutter-ring" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+              <circle cx="32" cy="32" r="27" fill="none" stroke="#fff" strokeWidth="3.5" />
+              <circle cx="32" cy="32" r="20.5" fill="rgba(255,255,255,.55)" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
