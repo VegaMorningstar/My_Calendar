@@ -8,6 +8,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { viewportDeficit } from './diagnostics.js'
 import { ExportPage, PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
+import CameraButton from './CameraButton.jsx'
 import GetCalendarButton from './GetCalendarButton.jsx'
 import TileStyleToggle, { initialGlassTiles } from './TileStyleToggle.jsx'
 import UpdatePrompt from './pwa/UpdatePrompt.jsx'
@@ -142,6 +143,7 @@ export default function App() {
       </div>
       <div className="stage-footer" ref={footerRef}>
         <SettingsMenu library={library} wallpaper={wallpaper} />
+        <CameraButton onFiles={library.addFiles} />
         <LibraryNote />
         {/* The two buttons on the right stay together: on a narrow screen they drop to a second row as a pair */}
         <div className="stage-footer-right">

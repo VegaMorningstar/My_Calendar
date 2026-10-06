@@ -9,11 +9,11 @@ import { hasPhoto, putPhoto } from './photo-store.js'
 /**
  * @param {File[]} files
  * @param {(done:number, total:number) => void} [onProgress]
- * @returns {Promise<{ added:number, skipped:number, failed:number, dated:number, undated:number }>}
- *   `undated` counts photos with no capture date that fell back to the file date
+ * @returns {Promise<{ added:number, skipped:number, failed:number, dated:number, undated:number, dates:string[] }>}
+ *   `undated` counts photos with no capture date that fell back to the file date; `dates` are the days ('YYYY-MM-DD') the added photos landed on
  */
 export async function importFiles(files, onProgress) {
-  const result = { added: 0, skipped: 0, failed: 0, dated: 0, undated: 0 }
+  const result = { added: 0, skipped: 0, failed: 0, dated: 0, undated: 0, dates: [] }
   const images = files.filter(f => f.type.startsWith('image/') || /\.(heic|heif|jpe?g|png|webp)$/i.test(f.name))
   result.failed += files.length - images.length
 
@@ -30,7 +30,9 @@ export async function importFiles(files, onProgress) {
         const thumb = await makeThumbnail(file)
         await putPhoto({ id, name: file.name, size: file.size, date, blob: file, thumb })
         result.added++
-        if (source === 'exif') result.dated++
+        result.dates.push(date)
+        // A photo just taken with the camera has no metadata to read in the page's own camera, but its date is certain: now
+        if (source === 'exif' || /^camera-/.test(file.name)) result.dated++
         else result.undated++
       }
     } catch {

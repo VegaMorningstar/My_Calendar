@@ -148,9 +148,16 @@ export default function SettingsMenu({ library, wallpaper }) {
 }
 
 /** One sentence describing what an import or removal did. */
-function summary({ added, skipped, failed, undated, removed }) {
+/** '2026-10-12' as '12 October'. */
+function dayName(key) {
+  const [y, m, d] = key.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
+}
+
+function summary({ added, skipped, failed, undated, removed, dates }) {
   if (removed !== undefined) return `Removed ${removed} ${removed === 1 ? 'photo' : 'photos'} from this app`
-  const parts = [`Added ${added} ${added === 1 ? 'photo' : 'photos'}`]
+  // One photo: say which day it went to, which is what matters when it was just taken with the camera
+  const parts = [added === 1 && dates?.length === 1 ? `Added to ${dayName(dates[0])}` : `Added ${added} ${added === 1 ? 'photo' : 'photos'}`]
   if (undated) parts.push(`${undated} had no capture date, so the file date was used`)
   if (skipped) parts.push(`${skipped} already added`)
   if (failed) parts.push(`${failed} could not be read`)
