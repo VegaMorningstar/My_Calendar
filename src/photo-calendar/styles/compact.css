@@ -2,14 +2,19 @@
  * Compact layout: a phone held on its side (landscape, under 520px tall).
  *
  * The screen is wide but very short, so the calendar fits the height it is given: a one-line
- * header, and square date boxes sized to the height that is left, in a panel just wide enough for them. App-level rules (the gear column on the left) are in src/app.css, and use the
+ * header, and date boxes sized to the height that is left, in a panel just wide enough for them. The boxes are wider than
+ * tall here (--pc-tile-ratio), because the height is all there is: a square could not be any bigger, but a wider box
+ * uses the spare width and shows more of each photo. App-level rules (the gear column on the left) are in src/app.css, and use the
  * same media query. This uses the viewport, not the container, on purpose: it is about the
  * screen's shape, which the calendar's own width cannot tell it.
  */
 @media (orientation: landscape) and (max-height: 520px) {
-  /* The date boxes stay square: their size comes from the height left (the header takes about 130px),
-     and the panel is just as wide as seven of them, centred in the space beside the buttons. */
-  .pc-root { --pc-tile-max: max(30px, calc((100dvh - 135px) / 6)); }
+  /* The date boxes' height comes from the height left (the header takes about 130px); their width is that times the ratio,
+     and the panel is just as wide as seven of them, centred in the space beside the buttons. Set the ratio to 1 for squares. */
+  .pc-root {
+    --pc-tile-ratio: 1.5;
+    --pc-tile-max: calc(max(30px, calc((100dvh - 135px) / 6)) * var(--pc-tile-ratio));
+  }
   .pc-panel {
     display: flex; flex-direction: column;
     padding: 6px 14px 10px; --pc-panel-r: 22px; --pc-gap: 3px; --pc-radius: 7px;
