@@ -25,7 +25,9 @@ const state = {
     paperGradients: false, // WWN's colour washes; this page is flat
     stars: false,
     buttonGlyph: null,
-    buttonGlow: null,
+    // The colour of the light in a button that asks to glow (a GlassButtons item with `glow`): a soft lilac. No other button
+    // asks for it, so only the "Get your calendar" button glows.
+    buttonGlow: { r: 196, g: 164, b: 255 },
   },
 }
 

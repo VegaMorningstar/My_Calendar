@@ -15,9 +15,12 @@
  *   weekStartsOn  0 = Sunday (default) ... 6 = Saturday
  *   rotateMs      the least time each photo stays up on a multi-photo day (default 5 seconds; random extra on top)
  *   liquidTiles   draw the date boxes as WWN liquid glass tiles (default true; CSS boxes without WebGPU)
+ *   onViewChange  called with { year, month, mode } (month is zero-based, mode 'month' or 'year') whenever the view changes, so
+ *                 the page around the calendar knows which month is on screen (the "Get your calendar" button uses it)
+ *   paused        true switches the keyboard shortcuts off, while the page around the calendar has a screen of its own open
  *   className     extra class on the root element
  */
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { LiquidGlassPanel, usePanelGlass } from './wwn-glass/index.js'
 import CalendarHeader from './components/CalendarHeader.jsx'
 import DayDetail from './components/DayDetail.jsx'
@@ -40,6 +43,8 @@ export default function PhotoCalendar({
   weekStartsOn = 0,
   rotateMs = 5000,
   liquidTiles = true,
+  onViewChange,
+  paused = false,
   className = '',
 }) {
   const panelRef = useRef(null)
@@ -51,7 +56,10 @@ export default function PhotoCalendar({
   /** The day open in the full-screen view, as { year, month, day }, or null. */
   const [openDay, setOpenDay] = useState(null)
   // Keyboard shortcuts pause while the day view is open
-  const { view, anim, isYear, go, zoom, toggleZoom, goTo } = useCalendarView({ initialDate, enabled: !openDay })
+  const { view, anim, isYear, go, zoom, toggleZoom, goTo } = useCalendarView({ initialDate, enabled: !openDay && !paused })
+
+  // Tell the page around the calendar which month (or year) is showing
+  useEffect(() => { onViewChange?.({ year: view.y, month: view.m, mode: view.mode }) }, [view.y, view.m, view.mode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Every date that has photos, oldest first: the stops for the day view's previous / next. */
   const photoDays = useMemo(() => [...byDate.keys()].sort(), [byDate])

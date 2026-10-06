@@ -18,6 +18,9 @@ export { default as usePanelEdge } from './hooks/usePanelEdge.js'
 // Helpers
 export { groupByDate, parsePhotoDate, monthCells } from './lib/dates.js'
 
+// The page where a month is laid out as a calendar sheet and saved as a picture
+export { default as ExportPage } from './export/ExportPage.jsx'
+
 // The glass kit: WWN's glass pieces, for building other UI that matches the calendar
 // (the settings gear and menu use these)
 export { GlassButtons, LiquidGlassPanel, PANEL_GLASS, usePanelGlass, BUTTON_MATERIAL } from './wwn-glass/index.js'

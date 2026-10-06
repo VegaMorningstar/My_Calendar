@@ -40,7 +40,9 @@ body {
 .stage-calendar { position: relative; width: 100%; display: flex; justify-content: center; }
 
 /* The gear and the info button sit side by side at the bottom left; the tile style button is pushed to the right end (see library-ui.css) */
-.stage-footer { align-self: stretch; max-width: 100%; margin-top: 12px; position: relative; z-index: 5; display: flex; align-items: center; gap: 2px; }
+.stage-footer { align-self: stretch; max-width: 100%; margin-top: 12px; position: relative; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 0 2px; }
+/* The flat/glass and Get your calendar buttons: at the right end of the row, and always side by side */
+.stage-footer-right { margin-left: auto; margin-right: 6px; display: flex; align-items: center; gap: 2px; flex: none; }
 
 
 /*
@@ -95,7 +97,8 @@ body {
  * could not be used anyway: the day view covers the whole screen.
  */
 .stage-column, .stage-footer { transition: opacity .25s ease; }
-.pc-day-open .stage-column, .pc-day-open .stage-footer {
+.pc-day-open .stage-column, .pc-day-open .stage-footer,
+.pc-export-open .stage-column, .pc-export-open .stage-footer {
   opacity: 0; visibility: hidden; pointer-events: none;
   transition: opacity .25s ease, visibility 0s linear .25s;
 }

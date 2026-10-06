@@ -5,12 +5,16 @@
  * The calendar shows whatever photos the user has imported from their device,
  * on top of the wallpaper they chose (or the frosted default), which is painted on the page root.
  */
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { viewportDeficit } from './diagnostics.js'
-import { PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
+import { ExportPage, PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
+import GetCalendarButton from './GetCalendarButton.jsx'
 import TileStyleToggle, { initialGlassTiles } from './TileStyleToggle.jsx'
 import UpdatePrompt from './pwa/UpdatePrompt.jsx'
 import { LibraryHint, LibraryNote, SettingsMenu, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
+
+/** Height (px) of the bottom row of buttons when it is one line. */
+const FOOTER_ONE_ROW_PX = 60
 
 /**
  * True when the page runs under the iPhone status bar. Then the top safe-area inset is more
@@ -101,6 +105,22 @@ export default function App() {
     setBackgroundImage(wallpaper.image, wallpaper.averageCss)
   }, [wallpaper.image, wallpaper.averageCss])
 
+  // The month on screen, and whether the calendar-export page is open
+  const [calView, setCalView] = useState(() => ({ year: new Date().getFullYear(), month: new Date().getMonth() }))
+  const [exportOpen, setExportOpen] = useState(false)
+
+  // The row of buttons at the bottom is one line on most screens and two on a narrow one. The calendar is sized to leave room
+  // for one line, so any extra height of the row is passed on to it (--pc-extra-height) and nothing has to scroll.
+  const footerRef = useRef(null)
+  const [footerExtra, setFooterExtra] = useState(0)
+  useEffect(() => {
+    const el = footerRef.current
+    if (!el || typeof ResizeObserver === 'undefined') return
+    const ro = new ResizeObserver(() => setFooterExtra(Math.max(0, Math.round(el.getBoundingClientRect().height - FOOTER_ONE_ROW_PX))))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
   // Declared after the effect above, so the glass already knows the wallpaper when this reads its colours
   const topColor = usePageBackdrop(wallpaper)
 
@@ -108,7 +128,7 @@ export default function App() {
   const emptyLibrary = library.photos.length === 0 && library.progress === null
 
   return (
-    <main className="stage" style={{ '--pc-extra-height': emptyLibrary ? '56px' : '0px' }}>
+    <main className="stage" style={{ '--pc-extra-height': `${(emptyLibrary ? 56 : 0) + footerExtra}px` }}>
       {underStatusBar && <div className="app-status-scrim" aria-hidden="true" />}
       {/* A thin strip in the wallpaper's top-edge colour, there for iOS to tint the status bar from.
           Only needed when the page cannot run under the bar; when it does, the strip would show as a band. */}
@@ -116,15 +136,20 @@ export default function App() {
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
-          <PhotoCalendar photos={library.photos} liquidTiles={glassTiles} />
+          <PhotoCalendar photos={library.photos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} />
           <LibraryHint library={library} />
         </div>
       </div>
-      <div className="stage-footer">
+      <div className="stage-footer" ref={footerRef}>
         <SettingsMenu library={library} wallpaper={wallpaper} />
         <LibraryNote />
-        <TileStyleToggle glass={glassTiles} onChange={setGlassTiles} />
+        {/* The two buttons on the right stay together: on a narrow screen they drop to a second row as a pair */}
+        <div className="stage-footer-right">
+          <TileStyleToggle glass={glassTiles} onChange={setGlassTiles} />
+          <GetCalendarButton onOpen={() => setExportOpen(true)} />
+        </div>
       </div>
+      {exportOpen && <ExportPage photos={library.photos} year={calView.year} month={calView.month} onClose={() => setExportOpen(false)} />}
       <UpdatePrompt />
     </main>
   )

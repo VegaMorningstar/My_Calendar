@@ -4,7 +4,8 @@
  * the variables below are the knobs for restyling.
  */
 .pc-root,
-.pc-overlay {
+.pc-overlay,
+.ec-root {
   /* Text colours are set at render time from the page or photo luminance (lib/adaptive-ink.js);
      these are the light-page defaults. --pc-hi is the etching highlight, the opposite tone. */
   --pc-ink: 0, 0, 0;

@@ -165,7 +165,9 @@ export default function GlassButtons({
           const glowTint = anyLit ? tokens().buttonGlow : null
           // A narrow swing: the light should look like it is breathing, not
           // blinking.
-          const breath = 0.8 + 0.2 * Math.sin((now / 1000) * 1.4)
+          // LOCAL CHANGE (calendar): `glowBreath: false` in the material holds the light steady. A breathing light changes the
+          // picture every frame, so that button would be redrawn 60 times a second for ever (see the draw-on-change note).
+          const breath = mm.glowBreath === false ? 1 : 0.8 + 0.2 * Math.sin((now / 1000) * 1.4)
           const springs = springsRef.current
           const rect = host.getBoundingClientRect()
           if (!rect.width || !rect.height) return
@@ -232,7 +234,7 @@ export default function GlassButtons({
                   r: glowTint.r / 255,
                   g: glowTint.g / 255,
                   b: glowTint.b / 255,
-                  strength: litNow * 0.22 * breath,
+                  strength: litNow * (mm.litTint ?? 0.22) * breath, // LOCAL CHANGE (calendar): `litTint` sets how strongly the glow colours the body
                 }
                 : list[i].tint
 

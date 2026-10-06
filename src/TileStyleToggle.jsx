@@ -8,7 +8,7 @@ import { BUTTON_MATERIAL, GlassButtons, usePageInk } from './photo-calendar/inde
 import './photo-library/library-ui.css'
 
 const STORAGE_KEY = 'mycal.tileStyle'
-const TOGGLE_WIDTH = 64
+const TOGGLE_WIDTH = 56
 const TOGGLE_MATERIAL = { ...BUTTON_MATERIAL, size: 36, radius: 18, edge: 8, letterSize: 13, letterWeight: 'italic 400' }
 
 /**

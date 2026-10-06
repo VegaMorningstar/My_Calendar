@@ -11,7 +11,7 @@
 
 /* ── Gear: a WWN glass tile (GlassButtons). .lib-gear is only its no-WebGPU fallback. ── */
 .lib-settings { position: relative; display: inline-block; }
-.lib-gear-slot { position: relative; line-height: 0; margin: -8px 0 -8px -4px; /* GlassButtons pads its canvas; this tucks the gear toward the corner without clipping it */ }
+.lib-gear-slot { position: relative; line-height: 0; margin: -8px -10px -8px -4px; /* GlassButtons pads its canvas; this tucks the gear toward the corner without clipping it */ }
 /* The drawn gear sits dead centre on the tile; its padding is symmetrical, so the slot's centre is the tile's */
 .lib-gear-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; color: rgb(var(--lib-ink)); }
 .lib-gear {
@@ -75,7 +75,7 @@
   text-shadow: 0 1px 0 rgba(var(--lib-hi), .6);
 }
 /* GlassButtons pads its canvas; this tucks the tile toward the corner without clipping it */
-.lib-info-slot { line-height: 0; margin: -8px 0 -8px -18px; flex: none; }
+.lib-info-slot { line-height: 0; margin: -8px -10px -8px -10px; flex: none; }
 
 /* The info button's CSS fallback (without WebGPU); the glass tile replaces it otherwise */
 .lib-info-btn {
@@ -100,11 +100,11 @@
 /* ── The tile style button: a glass tile at the bottom right, level with the gear and the info button ── */
 .lib-style {
   --lib-ink: 0, 0, 0; --lib-hi: 255, 255, 255;
-  margin-left: auto; flex: none;
+  flex: none;
   font-family: 'DM Mono', ui-monospace, monospace; color: rgb(var(--lib-ink));
 }
 /* GlassButtons pads its canvas; this tucks the tile toward the corner without clipping it */
-.lib-style-slot { line-height: 0; margin: -8px 0 -8px 0; }
+.lib-style-slot { line-height: 0; margin: -8px -10px -8px -10px; }
 
 /* A phone upright: three buttons and the note do not fit in one row, so the note opens as a card above them */
 @media (max-width: 560px) and (orientation: portrait) {
@@ -118,3 +118,10 @@
   .lib-note { padding: 8px 12px; }
   .lib-info { --lib-note-w: min(300px, calc(100vw - 40px)); }
 }
+
+/* ── The "Get your calendar" button: a glass tile with a lilac glow, at the right end of the row ── */
+.lib-get { flex: none; }
+/* GlassButtons pads its canvas; this tucks the tile toward the corner without clipping it */
+.lib-get-slot { line-height: 0; margin: -8px -10px -8px -10px; }
+/* Without WebGPU the plain button gets a lilac glow of its own */
+.lib-get-btn { box-shadow: 0 0 14px 2px rgba(196, 164, 255, .55), inset 0 0 8px rgba(196, 164, 255, .4); border-color: rgba(214, 190, 255, .8); }
