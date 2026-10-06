@@ -37,6 +37,16 @@ export const dayOfYear = (y, m, d) =>
 /** 365 or 366. */
 export const daysInYear = y => ((y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365)
 
+/** 'st', 'nd', 'rd' or 'th' for a day of the month: 1st, 2nd, 3rd, 4th ... 11th, 12th, 13th ... 21st, 22nd, 23rd, 31st. */
+export function ordinalSuffix(n) {
+  const mod100 = n % 100
+  if (mod100 >= 11 && mod100 <= 13) return 'th' // eleventh, twelfth and thirteenth are the exceptions
+  return ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'
+}
+
+/** '6th', '22nd'. */
+export const ordinal = n => `${n}${ordinalSuffix(n)}`
+
 /** '1 photo' / '3 photos'. */
 export const photoCountLabel = n => `${n} ${n === 1 ? 'photo' : 'photos'}`
 

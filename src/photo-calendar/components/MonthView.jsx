@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import DayCell from './DayCell.jsx'
 import GlassTileGrid from '../glass-tiles/GlassTileGrid.jsx'
 import usePageInk, { inkVars } from '../hooks/usePageInk.js'
-import { FULL_WEEKDAYS, MONTHS, WEEKDAYS, dateKey, monthCells, weekdayLabels } from '../lib/dates.js'
+import { FULL_WEEKDAYS, MONTHS, WEEKDAYS, dateKey, monthCells, ordinal, weekdayLabels } from '../lib/dates.js'
 import '../styles/month.css'
 
 /**
@@ -36,7 +36,7 @@ export default function MonthView({ year, month, weekStartsOn, byDate, todayKey,
               key={key}
               day={day}
               weekday={WEEKDAYS[weekdayIndex]}
-              fullLabel={`${FULL_WEEKDAYS[weekdayIndex]} ${day} ${MONTHS[month]}`}
+              fullLabel={`${FULL_WEEKDAYS[weekdayIndex]} ${ordinal(day)} ${MONTHS[month]}`}
               srcs={byDate.get(key) ?? []}
               isToday={key === todayKey}
               rotateMs={rotateMs}

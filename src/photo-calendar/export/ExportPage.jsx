@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import usePageInk from '../hooks/usePageInk.js'
 import useSwipeNav from '../hooks/useSwipeNav.js'
 import { getBackgroundImage, paperColor } from '../wwn-glass/index.js'
-import { MONTHS, dateKey, fullSources, groupByDate, photoCountLabel } from '../lib/dates.js'
+import { MONTHS, dateKey, fullSources, groupByDate, ordinal, photoCountLabel } from '../lib/dates.js'
 import { drawCalendarPage, loadCalendarFonts } from './drawCalendarPage.js'
 import { PAGE_SIZES, pageLayout } from './pageLayout.js'
 import { deliverFile, renderCalendarFile } from './saveImage.js'
@@ -247,7 +247,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
               type="button"
               className="ec-hit"
               style={{ left: `${(t.x / PW) * 100}%`, top: `${(t.y / PH) * 100}%`, width: `${(t.w / PW) * 100}%`, height: `${(t.h / PH) * 100}%` }}
-              aria-label={`${MONTHS[month]} ${t.day}, ${photoCountLabel(byDay.get(t.day).length)}. Choose the photo`}
+              aria-label={`${MONTHS[month]} ${ordinal(t.day)}, ${photoCountLabel(byDay.get(t.day).length)}. Choose the photo`}
               onClick={() => setPicking(t.day)}
             />
           ))}
@@ -340,8 +340,8 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
 
       {picking !== null && (
         <div className="ec-scrim" onMouseDown={e => { if (e.target === e.currentTarget) setPicking(null) }}>
-          <div className="ec-picker" role="dialog" aria-label={`Choose the photo for ${MONTHS[month]} ${picking}`}>
-            <h3 className="ec-picker-title">Pick a photo for {MONTHS[month]} {picking}</h3>
+          <div className="ec-picker" role="dialog" aria-label={`Choose the photo for ${MONTHS[month]} ${ordinal(picking)}`}>
+            <h3 className="ec-picker-title">Pick a photo for {MONTHS[month]} {ordinal(picking)}</h3>
             <div className="ec-thumbs">
               {pickingSrcs.map((src, i) => (
                 <button

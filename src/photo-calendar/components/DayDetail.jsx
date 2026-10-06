@@ -13,7 +13,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { GlassButtons, LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
-import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, photoCountLabel } from '../lib/dates.js'
+import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, ordinal, photoCountLabel } from '../lib/dates.js'
 import PhotoViewer from './PhotoViewer.jsx'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
@@ -173,7 +173,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         ref={sheetRef}
         role="dialog"
         aria-modal="true"
-        aria-label={`${weekday} ${day} ${MONTHS[month]} ${year}`}
+        aria-label={`${weekday} ${ordinal(day)} ${MONTHS[month]} ${year}`}
         tabIndex={-1}
       >
         {/* showPhotos off: the sheet covers the calendar, so the date photos must not show through it */}
@@ -190,7 +190,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
             <header className="pc-detail-head">
               <div>
                 <h2 className="pc-detail-dow">{weekday}</h2>
-                <p className="pc-detail-date">{day} {MONTHS[month]} {year}</p>
+                <p className="pc-detail-date">{ordinal(day)} {MONTHS[month]} {year}</p>
                 <p className="pc-detail-meta">
                   Day {dayOfYear(year, month, day)} of {daysInYear(year)} · {photoCountLabel(srcs.length)}
                 </p>

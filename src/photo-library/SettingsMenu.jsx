@@ -12,7 +12,7 @@
  * decides exactly which photos to use, and everything is stored on the device.
  */
 import { useEffect, useRef, useState } from 'react'
-import { BUTTON_MATERIAL, GlassButtons, LiquidGlassPanel, usePageInk, usePanelEdge, usePanelGlass } from '../photo-calendar/index.js'
+import { BUTTON_MATERIAL, GlassButtons, LiquidGlassPanel, ordinal, usePageInk, usePanelEdge, usePanelGlass } from '../photo-calendar/index.js'
 import Toast from './Toast.jsx'
 import './library-ui.css'
 
@@ -148,10 +148,10 @@ export default function SettingsMenu({ library, wallpaper }) {
 }
 
 /** One sentence describing what an import or removal did. */
-/** '2026-10-12' as '12 October'. */
+/** '2026-10-12' as '12th October'. */
 function dayName(key) {
   const [y, m, d] = key.split('-').map(Number)
-  return new Date(y, m - 1, d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' })
+  return `${ordinal(d)} ${new Date(y, m - 1, d).toLocaleDateString('en-GB', { month: 'long' })}`
 }
 
 function summary({ added, skipped, failed, undated, removed, dates }) {

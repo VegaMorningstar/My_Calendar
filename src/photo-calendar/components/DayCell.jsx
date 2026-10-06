@@ -23,7 +23,7 @@ const WEEKDAY_SPOT = [0, 0.65, 0.5, 1]
 /**
  * @param {number}   day        day of the month
  * @param {string}   weekday    short weekday name, e.g. 'Sat'
- * @param {string}   fullLabel  spoken label, e.g. 'Saturday 3 October'
+ * @param {string}   fullLabel  spoken label, e.g. 'Saturday 3rd October'
  * @param {string[]} srcs       URLs of the photos taken on this day
  * @param {boolean}  isToday    draws the teal ring
  * @param {number}   rotateMs   least time each photo stays up

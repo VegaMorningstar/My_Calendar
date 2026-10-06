@@ -16,7 +16,7 @@ export { default as usePageInk } from './hooks/usePageInk.js'
 export { default as usePanelEdge } from './hooks/usePanelEdge.js'
 
 // Helpers
-export { groupByDate, parsePhotoDate, monthCells } from './lib/dates.js'
+export { groupByDate, ordinal, ordinalSuffix, parsePhotoDate, monthCells } from './lib/dates.js'
 
 // The page where a month is laid out as a calendar sheet and saved as a picture
 export { default as ExportPage } from './export/ExportPage.jsx'

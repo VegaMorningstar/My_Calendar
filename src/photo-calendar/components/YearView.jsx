@@ -1,7 +1,7 @@
 /** Year view: twelve mini months, with a thumbnail on every day that has photos. */
 import { useRef } from 'react'
 import usePageInk, { inkVars } from '../hooks/usePageInk.js'
-import { MONTHS, dateKey, monthCells, photoCountLabel, weekdayLabels } from '../lib/dates.js'
+import { MONTHS, dateKey, monthCells, ordinal, photoCountLabel, weekdayLabels } from '../lib/dates.js'
 import '../styles/year.css'
 
 /**
@@ -47,7 +47,7 @@ function MiniMonth({ year, month, name, weekStartsOn, byDate, todayKey, onOpen }
           if (day === null) return <i key={`blank-${i}`} className="pc-mini-blank" />
           const key = dateKey(year, month, day)
           const srcs = byDate.get(key)
-          const title = `${name} ${day}${srcs ? `, ${photoCountLabel(srcs.length)}` : ''}`
+          const title = `${ordinal(day)} ${name}${srcs ? `, ${photoCountLabel(srcs.length)}` : ''}`
           return (
             <i key={key} title={title} className={`pc-mini-day${srcs ? ' has' : ''}${key === todayKey ? ' pc-mini-today' : ''}`}>
               {srcs && <img src={srcs[0]} alt="" loading="lazy" decoding="async" draggable="false" />}
