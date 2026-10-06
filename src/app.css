@@ -19,6 +19,8 @@ body {
 .stage {
   height: 100%;
   overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain;
+  /* The page still scrolls (touch, trackpad, wheel, keys) when it is taller than the screen, but with no scroll bar to see */
+  scrollbar-width: none; -ms-overflow-style: none;
   display: flex; flex-direction: column; align-items: center;
   /* Keep clear of the notch, the home indicator and rounded corners when installed */
   padding:
@@ -66,22 +68,24 @@ body {
 @media (display-mode: standalone) { .app-top-strip { display: block; } }
 
 /*
- * A phone on its side (landscape, under 520px tall). The calendar needs all of the height, so the
- * gear and info button move into a column on the left, and the calendar takes the rest. The
- * calendar's own compact layout is in src/photo-calendar/styles/compact.css.
+ * A phone on its side (landscape, under 520px tall). The calendar needs all of the height and as much of the width as it can
+ * get, so the gear, info and flat/glass buttons are not beside it any more: they sit below it, out of sight until the page is
+ * scrolled up (the page scrolls only because they are there). The first screenful is the calendar alone, centred, and it
+ * takes the whole width less the safe-area margins. The calendar's own compact layout is in
+ * src/photo-calendar/styles/compact.css.
  */
 @media (orientation: landscape) and (max-height: 520px) {
   .stage {
-    flex-direction: row; align-items: stretch;
     padding:
       max(8px, env(safe-area-inset-top))
       max(10px, env(safe-area-inset-right))
       max(8px, env(safe-area-inset-bottom))
       max(10px, env(safe-area-inset-left));
   }
-  .stage-footer { order: -1; align-self: flex-end; flex-direction: column; align-items: flex-start; margin: 0 6px 0 0; gap: 0; }
-  .stage-column { flex: 1 1 auto; width: auto; min-width: 0; height: 100%; }
-  .stage-calendar { height: 100%; align-items: center; }
+  /* At least a full screenful, so the calendar is centred on the screen and the buttons start below the fold */
+  .stage-column { min-height: calc(100dvh - max(8px, env(safe-area-inset-top)) - max(8px, env(safe-area-inset-bottom))); }
+  /* Clear of the fold: each glass button has a soft rim well outside its tile, which must not peek in at the bottom */
+  .stage-footer { margin: 36px 0 4px; }
   .lib-hint { display: none; }
 }
 
@@ -114,3 +118,4 @@ body {
   bottom: calc(max(16px, env(safe-area-inset-bottom)) + 52px);
   line-height: 0;
 }
+.stage::-webkit-scrollbar { display: none; width: 0; height: 0; }

@@ -4,16 +4,24 @@
  * The screen is wide but very short, so the calendar fits the height it is given: a one-line
  * header, and date boxes sized to the height that is left, in a panel just wide enough for them. The boxes are wider than
  * tall here (--pc-tile-ratio), because the height is all there is: a square could not be any bigger, but a wider box
- * uses the spare width and shows more of each photo. App-level rules (the gear column on the left) are in src/app.css, and use the
+ * uses the spare width and shows more of each photo. App-level rules (the buttons below the calendar) are in src/app.css, and use the
  * same media query. This uses the viewport, not the container, on purpose: it is about the
  * screen's shape, which the calendar's own width cannot tell it.
  */
 @media (orientation: landscape) and (max-height: 520px) {
-  /* The date boxes' height comes from the height left (the header takes about 130px); their width is that times the ratio,
-     and the panel is just as wide as seven of them, centred in the space beside the buttons. Set the ratio to 1 for squares. */
+  /* The date boxes' height comes from the height left. That is the screen less the page's own padding (which grows with the
+     iPhone's safe-area margins: the home indicator takes 21px of the bottom), less the panel's fixed parts (header,
+     weekday row and padding, about 64px, plus 4px to spare), less the gaps between the rows, split between the month's
+     rows (--pc-rows, 4 to 6, set by PhotoCalendar): a five-row month gets taller boxes than a six-row one, as in portrait.
+     Their width is that times the ratio, and the panel is just as wide as seven of them (or the whole width, if that is less),
+     centred. Set the ratio to 1 for squares. */
   .pc-root {
-    --pc-tile-ratio: 1.5;
-    --pc-tile-max: calc(max(30px, calc((100dvh - 135px) / 6)) * var(--pc-tile-ratio));
+    --pc-tile-ratio: 1.7;
+    --pc-tile-h: max(30px, calc((100dvh - max(8px, env(safe-area-inset-top)) - max(8px, env(safe-area-inset-bottom)) - 68px - (var(--pc-rows, 6) - 1) * 3px) / var(--pc-rows, 6)));
+    --pc-tile-max: calc(var(--pc-tile-h) * var(--pc-tile-ratio));
+    /* Exactly seven boxes, six 3px gaps and the panel's 14px side padding, so a box is as wide as --pc-tile-max says (the
+       general formula assumes 4px gaps and 22px padding, which would make the boxes, and so the rows, slightly bigger). */
+    width: min(1400px, 100%, calc(7 * var(--pc-tile-max) + 6 * 3px + 28px));
   }
   .pc-panel {
     display: flex; flex-direction: column;

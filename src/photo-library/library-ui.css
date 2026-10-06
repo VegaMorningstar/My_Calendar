@@ -97,22 +97,6 @@
 .lib-note-open { max-width: var(--lib-note-w); opacity: 1; }
 .lib-note { margin: 0; width: var(--lib-note-w); font-size: .76rem; line-height: 1.5; }
 
-/* A phone on its side: the gear and info button are a column on the left, so the note opens as a
-   small card beside the info button rather than stretching a row (see app.css) */
-@media (orientation: landscape) and (max-height: 520px) {
-  .lib-info { position: relative; --lib-note-w: 260px; }
-  /* The tile sits at the screen's left edge in this layout, so it must not be pulled past it (that clips its glass rim) */
-  .lib-info-slot { margin-left: -4px; }
-  .lib-note-wrap {
-    position: absolute; left: calc(100% + 4px); bottom: 2px; z-index: 8;
-    border-radius: 12px; background: rgba(var(--lib-hi), .78);
-    -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-  }
-  .lib-note-open { box-shadow: 0 6px 18px rgba(60, 40, 15, .2); }
-  .lib-note { padding: 8px 12px; }
-  .lib-menu-wrap { bottom: calc(100% + 2px); }
-}
-
 /* ── The tile style button: a glass tile at the bottom right, level with the gear and the info button ── */
 .lib-style {
   --lib-ink: 0, 0, 0; --lib-hi: 255, 255, 255;
@@ -133,13 +117,4 @@
   .lib-note-open { box-shadow: 0 6px 18px rgba(60, 40, 15, .2); }
   .lib-note { padding: 8px 12px; }
   .lib-info { --lib-note-w: min(300px, calc(100vw - 40px)); }
-}
-
-/* A phone on its side: the gear, info and flat/glass tiles are a column on the left. They share one left edge and are 12px
-   apart. Each GlassButtons canvas is padded by its own rim (gear 16px, the others 14px), so the margins differ by tile; they
-   were measured, not guessed. These come last, to win over the margins above. */
-@media (orientation: landscape) and (max-height: 520px) {
-  .lib-info-slot { margin: -10px 0 -9px -2px; }
-  .lib-style { margin-left: 0; }
-  .lib-style-slot { margin: -7px 0 -8px -2px; }
 }
