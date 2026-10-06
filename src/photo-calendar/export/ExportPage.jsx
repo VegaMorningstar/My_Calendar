@@ -2,6 +2,7 @@
  * The page where a month is laid out as a calendar sheet and saved: the wallpaper behind, the month's name, and a box for
  * every day holding one photo. Tap a day to choose which of that day's photos goes on the sheet; Save makes the file.
  *
+ * The shuffle button picks a random photo for every day that has more than one, instead of choosing them one by one.
  * Months can be changed on this page too (the arrows, the left and right keys, or a swipe on the sheet); the photo chosen for
  * each day is remembered per month, so going back to a month finds it as it was left.
  *
@@ -81,6 +82,27 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
     setView(v => { const d = new Date(v.year, v.month + delta, 1); return { year: d.getFullYear(), month: d.getMonth() } })
   }
   const swipe = useSwipeNav(delta => step(delta))
+
+  /** Days of this month with more than one photo: the only ones a shuffle can change. */
+  const shufflable = useMemo(() => [...byDay.entries()].filter(([, srcs]) => srcs.length > 1), [byDay])
+  const [shuffles, setShuffles] = useState(0) // counts presses, to replay the icon's little turn
+
+  /** A new random photo for every day that has several, never the one it already had. */
+  const shuffle = () => {
+    setPicking(null)
+    setChoice(c => {
+      const next = { ...c }
+      for (const [day, srcs] of shufflable) {
+        const key = dateKey(year, month, day)
+        const now = c[key] ?? 0
+        let i = Math.floor(Math.random() * (srcs.length - 1))
+        if (i >= now && now >= 0) i += 1 // skips the current photo, so a press always changes the day
+        next[key] = i
+      }
+      return next
+    })
+    setShuffles(n => n + 1)
+  }
 
   // Clear the page behind (the stage, buttons and calendar) and keep the keys to ourselves while this screen is open
   useEffect(() => {
@@ -193,6 +215,23 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
             <rect x="6.5" y="2" width="11" height="20" rx="2.6" />
             <path d="M10.5 4.7h3" />
             <path d="M10.5 19.3h3" />
+          </svg>
+        </button>
+        {/* Shuffle: a random photo for every day that has several */}
+        <button
+          type="button"
+          className="ec-pill ec-shape"
+          onClick={shuffle}
+          disabled={!shufflable.length}
+          aria-label="Shuffle the photos"
+          title={shufflable.length ? 'Shuffle: a random photo for each day that has several' : 'No day this month has more than one photo'}
+        >
+          <svg key={shuffles} className={`ec-shuffle${shuffles ? ' ec-shuffle-go' : ''}`} viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M3 7h3.2c2.2 0 3.6 1.1 4.8 3l2 4c1.2 1.9 2.6 3 4.8 3H21" />
+            <path d="M18 13.5l3 3-3 3" />
+            <path d="M3 17h3.2c1.6 0 2.8-.6 3.8-1.7" />
+            <path d="M13.8 8.7c1-1.1 2.2-1.7 3.8-1.7H21" />
+            <path d="M18 4l3 3-3 3" />
           </svg>
         </button>
         <p className="ec-hint">{byDay.size ? 'Tap a day to choose its photo' : 'No photos in this month yet'}</p>

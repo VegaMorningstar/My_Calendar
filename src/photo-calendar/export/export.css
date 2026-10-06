@@ -32,6 +32,10 @@
 .ec-phone { display: block; transition: transform .28s cubic-bezier(.2, .8, .2, 1); }
 .ec-phone-portrait { transform: rotate(0deg); }
 .ec-phone-landscape { transform: rotate(90deg); }
+/* The shuffle icon gives a quick half turn each time it is pressed */
+.ec-shuffle { display: block; }
+.ec-shuffle-go { animation: ec-shuffle-turn .4s cubic-bezier(.2, .8, .2, 1); }
+@keyframes ec-shuffle-turn { from { transform: rotate(-180deg) scale(.8); } }
 .ec-pill:disabled { opacity: .6; cursor: default; }
 .ec-pill:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; }
 .ec-save { border-color: rgba(var(--pc-ink), .55); }
