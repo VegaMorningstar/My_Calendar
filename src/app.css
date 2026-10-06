@@ -41,7 +41,7 @@ body {
 
 /* The gear and the info button sit side by side at the bottom left; the tile style button is pushed to the right end (see library-ui.css) */
 .stage-footer { align-self: stretch; max-width: 100%; margin-top: 12px; position: relative; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 0 2px; }
-/* The flat/glass and Get your calendar buttons: at the right end of the row, and always side by side */
+/* The matte/glass and Get your calendar buttons: at the right end of the row, and always side by side */
 .stage-footer-right { margin-left: auto; margin-right: 6px; display: flex; align-items: center; gap: 2px; flex: none; }
 
 
@@ -71,7 +71,7 @@ body {
 
 /*
  * A phone on its side (landscape, under 520px tall). The calendar needs all of the height and as much of the width as it can
- * get, so the gear, info and flat/glass buttons are not beside it any more: they sit below it, out of sight until the page is
+ * get, so the gear, info and matte/glass buttons are not beside it any more: they sit below it, out of sight until the page is
  * scrolled up (the page scrolls only because they are there). The first screenful is the calendar alone, centred, and it
  * takes the whole width less the safe-area margins. The calendar's own compact layout is in
  * src/photo-calendar/styles/compact.css.

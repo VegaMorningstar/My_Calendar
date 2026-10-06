@@ -3,7 +3,7 @@
  * as a calendar sheet, photos chosen, ready to save (see photo-calendar/export/ExportPage.jsx).
  *
  * It is a Write-With-Nature glass tile like its neighbours, with a lilac glow: the light is asked for with `glow` on
- * the item and its colour is the theme's `buttonGlow`. Its text is set exactly like the info and flat/glass buttons. The glow is held steady (`glowBreath: false`) so the idle page still
+ * the item and its colour is the theme's `buttonGlow`. Its text is set exactly like the info and matte/glass buttons. The glow is held steady (`glowBreath: false`) so the idle page still
  * draws nothing.
  */
 import { BUTTON_MATERIAL, GlassButtons } from './photo-calendar/index.js'
