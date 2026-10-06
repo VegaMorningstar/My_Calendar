@@ -39,8 +39,8 @@
 /* The front camera's flash: the whole screen goes white while the picture is taken */
 .pcam-screenflash { position: absolute; inset: 0; z-index: 5; background: #fff; pointer-events: none; }
 
-/* The bottom of the picture fading to black, when the page is left a plain black strip below it (see PhoneCamera) */
-.pcam-fade { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; pointer-events: none; background: linear-gradient(to top, #000 0, #000 45%, rgba(0, 0, 0, 0)); }
+/* Where the page is left a plain black strip below it (see PhoneCamera), the picture ends in a curved edge above the strip, like the phone's own camera */
+.pcam-curved .pcam-view { border-radius: 0 0 28px 28px; }
 
 /* Along the bottom, over the picture: the last photo, the shutter, and flip. A soft dark fade behind them keeps the white controls readable. */
 .pcam-bar {

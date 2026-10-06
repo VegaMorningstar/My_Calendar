@@ -253,7 +253,7 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
 
   return (
     <div
-      className="pcam" role="dialog" aria-modal="true" aria-label="Take a photo"
+      className={`pcam${deficit >= 20 ? ' pcam-curved' : ''}`} role="dialog" aria-modal="true" aria-label="Take a photo"
       onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
       style={{
         transform: leaving ? 'translateY(100%)' : dragY ? `translateY(${dragY}px)` : undefined,
@@ -304,8 +304,6 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
           </svg>
         </button>
       </div>
-      {/* Where there is such a strip it can only be plain black, so the picture fades into black down to it and the two read as one */}
-      {deficit >= 20 && <div className="pcam-fade" style={{ height: deficit + 110 }} aria-hidden="true" />}
       {screenFlash && <div className="pcam-screenflash" aria-hidden="true" />}
     </div>
   )
