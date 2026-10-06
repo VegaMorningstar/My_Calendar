@@ -38,7 +38,14 @@
 @keyframes ec-shuffle-turn { from { transform: rotate(-180deg) scale(.8); } }
 .ec-pill:disabled { opacity: .6; cursor: default; }
 .ec-pill:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; }
-.ec-save { border-color: rgba(var(--pc-ink), .55); }
+/* Save: the lilac of the "Get your calendar" button, with black text that reads on it over any wallpaper */
+.ec-save {
+  color: #000; text-shadow: none;
+  background: linear-gradient(135deg, rgb(214, 196, 245), rgb(202, 182, 242));
+  border-color: rgba(176, 140, 235, .9);
+  box-shadow: 0 0 12px 1px rgba(196, 164, 255, .5), inset 0 1px 1px rgba(255, 255, 255, .6);
+}
+.ec-save:hover { background: linear-gradient(135deg, rgb(222, 206, 248), rgb(210, 192, 245)); }
 
 .ec-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; flex: none; }
 /* The month with its arrows */
@@ -93,6 +100,17 @@
 .ec-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .ec-thumb[aria-pressed='true'] { border-color: rgb(var(--pc-teal)); }
 .ec-thumb:focus-visible { outline: 2px solid rgba(var(--pc-teal), 1); outline-offset: 2px; }
+.ec-formats .ec-picker-title { margin-bottom: 10px; }
+/* The two ways to save: a full-width card each, with the name and what it is best for */
+.ec-format {
+  appearance: none; display: block; width: 100%; text-align: left; cursor: pointer; font: inherit; margin: 0 0 10px; padding: 12px 14px;
+  border-radius: 14px; color: rgb(var(--pc-ink)); background: rgba(var(--pc-ink), .06); border: 1px solid rgba(var(--pc-ink), .25);
+  -webkit-tap-highlight-color: transparent;
+}
+.ec-format:hover { background: rgba(var(--pc-ink), .12); border-color: rgba(var(--pc-ink), .5); }
+.ec-format:focus-visible { outline: 2px solid rgba(var(--pc-teal), 1); outline-offset: 2px; }
+.ec-format-name { display: block; font-family: var(--pc-serif); font-weight: 600; font-size: 1.05rem; margin-bottom: 4px; }
+.ec-format-what { display: block; font-size: .76rem; line-height: 1.45; }
 .ec-picker-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
 
 /* A phone on its side: little height, so the bar and the tools share a row */

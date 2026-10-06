@@ -1,7 +1,7 @@
 /**
  * Renders the calendar page at full size and hands it to the person.
  *
- * What is saved is a PNG of the whole page: US Letter at about 400 dpi (4400 x 3400 pixels on a landscape page), or at 300 dpi
+ * What is saved is the whole page, as a PNG or as a PDF (the person chooses after pressing Save): US Letter at about 400 dpi (4400 x 3400 pixels on a landscape page), or at 300 dpi
  * (3300 x 2550) on a phone whose browser will not make a canvas that big. Each day's photo is the full-size original (see
  * fullPhoto.js), not the small preview the screen uses, cropped and shrunk to exactly its box.
  *
@@ -9,8 +9,15 @@
  * like) and as a normal download otherwise. The file format and where it goes are still open; this is the first, plain version.
  */
 import { drawCalendarPage, loadCalendarFonts } from './drawCalendarPage.js'
+import { MONTHS } from '../lib/dates.js'
 import { fullPhotoFor } from './fullPhoto.js'
+import { pdfFromJpeg } from './makePdf.js'
 import { PAGE_SIZES, pageLayout } from './pageLayout.js'
+
+/** The paper, in inches: US Letter. A landscape page is 11 wide and 8.5 tall. */
+const PAPER_IN = { landscape: { w: 11, h: 8.5 }, portrait: { w: 8.5, h: 11 } }
+/** How hard the picture inside a PDF is compressed (JPEG, 0 to 1). A PNG is not compressed lossily at all. */
+const PDF_JPEG_QUALITY = 0.95
 
 /** Output sizes to try, best first: pixels per page unit. 4/3 makes a Letter landscape page 4400 x 3400 (about 400 dpi). */
 const SCALES = [4 / 3, 1]
@@ -32,12 +39,12 @@ function canvasWorks(w, h) {
 }
 
 /**
- * @param {object} o  { orientation, year, month, weekStartsOn, wallpaper, paper, photosByDay, previewFor, onProgress }
+ * @param {object} o  { format ('png' or 'pdf'), orientation, year, month, weekStartsOn, wallpaper, paper, photosByDay, previewFor, onProgress }
  *   photosByDay: Map<day, string> the url of each chosen day's full-size photo; previewFor(day): the small preview image to
  *   fall back on if an original cannot be read; onProgress(done, total) is called as the photos are prepared
  * @returns {Promise<{ blob: Blob, filename: string, width: number, height: number }>}
  */
-export async function renderCalendarFile({ orientation, photosByDay, previewFor, onProgress, ...rest }) {
+export async function renderCalendarFile({ format = 'png', orientation, photosByDay, previewFor, onProgress, ...rest }) {
   await loadCalendarFonts()
   const { w: pw, h: ph } = PAGE_SIZES[orientation]
   const scale = SCALES.find(s => canvasWorks(Math.round(pw * s), Math.round(ph * s))) ?? 1
@@ -66,10 +73,19 @@ export async function renderCalendarFile({ orientation, photosByDay, previewFor,
   canvas.width = width
   canvas.height = height
   drawCalendarPage(canvas.getContext('2d'), { W: pw, H: ph, scale, ...rest, photoFor: day => prepared.get(day) ?? null })
-  const blob = await new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('Could not make the picture'))), 'image/png'))
+  const encode = (type, quality) => new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('Could not make the picture'))), type, quality))
+  let blob
+  if (format === 'pdf') {
+    // The picture goes into the PDF as a high-quality JPEG, placed at the paper's exact size
+    const jpeg = new Uint8Array(await (await encode('image/jpeg', PDF_JPEG_QUALITY)).arrayBuffer())
+    const paper = PAPER_IN[orientation]
+    blob = pdfFromJpeg(jpeg, width, height, paper.w, paper.h, `Calendar ${MONTHS[rest.month]} ${rest.year}`)
+  } else {
+    blob = await encode('image/png')
+  }
   canvas.width = canvas.height = 0 // let go of the memory
   for (const c of prepared.values()) if (c instanceof HTMLCanvasElement) c.width = c.height = 0
-  const filename = `calendar-${rest.year}-${String(rest.month + 1).padStart(2, '0')}.png`
+  const filename = `calendar-${rest.year}-${String(rest.month + 1).padStart(2, '0')}.${format === 'pdf' ? 'pdf' : 'png'}`
   return { blob, filename, width, height }
 }
 
@@ -79,7 +95,7 @@ export async function renderCalendarFile({ orientation, photosByDay, previewFor,
  *   will open the share sheet (it times out while a big picture is being made), so the caller offers a button
  */
 export async function deliverFile({ blob, filename }) {
-  const file = new File([blob], filename, { type: blob.type })
+  const file = new File([blob], filename, { type: blob.type || (filename.endsWith('.pdf') ? 'application/pdf' : 'image/png') })
   const touch = window.matchMedia?.('(pointer: coarse)').matches
   if (touch && navigator.canShare?.({ files: [file] })) {
     try {

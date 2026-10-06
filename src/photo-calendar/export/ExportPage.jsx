@@ -2,6 +2,7 @@
  * The page where a month is laid out as a calendar sheet and saved: the wallpaper behind, the month's name, and a box for
  * every day holding one photo. Tap a day to choose which of that day's photos goes on the sheet; Save makes the file.
  *
+ * Pressing Save asks how the calendar should be saved: as a picture (PNG) or as a print-ready page (PDF).
  * The shuffle button picks a random photo for every day that has more than one, instead of choosing them one by one.
  * Months can be changed on this page too (the arrows, the left and right keys, or a swipe on the sheet); the photo chosen for
  * each day is remembered per month, so going back to a month finds it as it was left.
@@ -48,6 +49,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
   const [orientation, setOrientation] = useState(() => (window.innerHeight > window.innerWidth ? 'portrait' : 'landscape'))
   const [choice, setChoice] = useState({}) // 'YYYY-MM-DD' -> index into that day's photos, or -1 for none; absent means the first
   const [picking, setPicking] = useState(null) // the day whose photo is being chosen
+  const [choosing, setChoosing] = useState(false) // the PNG or PDF question is open
   const [images, setImages] = useState(() => new Map()) // photo src -> loaded image
   const [fontsReady, setFontsReady] = useState(false)
   const [stage, setStage] = useState({ w: 0, h: 0 })
@@ -112,17 +114,18 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
     const onKey = e => {
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         e.stopPropagation()
-        if (picking === null) setView(v => { const d = new Date(v.year, v.month + (e.key === 'ArrowRight' ? 1 : -1), 1); return { year: d.getFullYear(), month: d.getMonth() } })
+        if (picking === null && !choosing) setView(v => { const d = new Date(v.year, v.month + (e.key === 'ArrowRight' ? 1 : -1), 1); return { year: d.getFullYear(), month: d.getMonth() } })
         return
       }
       if (e.key !== 'Escape') return
       e.stopPropagation()
-      if (picking !== null) setPicking(null)
+      if (choosing) setChoosing(false)
+      else if (picking !== null) setPicking(null)
       else onClose()
     }
     window.addEventListener('keydown', onKey, true)
     return () => { document.documentElement.classList.remove('pc-export-open'); window.removeEventListener('keydown', onKey, true) }
-  }, [picking, onClose])
+  }, [picking, choosing, onClose])
 
   useEffect(() => { loadCalendarFonts().then(() => setFontsReady(true)) }, [])
 
@@ -170,7 +173,8 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
     drawCalendarPage(canvas.getContext('2d'), { W: PW, H: PH, scale: canvas.width / PW, ...drawing() })
   }, [cssW, cssH, PW, PH, fontsReady, drawing])
 
-  const save = async () => {
+  const save = async format => {
+    setChoosing(false)
     setBusy(true); setStatus('Making your calendar...'); setPending(null)
     try {
       // The photo chosen for each day, as the url of its full-size original (the preview if there is no original)
@@ -182,7 +186,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
         photosByDay.set(day, typeof full === 'function' ? full() : full ?? src)
       }
       const file = await renderCalendarFile({
-        orientation, ...drawing(), photosByDay,
+        format, orientation, ...drawing(), photosByDay,
         previewFor: day => { const s = chosenSrc(day); return s ? images.get(s) ?? null : null },
         onProgress: (n, total) => setStatus(total ? `Preparing your photos, ${n} of ${total}...` : 'Making your calendar...'),
       })
@@ -213,7 +217,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
           <h2 className="ec-title" aria-live="polite">{MONTHS[month]} {year}</h2>
           <button type="button" className="ec-pill ec-arrow" onClick={() => step(1)} aria-label="Next month">&rsaquo;</button>
         </div>
-        <button type="button" className="ec-pill ec-save" onClick={save} disabled={busy}>{busy ? 'Saving...' : 'Save'}</button>
+        <button type="button" className="ec-pill ec-save" onClick={() => setChoosing(true)} disabled={busy}>{busy ? 'Saving...' : 'Save'}</button>
       </header>
 
       <div className="ec-tools">
@@ -270,8 +274,27 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
 
       <p className="ec-status" role="status" aria-live="polite">
         {status}
-        {pending && <button type="button" className="ec-pill" onClick={sendPending}>Save the picture</button>}
+        {pending && <button type="button" className="ec-pill" onClick={sendPending}>Save your calendar</button>}
       </p>
+
+      {choosing && (
+        <div className="ec-scrim" onMouseDown={e => { if (e.target === e.currentTarget) setChoosing(false) }}>
+          <div className="ec-picker ec-formats" role="dialog" aria-label="How would you like your calendar?">
+            <h3 className="ec-picker-title">How would you like your calendar?</h3>
+            <button type="button" className="ec-format" onClick={() => save('png')}>
+              <span className="ec-format-name">Picture (PNG)</span>
+              <span className="ec-format-what">Best for saving to your Photos app and for sharing, in messages or on social media. A sharp picture with nothing lost, and a large file (about 10 MB).</span>
+            </button>
+            <button type="button" className="ec-format" onClick={() => save('pdf')}>
+              <span className="ec-format-name">Print-ready page (PDF)</span>
+              <span className="ec-format-what">Best for printing, at home or at a print shop. A US Letter page that prints at the right size, and a smaller file. It saves to Files, not to your Photos app. The picture inside is very slightly compressed.</span>
+            </button>
+            <div className="ec-picker-actions">
+              <button type="button" className="ec-pill" onClick={() => setChoosing(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {picking !== null && (
         <div className="ec-scrim" onMouseDown={e => { if (e.target === e.currentTarget) setPicking(null) }}>
