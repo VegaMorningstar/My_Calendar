@@ -27,7 +27,7 @@ export default function CameraDialog({ onPhoto, onClose }) {
   const [saveError, setSaveError] = useState(false)
   const [today, setToday] = useState(() => printDate())
   // The picture's shape (width over height), so the window in the print is exactly that shape: no bars at the sides or above
-  const { state: streamState, message: streamMessage, ratio } = useCameraStream(videoRef, 'environment')
+  const { state: streamState, message: streamMessage, ratio } = useCameraStream(videoRef)
   const state = saveError ? 'error' : streamState
   const message = saveError ? 'The photo could not be saved.' : streamMessage
 
