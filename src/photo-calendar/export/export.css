@@ -70,19 +70,19 @@
   -webkit-tap-highlight-color: transparent;
 }
 .ec-arrow svg { display: block; }
-.ec-prev { left: max(14px, env(safe-area-inset-left)); --nudge: -7px; }
-.ec-next { right: max(14px, env(safe-area-inset-right)); --nudge: 7px; }
+.ec-prev { left: max(14px, env(safe-area-inset-left)); --nudge: -3px; }
+.ec-next { right: max(14px, env(safe-area-inset-right)); --nudge: 3px; }
 /* Hover (or keyboard focus, or the touch that starts a tap): the arrow wiggles like jelly, pushed out the way it points and
    settling back; pressing squashes it. */
 .ec-arrow:hover, .ec-arrow:focus-visible { animation: ec-wiggle .62s cubic-bezier(.3, .6, .4, 1); }
-.ec-arrow:active { animation: none; transform: scale(.72, .84); transition: transform .08s ease-out; }
+.ec-arrow:active { animation: none; transform: scale(.82, .9); transition: transform .08s ease-out; }
 .ec-arrow:focus-visible { outline: 2px solid rgba(var(--pc-teal), 1); outline-offset: -4px; border-radius: 50%; }
 @keyframes ec-wiggle {
   0%   { transform: translateX(0) scale(1, 1); }
-  16%  { transform: translateX(var(--nudge)) scale(1.3, .78); }
-  34%  { transform: translateX(calc(var(--nudge) * -.35)) scale(.82, 1.22); }
-  52%  { transform: translateX(calc(var(--nudge) * .3)) scale(1.12, .92); }
-  70%  { transform: translateX(calc(var(--nudge) * -.1)) scale(.96, 1.05); }
+  16%  { transform: translateX(var(--nudge)) scale(1.1, .92); }
+  34%  { transform: translateX(calc(var(--nudge) * -.35)) scale(.94, 1.07); }
+  52%  { transform: translateX(calc(var(--nudge) * .3)) scale(1.04, .97); }
+  70%  { transform: translateX(calc(var(--nudge) * -.1)) scale(.99, 1.02); }
   100% { transform: translateX(0) scale(1, 1); }
 }
 @media (prefers-reduced-motion: reduce) { .ec-arrow:hover, .ec-arrow:focus-visible { animation: none; } }
