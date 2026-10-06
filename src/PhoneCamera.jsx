@@ -1,7 +1,7 @@
 /**
- * The camera for phones and tablets, drawn like the phone's own Camera app: the live picture fills the screen down to a black bar
- * with rounded bottom corners; close at the top left, flash at the top right, the zoom stops in a pill at the bottom middle and
- * flip (front or back camera) at the bottom left; below, on black, the last photo taken at the left and the big white shutter.
+ * The camera for phones and tablets, drawn like the phone's own Camera app, but with the picture filling the whole screen: close at
+ * the top left, flash at the top right, the zoom stops in a pill above the shutter, and along the bottom, over the picture, the last
+ * photo taken at the left, the big white shutter in the middle and flip (front or back camera) at the right.
  *
  * It is drawn by the page, not by the phone, because the phone's own camera screen (what a file picker with `capture` opens) cannot be
  * changed: it carries its own "PHOTO" label and controls. Each press of the shutter hands the picture back (to be added to the calendar
@@ -226,18 +226,17 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
             </button>
           ))}
         </div>
-        <button type="button" className="pcam-round pcam-flip" onClick={flip} aria-label="Switch between the front and back camera" title="Switch camera">
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M20 11a8 8 0 0 0-14.3-4.6M4 13a8 8 0 0 0 14.3 4.6" /><path d="M6 3v4.4h4.4M18 21v-4.4h-4.4" />
-          </svg>
-        </button>
       </div>
       <div className="pcam-bar">
         {thumb
           ? <button type="button" className="pcam-thumb" onClick={onClose} aria-label="Done, back to the calendar" title="Done"><img src={thumb} alt="" /></button>
           : <span className="pcam-thumb-gap" />}
         <button type="button" className="pcam-shutter" onClick={shoot} disabled={state !== 'live' || busy} aria-label="Take the photo" title="Take the photo"><span /></button>
-        <span className="pcam-thumb-gap" />
+        <button type="button" className="pcam-round pcam-flip" onClick={flip} aria-label="Switch between the front and back camera" title="Switch camera">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M20 11a8 8 0 0 0-14.3-4.6M4 13a8 8 0 0 0 14.3 4.6" /><path d="M6 3v4.4h4.4M18 21v-4.4h-4.4" />
+          </svg>
+        </button>
       </div>
       {screenFlash && <div className="pcam-screenflash" aria-hidden="true" />}
     </div>
