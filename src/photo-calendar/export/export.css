@@ -38,28 +38,28 @@
 @keyframes ec-shuffle-turn { from { transform: rotate(-180deg) scale(.8); } }
 .ec-pill:disabled { opacity: .6; cursor: default; }
 .ec-pill:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; }
-/* Save: the lilac of the "Get your calendar" button, with black text that reads on it over any wallpaper */
+/* Save: the lilac of the "Get your calendar" button, with a pure white symbol */
 .ec-save {
-  color: #000; text-shadow: none;
-  background: linear-gradient(135deg, rgb(214, 196, 245), rgb(202, 182, 242));
-  border-color: rgba(176, 140, 235, .9);
-  box-shadow: 0 0 12px 1px rgba(196, 164, 255, .5), inset 0 1px 1px rgba(255, 255, 255, .6);
+  color: #fff; text-shadow: none;
+  background: linear-gradient(135deg, rgb(152, 124, 224), rgb(130, 98, 208));
+  border-color: rgba(104, 72, 184, .95);
+  box-shadow: 0 0 10px 1px rgba(170, 130, 245, .5), inset 0 1px 1px rgba(255, 255, 255, .35);
 }
 /* Back and Save are round, with a symbol instead of a word */
-.ec-round { width: 44px; height: 44px; min-height: 0; padding: 0; border-radius: 50%; display: grid; place-items: center; }
+.ec-round { width: 36px; height: 36px; min-height: 0; padding: 0; border-radius: 50%; display: grid; place-items: center; }
 .ec-round svg { display: block; }
 .ec-spin { animation: ec-spin .9s linear infinite; }
 @keyframes ec-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .ec-spin { animation-duration: 3s; } }
 /* Back: the same treatment in red, so the two ends of the bar read as "leave" and "go on" */
 .ec-back {
-  color: #000; text-shadow: none;
-  background: linear-gradient(135deg, rgb(247, 172, 172), rgb(238, 146, 150));
-  border-color: rgba(205, 70, 80, .9);
-  box-shadow: 0 0 12px 1px rgba(235, 96, 106, .5), inset 0 1px 1px rgba(255, 255, 255, .6);
+  color: #fff; text-shadow: none;
+  background: linear-gradient(135deg, rgb(226, 98, 108), rgb(204, 66, 80));
+  border-color: rgba(150, 34, 48, .95);
+  box-shadow: 0 0 10px 1px rgba(235, 96, 106, .5), inset 0 1px 1px rgba(255, 255, 255, .35);
 }
-.ec-back:hover { background: linear-gradient(135deg, rgb(250, 184, 184), rgb(243, 158, 162)); }
-.ec-save:hover { background: linear-gradient(135deg, rgb(222, 206, 248), rgb(210, 192, 245)); }
+.ec-back:hover { background: linear-gradient(135deg, rgb(232, 112, 120), rgb(212, 78, 92)); }
+.ec-save:hover { background: linear-gradient(135deg, rgb(162, 136, 230), rgb(140, 110, 214)); }
 
 /* Previous and next month: just an arrow at each side of the screen, vertically centred, like the photo viewer's. No circle: the
    arrow is the whole button. It is drawn in the page's ink (pure black or white). */
@@ -98,8 +98,11 @@
 .ec-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: none; }
 /* Text for screen readers only */
 .ec-sr { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-.ec-tools { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; flex: none; }
-.ec-hint { margin: 0; font-size: .74rem; letter-spacing: .02em; color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
+.ec-top { flex: none; display: flex; justify-content: center; padding-top: 2px; }
+.ec-tools { display: flex; align-items: center; justify-content: center; flex: 1 1 auto; min-width: 0; }
+/* The two buttons side by side */
+.ec-tools-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.ec-hint { margin: 0; text-align: center; font-size: .74rem; letter-spacing: .02em; color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
 
 /* The sheet, centred in the room that is left, with its edge and shadow so it reads as a page on the wallpaper */
 .ec-stage { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; justify-content: center; }
@@ -158,14 +161,6 @@
 @media (orientation: landscape) and (max-height: 520px) {
   .ec-root { gap: 4px; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: max(6px, env(safe-area-inset-bottom)); }
   .ec-pill { padding: 5px 12px; min-height: 30px; font-size: .74rem; }
-  .ec-round { width: 38px; height: 38px; padding: 0; }
-  .ec-tools { gap: 10px; }
-  .ec-hint { display: none; }
-  /* Back and Save sit in the bottom corners, over the free space either side of the (narrow) sheet, so the sheet keeps the height */
-  .ec-root { position: fixed; }
-  .ec-foot {
-    position: absolute; left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right));
-    bottom: max(6px, env(safe-area-inset-bottom)); pointer-events: none;
-  }
-  .ec-foot .ec-pill { pointer-events: auto; }
+  .ec-round { width: 32px; height: 32px; padding: 0; }
+  .ec-top { display: none; } /* no room for the hint */
 }

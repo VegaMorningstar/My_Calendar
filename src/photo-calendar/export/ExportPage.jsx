@@ -210,6 +210,11 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
 
   return (
     <div className="ec-root" ref={rootRef} style={{ '--pc-ink': ink.ink, '--pc-hi': ink.halo }} role="dialog" aria-modal="true" aria-label="Your calendar">
+      {/* The hint, at the top; the page shape and shuffle buttons are in the bottom bar */}
+      <header className="ec-top">
+        <p className="ec-hint">{byDay.size ? 'Tap a day to choose its photo' : 'No photos in this month yet'}</p>
+      </header>
+
       {/* The month is on the sheet itself, so it is not repeated here; this only tells a screen reader which month it has moved to */}
       <h2 className="ec-sr" aria-live="polite">{MONTHS[month]} {year}</h2>
 
@@ -220,42 +225,6 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
       <button type="button" className="ec-arrow ec-next" onClick={() => step(1)} aria-label="Next month">
         <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 4.5 16.5 12 9 19.5" /></svg>
       </button>
-
-      <div className="ec-tools">
-        {/* One button for the page's shape: a phone drawn upright or on its side, turning when pressed */}
-        <button
-          type="button"
-          className="ec-pill ec-shape"
-          onClick={() => setOrientation(o => (o === 'landscape' ? 'portrait' : 'landscape'))}
-          aria-label={`Page shape: ${orientation}. Press for ${orientation === 'landscape' ? 'portrait' : 'landscape'}`}
-          title={orientation === 'landscape' ? 'Landscape page. Press for portrait' : 'Portrait page. Press for landscape'}
-        >
-          <svg className={`ec-phone ec-phone-${orientation}`} viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            {/* An upright phone: the body, a speaker slot at the top and the home bar at the bottom */}
-            <rect x="6.5" y="2" width="11" height="20" rx="2.6" />
-            <path d="M10.5 4.7h3" />
-            <path d="M10.5 19.3h3" />
-          </svg>
-        </button>
-        {/* Shuffle: a random photo for every day that has several */}
-        <button
-          type="button"
-          className="ec-pill ec-shape"
-          onClick={shuffle}
-          disabled={!shufflable.length}
-          aria-label="Shuffle the photos"
-          title={shufflable.length ? 'Shuffle: a random photo for each day that has several' : 'No day this month has more than one photo'}
-        >
-          <svg key={shuffles} className={`ec-shuffle${shuffles ? ' ec-shuffle-go' : ''}`} viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M3 7h3.2c2.2 0 3.6 1.1 4.8 3l2 4c1.2 1.9 2.6 3 4.8 3H21" />
-            <path d="M18 13.5l3 3-3 3" />
-            <path d="M3 17h3.2c1.6 0 2.8-.6 3.8-1.7" />
-            <path d="M13.8 8.7c1-1.1 2.2-1.7 3.8-1.7H21" />
-            <path d="M18 4l3 3-3 3" />
-          </svg>
-        </button>
-        <p className="ec-hint">{byDay.size ? 'Tap a day to choose its photo' : 'No photos in this month yet'}</p>
-      </div>
 
       <div className="ec-stage" ref={stageRef} {...swipe}>
         <div className="ec-sheet" style={{ width: cssW, height: cssH }}>
@@ -282,17 +251,54 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
       <footer className="ec-foot">
         {/* Back: a return arrow (curving back to where you came from, so it is not mistaken for the previous-month arrow) */}
         <button type="button" className="ec-pill ec-round ec-back" onClick={onClose} aria-label="Back to the calendar" title="Back to the calendar">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M9 14 4 9l5-5" />
             <path d="M4 9h9.5a6 6 0 0 1 0 12H8" />
           </svg>
         </button>
+        {/* The page shape and the shuffle, between Back and Save */}
+        <div className="ec-tools">
+          <div className="ec-tools-row">
+            {/* One button for the page's shape: a phone drawn upright or on its side, turning when pressed */}
+            <button
+              type="button"
+              className="ec-pill ec-shape"
+              onClick={() => setOrientation(o => (o === 'landscape' ? 'portrait' : 'landscape'))}
+              aria-label={`Page shape: ${orientation}. Press for ${orientation === 'landscape' ? 'portrait' : 'landscape'}`}
+              title={orientation === 'landscape' ? 'Landscape page. Press for portrait' : 'Portrait page. Press for landscape'}
+            >
+              <svg className={`ec-phone ec-phone-${orientation}`} viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                {/* An upright phone: the body, a speaker slot at the top and the home bar at the bottom */}
+                <rect x="6.5" y="2" width="11" height="20" rx="2.6" />
+                <path d="M10.5 4.7h3" />
+                <path d="M10.5 19.3h3" />
+              </svg>
+            </button>
+            {/* Shuffle: a random photo for every day that has several */}
+            <button
+              type="button"
+              className="ec-pill ec-shape"
+              onClick={shuffle}
+              disabled={!shufflable.length}
+              aria-label="Shuffle the photos"
+              title={shufflable.length ? 'Shuffle: a random photo for each day that has several' : 'No day this month has more than one photo'}
+            >
+              <svg key={shuffles} className={`ec-shuffle${shuffles ? ' ec-shuffle-go' : ''}`} viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M3 7h3.2c2.2 0 3.6 1.1 4.8 3l2 4c1.2 1.9 2.6 3 4.8 3H21" />
+                <path d="M18 13.5l3 3-3 3" />
+                <path d="M3 17h3.2c1.6 0 2.8-.6 3.8-1.7" />
+                <path d="M13.8 8.7c1-1.1 2.2-1.7 3.8-1.7H21" />
+                <path d="M18 4l3 3-3 3" />
+              </svg>
+            </button>
+          </div>
+        </div>
         {/* Save: the download tray, an arrow going down into a tray. While it works, a turning arc */}
         <button type="button" className="ec-pill ec-round ec-save" onClick={() => setChoosing(true)} disabled={busy} aria-label={busy ? 'Saving your calendar' : 'Save your calendar'} title={busy ? 'Saving...' : 'Save your calendar'}>
           {busy ? (
-            <svg className="ec-spin" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9" /></svg>
+            <svg className="ec-spin" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9" /></svg>
           ) : (
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M12 3v12" />
               <path d="m7 10.5 5 5 5-5" />
               <path d="M4 17.5V20h16v-2.5" />
