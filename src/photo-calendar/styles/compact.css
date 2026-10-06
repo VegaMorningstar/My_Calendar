@@ -16,7 +16,7 @@
      Their width is that times the ratio, and the panel is just as wide as seven of them (or the whole width, if that is less),
      centred. Set the ratio to 1 for squares. */
   .pc-root {
-    --pc-tile-ratio: 1.7;
+    --pc-tile-ratio: 1.333; /* 4:3, the shape of a typical landscape photo; 1.7 cropped photos too much */
     --pc-tile-h: max(30px, calc((100dvh - max(8px, env(safe-area-inset-top)) - max(8px, env(safe-area-inset-bottom)) - 68px - (var(--pc-rows, 6) - 1) * 3px) / var(--pc-rows, 6)));
     --pc-tile-max: calc(var(--pc-tile-h) * var(--pc-tile-ratio));
     /* Exactly seven boxes, six 3px gaps and the panel's 14px side padding, so a box is as wide as --pc-tile-max says (the
