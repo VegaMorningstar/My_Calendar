@@ -5,21 +5,25 @@
 }
 .cam-stack { width: min(560px, 100%); display: flex; flex-direction: column; align-items: center; gap: 18px; }
 
-/* The Polaroid: a white print, thin at the top and sides, thick at the bottom, a touch off-square, with a soft shadow */
+/* The Polaroid: a straight white print, thin at the top and sides, thick at the bottom, with a soft shadow */
 .cam-polaroid {
-  margin: 0; width: 100%; padding: 16px 16px 0; background: #fff; border-radius: 4px;
+  --cam-max-h: calc(100dvh - 270px); /* the most height the picture may take, leaving room for the date and the shutter */
+  position: relative; container-type: inline-size; /* the doodles show only as much as the print has room for */
+  margin: 0; padding: 16px 16px 0; background: #fff; border-radius: 4px;
+  /* As wide as the picture needs, never wider than the dialog: the picture's shape (--cam-ar, set from the camera) times the
+     height it may have, plus the frame's 16px each side */
+  width: min(100%, calc(var(--cam-ar, 1.333) * var(--cam-max-h) + 32px));
   box-shadow: 0 2px 3px rgba(0, 0, 0, .25), 0 22px 50px rgba(0, 0, 0, .45), inset 0 0 0 1px rgba(0, 0, 0, .06);
-  transform: rotate(-1.4deg);
 }
 /* The picture sits in a slightly inset window, like the print's glossy square */
-.cam-window { position: relative; background: #111; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .35), inset 0 2px 10px rgba(0, 0, 0, .5); }
-.cam-video { display: block; width: 100%; max-height: calc(100dvh - 270px); min-height: 160px; object-fit: contain; background: #111; }
+.cam-window { position: relative; aspect-ratio: var(--cam-ar, 1.333); width: 100%; background: #111; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .35), inset 0 2px 10px rgba(0, 0, 0, .5); }
+.cam-video { display: block; width: 100%; height: 100%; object-fit: cover; background: #111; } /* cover: the window has the picture's own shape, so nothing is cut off */
 .cam-note { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; padding: 20px; text-align: center; color: #fff; font: .85rem 'DM Mono', ui-monospace, monospace; }
-/* The strip underneath, where the date is written: italic, tilted a little more than the print, in pure black */
+/* The strip underneath, where the date is written: italic, tilted a hair like pen on paper (the print itself is straight), in pure black */
 .cam-date {
   min-height: 74px; display: grid; place-items: center; padding: 6px 12px 10px;
   font-family: 'Playfair Display', Georgia, serif; font-style: italic; font-weight: 400; font-size: clamp(1.25rem, 3.4vw, 1.7rem); letter-spacing: .01em;
-  color: #000; transform: rotate(-1.2deg);
+  color: #000; transform: rotate(-1deg);
 }
 
 .cam-bar { width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 6px; }
@@ -37,5 +41,20 @@
 .cam-shutter:active { transform: scale(.9); }
 .cam-shutter:disabled { opacity: .4; cursor: default; }
 .cam-btn:focus-visible, .cam-shutter:focus-visible { outline: 2px solid rgb(70, 170, 164); outline-offset: 3px; }
-@media (max-height: 560px) { .cam-polaroid { padding: 10px 10px 0; } .cam-date { min-height: 50px; } .cam-video { max-height: calc(100dvh - 210px); } }
+@media (max-height: 560px) { .cam-polaroid { --cam-max-h: calc(100dvh - 210px); padding: 10px 10px 0; width: min(100%, calc(var(--cam-ar, 1.333) * var(--cam-max-h) + 20px)); } .cam-date { min-height: 50px; } }
 @media (prefers-reduced-motion: reduce) { .cam-shutter { transition: none; } }
+
+/* ── The flowers and doodles on the frame (CameraFlorals) ──
+   They sit on the white of the print and never receive a tap. The ones in the corners overlap the edge of the print a little, like
+   stickers; the two sprigs on the bottom strip stay either side of the date. */
+.cam-florals { position: absolute; inset: 0; pointer-events: none; }
+.cam-fl { position: absolute; display: block; line-height: 0; }
+.cam-fl svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cam-fl-tl { top: -16px; left: -18px; width: 74px; }
+.cam-fl-tr { top: -14px; right: -16px; width: 66px; transform: scaleX(-1); }
+.cam-fl-bl { bottom: 8px; left: 16px; width: 118px; }
+.cam-fl-br { bottom: 8px; right: 16px; width: 118px; transform: scaleX(-1); }
+.cam-fl-hearts { bottom: 14px; left: 50%; width: 54px; margin-left: -27px; display: none; }
+/* Narrower prints have less room beside the date: first the right sprig goes, then both */
+@container (max-width: 470px) { .cam-fl-br { display: none; } .cam-fl-bl { width: 98px; } }
+@container (max-width: 360px) { .cam-fl-bl, .cam-fl-br { display: none; } .cam-fl-hearts { display: block; bottom: 10px; } .cam-fl-tl { width: 58px; top: -12px; left: -14px; } .cam-fl-tr { width: 52px; } }
