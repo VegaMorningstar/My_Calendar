@@ -125,3 +125,18 @@
 .lib-get-slot { line-height: 0; margin: -8px -10px -8px -10px; }
 /* Without WebGPU the plain button gets a lilac glow of its own */
 .lib-get-btn { box-shadow: 0 0 14px 2px rgba(196, 164, 255, .55), inset 0 0 8px rgba(196, 164, 255, .4); border-color: rgba(214, 190, 255, .8); }
+
+/* ── The matte look of the tile style button: flat and non-reflective, the way the plain date boxes are ── */
+.lib-matte-btn {
+  appearance: none; cursor: pointer; display: block; width: 56px; height: 36px; margin: 0 4px; padding: 0;
+  border: 0; border-radius: 18px;
+  /* Matte: one even, soft fill, with no highlight, no shadow and no bright rim */
+  background: rgba(var(--lib-hi), .42);
+  color: rgb(var(--lib-ink)); font: italic 400 13px 'Playfair Display', Georgia, serif; text-align: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.lib-matte-btn:hover { background: rgba(var(--lib-hi), .55); }
+.lib-matte-btn:active { transform: scale(.94); }
+.lib-matte-btn:focus-visible { outline: 2px solid rgba(70, 170, 164, .9); outline-offset: 2px; }
+[hidden].lib-matte-btn, .lib-style-slot[hidden] { display: none; }
+
