@@ -180,7 +180,9 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
     canvas.width = Math.round(cssW * dpr)
     canvas.height = Math.round(cssH * dpr)
-    drawCalendarPage(canvas.getContext('2d'), { W: PW, H: PH, scale: canvas.width / PW, ...drawing() })
+    // willReadFrequently: the drawing reads pixels back (to choose the number's colour over a photo), which would otherwise switch
+    // the canvas to a different text renderer partway through, so the same sheet drew its numbers slightly differently each time
+    drawCalendarPage(canvas.getContext('2d', { willReadFrequently: true }), { W: PW, H: PH, scale: canvas.width / PW, ...drawing() })
   }, [cssW, cssH, PW, PH, fontsReady, drawing])
 
   const save = async format => {
@@ -339,7 +341,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
       {picking !== null && (
         <div className="ec-scrim" onMouseDown={e => { if (e.target === e.currentTarget) setPicking(null) }}>
           <div className="ec-picker" role="dialog" aria-label={`Choose the photo for ${MONTHS[month]} ${picking}`}>
-            <h3 className="ec-picker-title">{picking} {MONTHS[month]}: which photo?</h3>
+            <h3 className="ec-picker-title">Pick a photo for {MONTHS[month]} {picking}</h3>
             <div className="ec-thumbs">
               {pickingSrcs.map((src, i) => (
                 <button

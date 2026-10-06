@@ -72,7 +72,7 @@ export async function renderCalendarFile({ format = 'png', orientation, photosBy
   const canvas = document.createElement('canvas')
   canvas.width = width
   canvas.height = height
-  drawCalendarPage(canvas.getContext('2d'), { W: pw, H: ph, scale, ...rest, photoFor: day => prepared.get(day) ?? null })
+  drawCalendarPage(canvas.getContext('2d', { willReadFrequently: true }), { W: pw, H: ph, scale, ...rest, photoFor: day => prepared.get(day) ?? null })
   const encode = (type, quality) => new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('Could not make the picture'))), type, quality))
   let blob
   if (format === 'pdf') {
