@@ -34,6 +34,9 @@
   .pc-title-row { --pc-month-size: 1.45rem; }
   .pc-year { font-size: .95rem; }
   .pc-count { display: none; }
+  /* No room for a line under the panel: the control sits at the right of the panel instead, level with its bottom edge */
+  .pc-under { display: block; margin: 0; }
+  .pc-under-right { position: absolute; right: -52px; bottom: 0; margin: 0; }
   .pc-nav { margin: -12px 0; }
 
   .pc-weekdays { margin: 3px 0 2px; }

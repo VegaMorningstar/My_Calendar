@@ -18,10 +18,10 @@
   /* The shape of a date box: square, so a photo shows as much of itself as possible */
   --pc-tile-ratio: 1;
   /* The biggest a square date box can be: the month's rows (--pc-rows, set by PhotoCalendar: four to six)
-     must fit the screen's height after the header, padding and the buttons below (about 294px, plus the gaps between the rows, plus --pc-extra-height: space the host page needs below the
+     must fit the screen's height after the header, padding and the buttons below (about 312px, plus the gaps between the rows, plus --pc-extra-height: space the host page needs below the
      calendar, such as a hint line). A five-row
      month therefore gets bigger boxes than a six-row one. */
-  --pc-tile-max: max(44px, calc((100dvh - 294px - var(--pc-extra-height, 0px) - (var(--pc-rows, 6) - 1) * var(--pc-gap)) / var(--pc-rows, 6)));
+  --pc-tile-max: max(44px, calc((100dvh - 312px - var(--pc-extra-height, 0px) - (var(--pc-rows, 6) - 1) * var(--pc-gap)) / var(--pc-rows, 6)));
   --pc-serif: 'Playfair Display', Georgia, serif;
   --pc-mono: 'DM Mono', ui-monospace, monospace;
 
@@ -30,6 +30,7 @@
 }
 
 .pc-root {
+  position: relative; /* the control beside the panel on a landscape phone (see compact.css) is placed against it */
   /* On a short window the calendar narrows so that its square date boxes still fit the height, rather
      than the boxes shrinking inside wide columns (seven boxes, six gaps, and the panel's padding). */
   width: min(1400px, 100%, calc(7 * var(--pc-tile-max) + 6 * var(--pc-gap) + 44px));
@@ -100,10 +101,12 @@
   text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); /* etched */
 }
 .pc-year { font-family: var(--pc-serif); font-style: italic; font-size: clamp(1.1rem, 2.4vw, 1.5rem); color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
-/* The photo count: small and italic, with no highlight line under it */
-/* The photo count, under the panel at its left, lined up with the text inside the panel */
+/* The line under the panel: the photo count at its left, and the host's own control (`underRight`) at its right */
+.pc-under { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.pc-under-right { margin-left: auto; margin-right: 6px; flex: none; }
+/* The photo count: small and italic, with no highlight line under it, lined up with the text inside the panel */
 .pc-count {
-  margin: 8px 0 0 clamp(10px, 2vw, 22px); text-align: left;
+  margin: 0 0 0 clamp(10px, 2vw, 22px); text-align: left;
   font-family: var(--pc-serif); font-style: italic; font-size: clamp(.78rem, 1.6vw, .9rem); line-height: 1.2; color: rgb(var(--pc-ink));
 }
 

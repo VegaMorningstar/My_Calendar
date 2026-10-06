@@ -39,7 +39,7 @@ body {
 /* Holds the calendar and positions its hint below it */
 .stage-calendar { position: relative; width: 100%; display: flex; justify-content: center; }
 
-/* The gear and the info button sit side by side at the bottom left; the tile style button is pushed to the right end (see library-ui.css) */
+/* The gear and the camera sit side by side at the bottom left; the matte/glass and Get your calendar buttons are pushed to the right end */
 .stage-footer { align-self: stretch; max-width: 100%; margin-top: 12px; position: relative; z-index: 5; display: flex; flex-wrap: wrap; align-items: center; gap: 0 2px; }
 /* The matte/glass and Get your calendar buttons: at the right end of the row, and always side by side */
 .stage-footer-right { margin-left: auto; margin-right: 6px; display: flex; align-items: center; gap: 2px; flex: none; }

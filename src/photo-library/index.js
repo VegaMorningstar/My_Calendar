@@ -10,5 +10,5 @@ export { default as useWallpaper } from './useWallpaper.js'
 
 /** Remembers the wallpaper's top and bottom edge colours for the next launch's early paint. */
 export const rememberWallpaperEdges = (top, bottom) => writeWallpaperHint({ top, bottom })
-export { default as LibraryNote, LibraryHint } from './LibraryNote.jsx'
+export { default as LibraryHint } from './LibraryHint.jsx'
 export { captureDate } from './exif-date.js'

@@ -12,7 +12,7 @@ import CameraButton from './CameraButton.jsx'
 import GetCalendarButton from './GetCalendarButton.jsx'
 import TileStyleToggle, { initialGlassTiles } from './TileStyleToggle.jsx'
 import UpdatePrompt from './pwa/UpdatePrompt.jsx'
-import { LibraryHint, LibraryNote, SettingsMenu, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
+import { LibraryHint, SettingsMenu, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
 /** Height (px) of the bottom row of buttons when it is one line. */
 const FOOTER_ONE_ROW_PX = 60
@@ -137,14 +137,12 @@ export default function App() {
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
-          <PhotoCalendar photos={library.photos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} />
+          <PhotoCalendar photos={library.photos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<CameraButton onFiles={library.addFiles} />} />
           <LibraryHint library={library} />
         </div>
       </div>
       <div className="stage-footer" ref={footerRef}>
         <SettingsMenu library={library} wallpaper={wallpaper} />
-        <CameraButton onFiles={library.addFiles} />
-        <LibraryNote />
         {/* The two buttons on the right stay together: on a narrow screen they drop to a second row as a pair */}
         <div className="stage-footer-right">
           <TileStyleToggle glass={glassTiles} onChange={setGlassTiles} />

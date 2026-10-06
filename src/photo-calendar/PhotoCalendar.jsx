@@ -46,6 +46,7 @@ export default function PhotoCalendar({
   liquidTiles = true,
   onViewChange,
   paused = false,
+  underRight = null,
   className = '',
 }) {
   const panelRef = useRef(null)
@@ -145,8 +146,11 @@ export default function PhotoCalendar({
         )}
       </div>
 
-      {/* How many photos, under the panel at its left */}
-      <PhotoCount count={photoCount} isYear={isYear} />
+      {/* Under the panel: how many photos at the left, and whatever the host passes as `underRight` at the right on the same line */}
+      <div className="pc-under">
+        <PhotoCount count={photoCount} isYear={isYear} />
+        {underRight && <div className="pc-under-right">{underRight}</div>}
+      </div>
 
       {openDay && (
         <DayDetail

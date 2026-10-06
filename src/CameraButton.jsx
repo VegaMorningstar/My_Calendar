@@ -1,5 +1,5 @@
 /**
- * The camera button, next to the gear: take a photo and it is added to the calendar on the day it was taken.
+ * The camera button, under the calendar panel at the right (level with the photo count): take a photo and it is added to the calendar on the day it was taken.
  *
  * It is a Write-With-Nature glass tile with a drawn camera over it, like the gear. What a press does depends on the device:
  *   - a phone or tablet (a touch screen): opens the device's own camera app straight away (a file picker with `capture`), and
@@ -9,6 +9,7 @@
  * decides the day: the date written in the photo by the camera, or else the moment it came back, which is now.
  */
 import { useCallback, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { BUTTON_MATERIAL, GlassButtons, usePageInk } from './photo-calendar/index.js'
 import CameraDialog, { cameraFileName } from './CameraDialog.jsx'
 import './photo-library/library-ui.css'
@@ -58,7 +59,8 @@ export default function CameraButton({ onFiles }) {
           <circle cx="12" cy="13" r="3.6" />
         </svg>
       </div>
-      {dialog && <CameraDialog onClose={closeDialog} onPhoto={file => { setDialog(false); onFiles([file]) }} />}
+      {/* In the page itself, not inside the calendar: the calendar contains fixed-position children, which would trap the dialog in it */}
+      {dialog && createPortal(<CameraDialog onClose={closeDialog} onPhoto={file => { setDialog(false); onFiles([file]) }} />, document.body)}
     </div>
   )
 }

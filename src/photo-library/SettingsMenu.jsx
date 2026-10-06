@@ -1,6 +1,7 @@
 /**
  * The settings button: a gear that opens a small menu with
- *   Import photos / Add more photos, Remove photos, Set wallpaper, Reset wallpaper.
+ *   Import photos / Add more photos, Remove photos, Set wallpaper, Reset wallpaper,
+ *   and Info (how the app treats the photos).
  * Also owns the toast that reports what happened (photos added, wallpaper set).
  *
  * The gear and the menu are Write-With-Nature glass, the same pieces the calendar
@@ -13,6 +14,8 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { BUTTON_MATERIAL, GlassButtons, LiquidGlassPanel, ordinal, usePageInk, usePanelEdge, usePanelGlass } from '../photo-calendar/index.js'
+import DebugPanel from '../DebugPanel.jsx'
+import InfoItem from './InfoItem.jsx'
 import Toast from './Toast.jsx'
 import './library-ui.css'
 
@@ -33,12 +36,13 @@ const GEAR_PATH = 'M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2
 const MENU_FALLBACK = { scale: -60, chroma: 4, blur: 8, saturate: 1.25, aberrationIntensity: 4, elasticity: 0 }
 
 /**
- * @param {object} library    the value returned by usePhotoLibrary()
- * @param {object} wallpaper  the value returned by useWallpaper()
+ * @param {object}   library    the value returned by usePhotoLibrary()
+ * @param {object}   wallpaper  the value returned by useWallpaper()
  */
 export default function SettingsMenu({ library, wallpaper }) {
   const { photos, progress, lastResult, addFiles, removeAll } = library
   const [open, setOpen] = useState(false)
+  const [debug, setDebug] = useState(false) // the diagnostics card, opened by holding Info
   const rootRef = useRef(null)
   const gearSlotRef = useRef(null)
   const gearInk = usePageInk(gearSlotRef) // the icon's colour follows what is behind the gear
@@ -139,8 +143,10 @@ export default function SettingsMenu({ library, wallpaper }) {
               Reset wallpaper
             </button>
           )}
+          <InfoItem onDebug={() => { setOpen(false); setDebug(true) }} />
         </GlassMenu>
       )}
+      {debug && <DebugPanel onClose={() => setDebug(false)} />}
 
       <Toast text={toast.text} open={toast.open} />
     </div>
