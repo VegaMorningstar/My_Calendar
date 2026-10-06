@@ -211,7 +211,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
   return (
     <div className="ec-root" ref={rootRef} style={{ '--pc-ink': ink.ink, '--pc-hi': ink.halo }} role="dialog" aria-modal="true" aria-label="Your calendar">
       <header className="ec-bar">
-        <button type="button" className="ec-pill" onClick={onClose}>Back</button>
+        <button type="button" className="ec-pill ec-back" onClick={onClose}>Back</button>
         <div className="ec-nav">
           <button type="button" className="ec-pill ec-arrow" onClick={() => step(-1)} aria-label="Previous month">&lsaquo;</button>
           <h2 className="ec-title" aria-live="polite">{MONTHS[month]} {year}</h2>

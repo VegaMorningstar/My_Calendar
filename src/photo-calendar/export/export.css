@@ -45,6 +45,14 @@
   border-color: rgba(176, 140, 235, .9);
   box-shadow: 0 0 12px 1px rgba(196, 164, 255, .5), inset 0 1px 1px rgba(255, 255, 255, .6);
 }
+/* Back: the same treatment in red, so the two ends of the bar read as "leave" and "go on" */
+.ec-back {
+  color: #000; text-shadow: none;
+  background: linear-gradient(135deg, rgb(247, 172, 172), rgb(238, 146, 150));
+  border-color: rgba(205, 70, 80, .9);
+  box-shadow: 0 0 12px 1px rgba(235, 96, 106, .5), inset 0 1px 1px rgba(255, 255, 255, .6);
+}
+.ec-back:hover { background: linear-gradient(135deg, rgb(250, 184, 184), rgb(243, 158, 162)); }
 .ec-save:hover { background: linear-gradient(135deg, rgb(222, 206, 248), rgb(210, 192, 245)); }
 
 .ec-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; flex: none; }
