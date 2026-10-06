@@ -101,7 +101,11 @@
 }
 .pc-year { font-family: var(--pc-serif); font-style: italic; font-size: clamp(1.1rem, 2.4vw, 1.5rem); color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
 /* The photo count: small and italic, with no highlight line under it */
-.pc-count { font-family: var(--pc-serif); font-style: italic; font-size: clamp(.78rem, 1.6vw, .9rem); color: rgb(var(--pc-ink)); }
+/* The photo count, under the panel at its left, lined up with the text inside the panel */
+.pc-count {
+  margin: 8px 0 0 clamp(10px, 2vw, 22px); text-align: left;
+  font-family: var(--pc-serif); font-style: italic; font-size: clamp(.78rem, 1.6vw, .9rem); line-height: 1.2; color: rgb(var(--pc-ink));
+}
 
 /* GlassButtons pads its canvas, so the row is taller than the buttons; the negative margins tuck that in (matters most when the arrows sit on a row of their own) */
 .pc-nav { display: flex; align-items: center; gap: 10px; flex: none; margin: -8px 0 -12px auto; }
@@ -146,4 +150,5 @@
 /* ── Narrow containers: phones, and narrow columns on any screen ────────── */
 @container pc (max-width: 640px) {
   .pc-panel { --pc-gap: 3px; --pc-radius: 7px; padding: 10px 10px 12px; --pc-panel-r: 26px; }
+  .pc-count { margin-left: 10px; }
 }
