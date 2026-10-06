@@ -280,8 +280,25 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
 
       {/* Back and Save along the bottom, where a thumb reaches them */}
       <footer className="ec-foot">
-        <button type="button" className="ec-pill ec-back" onClick={onClose}>Back</button>
-        <button type="button" className="ec-pill ec-save" onClick={() => setChoosing(true)} disabled={busy}>{busy ? 'Saving...' : 'Save'}</button>
+        {/* Back: a return arrow (curving back to where you came from, so it is not mistaken for the previous-month arrow) */}
+        <button type="button" className="ec-pill ec-round ec-back" onClick={onClose} aria-label="Back to the calendar" title="Back to the calendar">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M9 14 4 9l5-5" />
+            <path d="M4 9h9.5a6 6 0 0 1 0 12H8" />
+          </svg>
+        </button>
+        {/* Save: the download tray, an arrow going down into a tray. While it works, a turning arc */}
+        <button type="button" className="ec-pill ec-round ec-save" onClick={() => setChoosing(true)} disabled={busy} aria-label={busy ? 'Saving your calendar' : 'Save your calendar'} title={busy ? 'Saving...' : 'Save your calendar'}>
+          {busy ? (
+            <svg className="ec-spin" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9" /></svg>
+          ) : (
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 3v12" />
+              <path d="m7 10.5 5 5 5-5" />
+              <path d="M4 17.5V20h16v-2.5" />
+            </svg>
+          )}
+        </button>
       </footer>
 
       {choosing && (
