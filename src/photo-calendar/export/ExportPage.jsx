@@ -211,13 +211,11 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
   return (
     <div className="ec-root" ref={rootRef} style={{ '--pc-ink': ink.ink, '--pc-hi': ink.halo }} role="dialog" aria-modal="true" aria-label="Your calendar">
       <header className="ec-bar">
-        <button type="button" className="ec-pill ec-back" onClick={onClose}>Back</button>
         <div className="ec-nav">
           <button type="button" className="ec-pill ec-arrow" onClick={() => step(-1)} aria-label="Previous month">&lsaquo;</button>
           <h2 className="ec-title" aria-live="polite">{MONTHS[month]} {year}</h2>
           <button type="button" className="ec-pill ec-arrow" onClick={() => step(1)} aria-label="Next month">&rsaquo;</button>
         </div>
-        <button type="button" className="ec-pill ec-save" onClick={() => setChoosing(true)} disabled={busy}>{busy ? 'Saving...' : 'Save'}</button>
       </header>
 
       <div className="ec-tools">
@@ -276,6 +274,12 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
         {status}
         {pending && <button type="button" className="ec-pill" onClick={sendPending}>Save your calendar</button>}
       </p>
+
+      {/* Back and Save along the bottom, where a thumb reaches them */}
+      <footer className="ec-foot">
+        <button type="button" className="ec-pill ec-back" onClick={onClose}>Back</button>
+        <button type="button" className="ec-pill ec-save" onClick={() => setChoosing(true)} disabled={busy}>{busy ? 'Saving...' : 'Save'}</button>
+      </footer>
 
       {choosing && (
         <div className="ec-scrim" onMouseDown={e => { if (e.target === e.currentTarget) setChoosing(false) }}>

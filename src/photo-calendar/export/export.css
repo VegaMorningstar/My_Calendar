@@ -55,12 +55,12 @@
 .ec-back:hover { background: linear-gradient(135deg, rgb(250, 184, 184), rgb(243, 158, 162)); }
 .ec-save:hover { background: linear-gradient(135deg, rgb(222, 206, 248), rgb(210, 192, 245)); }
 
-.ec-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; flex: none; }
+.ec-bar { display: flex; align-items: center; justify-content: center; flex: none; }
+/* Back and Save, along the bottom */
+.ec-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: none; }
 /* The month with its arrows */
 .ec-nav { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
 .ec-arrow { padding: 0; width: 36px; flex: none; font-size: 1.3rem; line-height: 1; display: grid; place-items: center; }
-/* A narrow screen: the month and its arrows get a row of their own, under Back and Save */
-@media (max-width: 480px) { .ec-nav { order: 3; flex: 1 0 100%; } }
 .ec-title {
   margin: 0; font-family: var(--pc-serif); font-weight: 600; font-size: clamp(1.1rem, 3.4vw, 1.7rem); line-height: 1;
   color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); text-align: center;
@@ -127,4 +127,11 @@
   .ec-pill { padding: 5px 12px; min-height: 30px; font-size: .74rem; }
   .ec-tools { gap: 10px; }
   .ec-hint { display: none; }
+  /* Back and Save sit in the bottom corners, over the free space either side of the (narrow) sheet, so the sheet keeps the height */
+  .ec-root { position: fixed; }
+  .ec-foot {
+    position: absolute; left: max(14px, env(safe-area-inset-left)); right: max(14px, env(safe-area-inset-right));
+    bottom: max(6px, env(safe-area-inset-bottom)); pointer-events: none;
+  }
+  .ec-foot .ec-pill { pointer-events: auto; }
 }
