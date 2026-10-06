@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import usePageInk from '../hooks/usePageInk.js'
 import useSwipeNav from '../hooks/useSwipeNav.js'
 import { getBackgroundImage, paperColor } from '../wwn-glass/index.js'
-import { MONTHS, dateKey, groupByDate, photoCountLabel } from '../lib/dates.js'
+import { MONTHS, dateKey, fullSources, groupByDate, photoCountLabel } from '../lib/dates.js'
 import { drawCalendarPage, loadCalendarFonts } from './drawCalendarPage.js'
 import { PAGE_SIZES, pageLayout } from './pageLayout.js'
 import { deliverFile, renderCalendarFile } from './saveImage.js'
@@ -66,6 +66,8 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
     }
     return out
   }, [photos, year, month])
+
+  const fullBySrc = useMemo(() => fullSources(photos), [photos])
 
   const chosenSrc = useCallback(day => {
     const srcs = byDay.get(day)
@@ -171,7 +173,20 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
   const save = async () => {
     setBusy(true); setStatus('Making your calendar...'); setPending(null)
     try {
-      const file = await renderCalendarFile({ orientation, ...drawing() })
+      // The photo chosen for each day, as the url of its full-size original (the preview if there is no original)
+      const photosByDay = new Map()
+      for (const day of byDay.keys()) {
+        const src = chosenSrc(day)
+        if (!src) continue
+        const full = fullBySrc.get(src)
+        photosByDay.set(day, typeof full === 'function' ? full() : full ?? src)
+      }
+      const file = await renderCalendarFile({
+        orientation, ...drawing(), photosByDay,
+        previewFor: day => { const s = chosenSrc(day); return s ? images.get(s) ?? null : null },
+        onProgress: (n, total) => setStatus(total ? `Preparing your photos, ${n} of ${total}...` : 'Making your calendar...'),
+      })
+      setStatus('Making your calendar...')
       const result = await deliverFile(file)
       if (result === 'needs-tap') { setPending(file); setStatus('Your calendar is ready.') }
       else if (result === 'cancelled') setStatus('')

@@ -25,10 +25,12 @@ export function loadCalendarFonts() {
 
 /** Source rectangle that makes an image cover a w x h box without stretching (like CSS object-fit: cover). */
 function coverSource(image, w, h) {
-  const k = Math.max(w / image.naturalWidth, h / image.naturalHeight)
+  const iw = image.naturalWidth ?? image.width // an <img>, or a canvas or bitmap
+  const ih = image.naturalHeight ?? image.height
+  const k = Math.max(w / iw, h / ih)
   const sw = w / k
   const sh = h / k
-  return [(image.naturalWidth - sw) / 2, (image.naturalHeight - sh) / 2, sw, sh]
+  return [(iw - sw) / 2, (ih - sh) / 2, sw, sh]
 }
 
 /** Draws `image` covering the box, clipped to it. */
@@ -96,7 +98,7 @@ function roundRect(ctx, x, y, w, h, r) {
  * @param {number} [o.weekStartsOn]
  * @param {HTMLImageElement|null} o.wallpaper  the page's wallpaper, or null for the plain page colour
  * @param {string} o.paper  the plain page colour (CSS), used behind the wallpaper and when there is none
- * @param {(day:number) => HTMLImageElement|null} o.photoFor  the photo chosen for a day, loaded, or null for none
+ * @param {(day:number) => (HTMLImageElement|HTMLCanvasElement|ImageBitmap|null)} o.photoFor  the photo chosen for a day, loaded, or null for none
  * @returns {object} the layout used (see pageLayout)
  */
 export function drawCalendarPage(ctx, { W, H, scale = 1, year, month, weekStartsOn = 0, wallpaper, paper, photoFor }) {

@@ -1,28 +1,76 @@
 /**
  * Renders the calendar page at full size and hands it to the person.
  *
- * What is saved is a PNG of the whole page (see PAGE_SIZES: 300 dpi US Letter). It is delivered through the phone's share
- * sheet when there is one (which offers "Save Image", "Save to Files", AirDrop and the like) and as a normal download
- * otherwise. The file format and where it goes are still open; this is the first, plain version.
+ * What is saved is a PNG of the whole page: US Letter at about 400 dpi (4400 x 3400 pixels on a landscape page), or at 300 dpi
+ * (3300 x 2550) on a phone whose browser will not make a canvas that big. Each day's photo is the full-size original (see
+ * fullPhoto.js), not the small preview the screen uses, cropped and shrunk to exactly its box.
+ *
+ * It is delivered through the phone's share sheet when there is one (which offers "Save Image", "Save to Files", AirDrop and the
+ * like) and as a normal download otherwise. The file format and where it goes are still open; this is the first, plain version.
  */
 import { drawCalendarPage, loadCalendarFonts } from './drawCalendarPage.js'
-import { PAGE_SIZES } from './pageLayout.js'
+import { fullPhotoFor } from './fullPhoto.js'
+import { PAGE_SIZES, pageLayout } from './pageLayout.js'
+
+/** Output sizes to try, best first: pixels per page unit. 4/3 makes a Letter landscape page 4400 x 3400 (about 400 dpi). */
+const SCALES = [4 / 3, 1]
+
+/** True if a canvas of this size really works here (some phones quietly give a blank one above their limit). */
+function canvasWorks(w, h) {
+  try {
+    const c = document.createElement('canvas')
+    c.width = w
+    c.height = h
+    const g = c.getContext('2d')
+    if (!g) return false
+    g.fillStyle = '#f00'
+    g.fillRect(w - 1, h - 1, 1, 1)
+    const ok = g.getImageData(w - 1, h - 1, 1, 1).data[0] === 255
+    c.width = c.height = 0
+    return ok
+  } catch { return false }
+}
 
 /**
- * @param {object} o  everything drawCalendarPage needs, except the size: { orientation, year, month, weekStartsOn, wallpaper, paper, photoFor }
+ * @param {object} o  { orientation, year, month, weekStartsOn, wallpaper, paper, photosByDay, previewFor, onProgress }
+ *   photosByDay: Map<day, string> the url of each chosen day's full-size photo; previewFor(day): the small preview image to
+ *   fall back on if an original cannot be read; onProgress(done, total) is called as the photos are prepared
  * @returns {Promise<{ blob: Blob, filename: string, width: number, height: number }>}
  */
-export async function renderCalendarFile({ orientation, ...rest }) {
+export async function renderCalendarFile({ orientation, photosByDay, previewFor, onProgress, ...rest }) {
   await loadCalendarFonts()
-  const { w, h } = PAGE_SIZES[orientation]
+  const { w: pw, h: ph } = PAGE_SIZES[orientation]
+  const scale = SCALES.find(s => canvasWorks(Math.round(pw * s), Math.round(ph * s))) ?? 1
+  const width = Math.round(pw * scale)
+  const height = Math.round(ph * scale)
+
+  // Prepare each chosen day's photo at the size of its box on this page, one at a time
+  const layout = pageLayout(pw, ph, rest.year, rest.month, rest.weekStartsOn ?? 0)
+  const boxes = new Map(layout.tiles.map(t => [t.day, t]))
+  const days = [...photosByDay.keys()].filter(d => boxes.has(d))
+  const prepared = new Map()
+  let done = 0
+  for (const day of days) {
+    onProgress?.(done, days.length)
+    const box = boxes.get(day)
+    try {
+      prepared.set(day, await fullPhotoFor(photosByDay.get(day), box.w * scale, box.h * scale))
+    } catch {
+      prepared.set(day, previewFor(day)) // the original could not be read: the small preview is better than a gap
+    }
+    done++
+  }
+  onProgress?.(days.length, days.length)
+
   const canvas = document.createElement('canvas')
-  canvas.width = w
-  canvas.height = h
-  drawCalendarPage(canvas.getContext('2d'), { W: w, H: h, scale: 1, ...rest })
+  canvas.width = width
+  canvas.height = height
+  drawCalendarPage(canvas.getContext('2d'), { W: pw, H: ph, scale, ...rest, photoFor: day => prepared.get(day) ?? null })
   const blob = await new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('Could not make the picture'))), 'image/png'))
   canvas.width = canvas.height = 0 // let go of the memory
+  for (const c of prepared.values()) if (c instanceof HTMLCanvasElement) c.width = c.height = 0
   const filename = `calendar-${rest.year}-${String(rest.month + 1).padStart(2, '0')}.png`
-  return { blob, filename, width: w, height: h }
+  return { blob, filename, width, height }
 }
 
 /**
