@@ -8,7 +8,7 @@
  * on today's date) and the camera stays open for more; the close button, or a tap on the last photo, finishes.
  * What is saved is exactly what is shown: the picture is cut to the view's shape and zoom (see captureFrame).
  *
- * Double-tapping the picture flips between the front and back camera, as in the phone's own app.
+ * Sliding a finger down the picture pulls the camera away and closes it, like a sheet (see onMove). Double-tapping the picture flips between the front and back camera, as in the phone's own app.
  *
  * Zoom: the stops are the phone's real lenses where it shows them to the page (0.5 is the ultra wide camera) and a digital 2x;
  * pinching zooms in smoothly up to 10x. Zooming within a lens is instant; changing lens or flipping restarts the camera, which
@@ -33,6 +33,11 @@ const MAX_ZOOM = 10
 const DOUBLE_TAP_MS = 320
 const DOUBLE_TAP_PX = 40
 const TAP_SLOP_PX = 12
+/** A downward drag closes the camera when it goes past this many px, or past SWIPE_FAST_PX with a quick flick. */
+const SWIPE_CLOSE_PX = 110
+const SWIPE_FAST_PX = 40
+const SWIPE_FAST_SPEED = 0.6 // px per ms
+const SLIDE_MS = 220
 const FLASH_KEY = 'mycal.camFlash'
 const FLASH_NEXT = { auto: 'on', on: 'off', off: 'auto' }
 const FLASH_WORD = { auto: 'Auto', on: 'On', off: 'Off' }
@@ -77,6 +82,9 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
   const [snap, setSnap] = useState(null) // while a camera restarts: the transform of the frozen last frame
   const [deficit, setDeficit] = useState(viewportDeficit) // the strip an installed iPhone app cannot paint below the page, in px
   const [busy, setBusy] = useState(false)
+  const [dragY, setDragY] = useState(0) // how far the camera has been pulled down, in px
+  const [dragging, setDragging] = useState(false) // a finger is pulling it now (it follows with no easing)
+  const [leaving, setLeaving] = useState(false) // sliding off the bottom of the screen
   const [flash, setFlash] = useState(0) // changes with every shot, to replay the quick white flash
   const [thumb, setThumb] = useState(null) // an object URL for the last photo taken
 
@@ -157,12 +165,14 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
   // Two fingers on the picture zoom it. The ultra wide only goes up to the main lens's width; the main lens to MAX_ZOOM.
   const fingers = useRef(new Map())
   const pinch = useRef(null)
+  const drag = useRef(null) // the pull in progress: where it started and when
   const tapStart = useRef(null) // the one finger now down on the picture, if it could still turn out to be a tap
   const lastTap = useRef(null) // the previous tap, for spotting a double tap
   const gap = () => { const [a, b] = [...fingers.current.values()]; return Math.hypot(a.x - b.x, a.y - b.y) }
   const onDown = e => {
     if (e.target.closest('button')) return
     fingers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    if (drag.current) { drag.current = null; setDragging(false); setDragY(0) } // a second finger cancels a pull
     // One finger could be a tap; a second finger makes it a pinch instead
     tapStart.current = fingers.current.size === 1 ? { x: e.clientX, y: e.clientY, t: e.timeStamp } : null
     if (fingers.current.size === 2) pinch.current = { d0: gap() || 1, z0: zoom }
@@ -170,11 +180,36 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
   const onMove = e => {
     if (!fingers.current.has(e.pointerId)) return
     fingers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+    // One finger moving mostly downward pulls the camera down; it is no longer a tap
+    const t = tapStart.current
+    if (t && fingers.current.size === 1 && !pinch.current) {
+      const dy = e.clientY - t.y, dx = e.clientX - t.x
+      if (dy > TAP_SLOP_PX && dy > Math.abs(dx) * 1.2) {
+        drag.current = { y: t.y, t: t.t }
+        tapStart.current = null
+        e.currentTarget.setPointerCapture?.(e.pointerId)
+        setDragging(true)
+      }
+    }
+    if (drag.current && fingers.current.size === 1) setDragY(Math.max(0, e.clientY - drag.current.y))
     if (pinch.current && fingers.current.size === 2) setZoom(clamp(pinch.current.z0 * gap() / pinch.current.d0, lensZoom, lens === 'ultra' ? 1 : MAX_ZOOM))
+  }
+  const slideOut = () => {
+    setLeaving(true)
+    setTimeout(onClose, SLIDE_MS)
   }
   const onUp = e => {
     const tap = tapStart.current
     tapStart.current = null
+    // End of a pull: far enough, or a quick flick, closes it; otherwise it springs back
+    if (drag.current) {
+      const dy = e.clientY - drag.current.y
+      const speed = dy / Math.max(1, e.timeStamp - drag.current.t)
+      drag.current = null
+      setDragging(false)
+      if (e.type === 'pointerup' && (dy > SWIPE_CLOSE_PX || (dy > SWIPE_FAST_PX && speed > SWIPE_FAST_SPEED))) slideOut()
+      else setDragY(0)
+    }
     // A short press that stayed put is a tap; two close together, in the same place, flip the camera (not while one is restarting)
     if (e.type === 'pointerup' && tap && fingers.current.size === 1 && Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < TAP_SLOP_PX && e.timeStamp - tap.t < 300) {
       const prev = lastTap.current
@@ -217,8 +252,16 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
   const nearest = stops.reduce((best, s) => Math.abs(s - zoom) < Math.abs(best - zoom) ? s : best, stops[0])
 
   return (
-    <div className="pcam" role="dialog" aria-modal="true" aria-label="Take a photo">
-      <div className="pcam-view" onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}>
+    <div
+      className="pcam" role="dialog" aria-modal="true" aria-label="Take a photo"
+      onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
+      style={{
+        transform: leaving ? 'translateY(100%)' : dragY ? `translateY(${dragY}px)` : undefined,
+        transition: dragging ? 'none' : `transform ${SLIDE_MS}ms ease`,
+        borderRadius: dragY || leaving ? '28px 28px 0 0' : undefined, overflow: dragY || leaving ? 'hidden' : undefined,
+      }}
+    >
+      <div className="pcam-view">
         <video ref={videoRef} className="pcam-video" style={{ transform: videoTransform }} playsInline muted autoPlay />
         <canvas ref={snapRef} className={`pcam-snap${snap ? ' pcam-snap-on' : ''}`} style={{ transform: snap?.transform }} aria-hidden="true" />
         {state !== 'live' && !snap && (
