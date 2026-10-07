@@ -104,7 +104,9 @@
   -webkit-tap-highlight-color: transparent;
   animation: pc-rise .5s cubic-bezier(.2,.8,.2,1) both;
 }
-.pc-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; transition: transform .25s ease; }
+/* pointer-events none: a press lands on the button, not on the picture, so the phone's own press-and-hold menu for pictures
+   (Share, Save to Photos, Copy, Look Up) does not open over the hold that selects a photo */
+.pc-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; pointer-events: none; transition: transform .25s ease; }
 .pc-thumb:hover img { transform: scale(1.04); }
 .pc-thumb { -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; transition: opacity .22s ease, transform .22s ease; }
 .pc-thumb:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; }
