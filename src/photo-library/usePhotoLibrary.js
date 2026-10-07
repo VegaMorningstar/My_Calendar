@@ -2,7 +2,7 @@
  * The user's imported photos as React state.
  *
  * Loads whatever is stored on the device, turns it into the { src, full, date }
- * list PhotoCalendar takes (`id` is the stored record's id, `full` is a function that makes the full-size URL on first use), and exposes import and remove actions. The blob
+ * list PhotoCalendar takes (`id` is the stored record's id, `file` the original photo exactly as it was imported or taken, `full` is a function that makes the full-size URL on first use), and exposes import and remove actions. The blob
  * URLs are revoked whenever the list changes, so memory is released.
  */
 import { useCallback, useEffect, useState } from 'react'
@@ -11,13 +11,14 @@ import { importFiles } from './import-photos.js'
 
 /**
  * @returns {{
- *   photos: {id:string, src:string, full:Function, date:string}[],
+ *   photos: {id:string, src:string, full:Function, date:string, file:File}[],
  *   ready: boolean,
  *   progress: {done:number, total:number} | null,
  *   lastResult: object | null,
  *   addFiles: (files:File[]) => Promise<void>,
  *   removeAll: () => Promise<void>,
  *   removePhotos: (srcs:string[]) => Promise<void>,
+ *   originalsOf: (srcs:string[]) => File[],
  * }}
  */
 export default function usePhotoLibrary() {
@@ -46,7 +47,9 @@ export default function usePhotoLibrary() {
             // Without a preview (the browser could not decode it) the full photo stands in
             const src = r.thumb ? URL.createObjectURL(r.thumb) : full()
             if (r.thumb) urls.push(src)
-            return { id: r.id, src, full, date: r.date }
+            // `file` is the stored original, never a resized copy: saving a photo hands back exactly this
+            const file = r.blob instanceof File ? r.blob : new File([r.blob], r.name, { type: r.blob.type })
+            return { id: r.id, src, full, date: r.date, file }
           })
         setPhotos(list)
         setReady(true)
@@ -85,5 +88,11 @@ export default function usePhotoLibrary() {
     setPhotos(list => list.filter(p => !gone.has(p.src)))
   }, [photos])
 
-  return { photos, ready, progress, lastResult, addFiles, removeAll, removePhotos }
+  /** The original files of the photos whose previews are `srcs`, in that order (a photo not found is skipped). Immediate: they are already in memory. */
+  const originalsOf = useCallback(srcs => {
+    const bySrc = new Map(photos.map(p => [p.src, p.file]))
+    return srcs.map(s => bySrc.get(s)).filter(Boolean)
+  }, [photos])
+
+  return { photos, ready, progress, lastResult, addFiles, removeAll, removePhotos, originalsOf }
 }

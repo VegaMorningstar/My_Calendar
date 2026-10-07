@@ -8,7 +8,8 @@
  * Deleting works as in the iPhone Photos app (when the page gives `onDelete`): press and hold a photo and it is selected, every
  * photo of the day shows an empty circle, and a tap on a photo adds it to or takes it off the selection. The header says how many
  * are selected and offers Cancel; a trash button at the bottom is live once something is selected, and asks "Delete N Photos"
- * (or Cancel) before anything goes. Day changes, pinching to the month and the arrows are off while selecting.
+ * (or Cancel) before anything goes. A Save button at the bottom left hands over the selected photos at their original size (the share
+ * sheet on a phone, where "Save Image" puts them in Photos; downloads on a computer), when the page gives `originalsOf`. Day changes, pinching to the month and the arrows are off while selecting.
  * The dialog closes from the burgundy X, the Escape key, or a click outside the
  * sheet (Escape closes an open photo first). It is rendered in a portal on
  * <body> so it covers the whole viewport whatever the calendar's own layout is,
@@ -19,6 +20,7 @@ import { createPortal } from 'react-dom'
 import { GlassButtons, LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
 import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, ordinal, photoCountLabel } from '../lib/dates.js'
 import PhotoViewer from './PhotoViewer.jsx'
+import { saveOriginals } from '../lib/saveOriginals.js'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
 import usePinchZoom from '../hooks/usePinchZoom.js'
@@ -54,9 +56,10 @@ const SWIPE_PX = 70
  * @param {boolean}  hasNext       a later date with photos exists
  * @param {Function} onStep        (delta:-1|1) => void, go to the previous / next such date
  * @param {Function} onClose       () => void
- * @param {(srcs:string[]) => Promise<void>} [onDelete]  removes these photos; without it there is no selecting
+ * @param {(srcs:string[]) => Promise<void>} [onDelete]  removes these photos
+ * @param {(srcs:string[]) => File[]} [originalsOf]  the original files of these photos, at once (for Save). Without both this and onDelete there is no selecting.
  */
-export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onStep, onClose, onDelete }) {
+export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onStep, onClose, onDelete, originalsOf }) {
   const { year, month, day } = date
   const sheetRef = useRef(null)
   // Text colours follow what is behind the sheet, which is not what is behind the calendar
@@ -77,6 +80,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   /** The "Delete N Photos" sheet is open. */
   const [confirming, setConfirming] = useState(false)
   /** Photos shrinking away while they are deleted. */
+  /** The share sheet or the downloads are in progress. */
+  const [saving, setSaving] = useState(false)
   const [removing, setRemoving] = useState(() => new Set())
   const hold = useRef(null) // the press that may become a hold: { x, y, timer }
   const heldIt = useRef(false) // a hold just selected a photo: the click that follows it must do nothing
@@ -179,7 +184,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   // ── Press and hold to select ───────────────────────────────────────────────
   const startHold = (e, src) => {
     heldIt.current = false
-    if (!onDelete || selecting || (e.pointerType === 'mouse' && e.button !== 0)) return
+    if (!(onDelete || originalsOf) || selecting || (e.pointerType === 'mouse' && e.button !== 0)) return
     clearTimeout(hold.current?.timer)
     hold.current = {
       x: e.clientX, y: e.clientY,
@@ -203,6 +208,14 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
     await new Promise(r => setTimeout(r, REMOVE_MS))
     try { await onDelete(gone) } finally { setRemoving(new Set()); setSelected(null) }
     if (gone.length >= srcs.length) onClose()
+  }
+  // ── Save: the originals, at full size. It starts in the tap itself (the originals are already in memory), because the phone only
+  //    opens its share sheet for a call made straight from a tap. ──
+  const doSave = async () => {
+    const files = originalsOf([...selected])
+    if (!files.length) return
+    setSaving(true)
+    try { await saveOriginals(files) } finally { setSaving(false) }
   }
   const countWord = n => `${n} ${n === 1 ? 'Photo' : 'Photos'}`
 
@@ -288,7 +301,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
                       onPointerCancel={endHold}
                       onPointerLeave={endHold}
                       // The phone's own press-and-hold menu (save, copy...) must not open over a hold that selects
-                      onContextMenu={onDelete ? e => e.preventDefault() : undefined}
+                      onContextMenu={onDelete || originalsOf ? e => e.preventDefault() : undefined}
                     >
                       <img src={src} alt="" loading="lazy" decoding="async" draggable="false" />
                       {selecting && (
@@ -306,11 +319,25 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         {/* The trash, bottom right, live once something is selected (the Photos app's toolbar) */}
         {selecting && (
           <div className="pc-toolbar">
-            <button type="button" className="pc-trash" disabled={!selected.size || removing.size > 0} onClick={() => setConfirming(true)} aria-label={selected.size ? `Delete ${countWord(selected.size)}` : 'Delete'} title="Delete">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.2a1.8 1.8 0 0 0 1.8 1.6h6.4a1.8 1.8 0 0 0 1.8-1.6L18 7M9 7V4.8A.8.8 0 0 1 9.8 4h4.4a.8.8 0 0 1 .8.8V7" />
-              </svg>
-            </button>
+            {/* Save: bottom left, in the lilac of the Save button on the calendar export page */}
+            {originalsOf && (
+              <button type="button" className="pc-savebtn" disabled={!selected.size || saving} onClick={doSave} aria-busy={saving} aria-label={selected.size ? `Save ${countWord(selected.size)}` : 'Save'} title="Save at full size">
+                {saving ? (
+                  <svg className="pc-spin" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9" /></svg>
+                ) : (
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 3v12" /><path d="m7 10.5 5 5 5-5" /><path d="M4 17.5V20h16v-2.5" />
+                  </svg>
+                )}
+              </button>
+            )}
+            {onDelete && (
+              <button type="button" className="pc-trash" disabled={!selected.size || removing.size > 0} onClick={() => setConfirming(true)} aria-label={selected.size ? `Delete ${countWord(selected.size)}` : 'Delete'} title="Delete">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.2a1.8 1.8 0 0 0 1.8 1.6h6.4a1.8 1.8 0 0 0 1.8-1.6L18 7M9 7V4.8A.8.8 0 0 1 9.8 4h4.4a.8.8 0 0 1 .8.8V7" />
+                </svg>
+              </button>
+            )}
           </div>
         )}
       </div>

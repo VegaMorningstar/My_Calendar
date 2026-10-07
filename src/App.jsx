@@ -137,7 +137,7 @@ export default function App() {
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
-          <PhotoCalendar photos={library.photos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<CameraButton onFiles={library.addFiles} />} onDeletePhotos={library.removePhotos} />
+          <PhotoCalendar photos={library.photos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<CameraButton onFiles={library.addFiles} />} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} />
           <LibraryHint library={library} />
         </div>
       </div>

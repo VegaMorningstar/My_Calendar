@@ -48,6 +48,7 @@ export default function PhotoCalendar({
   paused = false,
   underRight = null,
   onDeletePhotos,
+  originalsOf,
   className = '',
 }) {
   const panelRef = useRef(null)
@@ -163,6 +164,7 @@ export default function PhotoCalendar({
           fullBySrc={fullBySrc}
           onClose={() => setOpenDay(null)}
           onDelete={onDeletePhotos}
+          originalsOf={originalsOf}
         />
       )}
     </section>

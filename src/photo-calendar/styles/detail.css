@@ -140,7 +140,27 @@
 
 /* The trash: bottom right of the sheet. The same red round with a pure white symbol as the Back button on the "Get your calendar"
    page (.ec-back in export.css), so "leave / throw away" reads the same everywhere. Dim until a photo is selected. */
-.pc-toolbar { position: absolute; z-index: 3; right: clamp(14px, 2.4vw, 28px); bottom: clamp(14px, 2.4vw, 28px); animation: pc-fade .2s ease both; }
+.pc-toolbar {
+  position: absolute; z-index: 3; left: clamp(14px, 2.4vw, 28px); right: clamp(14px, 2.4vw, 28px); bottom: clamp(14px, 2.4vw, 28px);
+  display: flex; justify-content: space-between; align-items: center; pointer-events: none; animation: pc-fade .2s ease both;
+}
+.pc-toolbar > * { pointer-events: auto; }
+.pc-trash { margin-left: auto; }
+/* Save: the lilac round with a pure white tray arrow, as on the calendar export page (.ec-save in export.css) */
+.pc-savebtn {
+  appearance: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; padding: 0;
+  color: #fff; border: 1px solid rgba(104, 72, 184, .95);
+  background: linear-gradient(135deg, rgb(152, 124, 224), rgb(130, 98, 208));
+  box-shadow: 0 0 10px 1px rgba(170, 130, 245, .5), inset 0 1px 1px rgba(255, 255, 255, .35);
+  -webkit-tap-highlight-color: transparent; transition: opacity .2s, transform .12s;
+}
+.pc-savebtn svg { display: block; }
+.pc-savebtn:hover:not(:disabled) { background: linear-gradient(135deg, rgb(162, 136, 230), rgb(140, 110, 214)); animation: pc-trash-jiggle .5s ease-out; }
+.pc-savebtn:active:not(:disabled) { transform: scale(.9); }
+.pc-savebtn:disabled { opacity: .5; cursor: default; box-shadow: none; filter: saturate(.7); }
+.pc-savebtn:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 3px; }
+.pc-spin { animation: pc-spin .9s linear infinite; }
+@keyframes pc-spin { to { transform: rotate(360deg); } }
 .pc-trash {
   appearance: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; padding: 0;
   color: #fff; border: 1px solid rgba(150, 34, 48, .95);
@@ -159,7 +179,7 @@
   75%  { transform: scale(1.03) rotate(-1.5deg); }
   100% { transform: scale(1) rotate(0); }
 }
-@media (prefers-reduced-motion: reduce) { .pc-trash:hover:not(:disabled) { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .pc-trash:hover:not(:disabled), .pc-savebtn:hover:not(:disabled) { animation: none; } .pc-spin { animation-duration: 3s; } }
 .pc-trash:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 3px; }
 
 /* The question: slides up from the bottom of the screen over a dim, a red Delete over a Cancel, like the iPhone's action sheet */
