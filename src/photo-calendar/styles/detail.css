@@ -106,7 +106,68 @@
 }
 .pc-thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; user-select: none; transition: transform .25s ease; }
 .pc-thumb:hover img { transform: scale(1.04); }
+.pc-thumb { -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; transition: opacity .22s ease, transform .22s ease; }
 .pc-thumb:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; }
+
+/* ── Selecting, as in the Photos app ──
+   Press and hold a photo: every photo gets an empty circle at its bottom right; a selected one shrinks a little inside its box and the
+   circle fills blue with a white tick. The header counts them, the trash at the bottom right deletes them. */
+.pc-selecting .pc-thumb:hover img { transform: none; }
+.pc-selecting { padding-bottom: 76px; } /* room under the last row for the trash */
+.pc-thumb-on img { transform: scale(.84); border-radius: 8px; }
+.pc-selecting .pc-thumb-on:hover img { transform: scale(.84); }
+.pc-check {
+  position: absolute; right: 6px; bottom: 6px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  border: 2px solid #fff; background: rgba(0, 0, 0, .18); box-shadow: 0 1px 4px rgba(0, 0, 0, .45);
+  animation: pc-check-in .18s ease both;
+}
+.pc-check svg { opacity: 0; transform: scale(.6); transition: opacity .15s, transform .15s; }
+.pc-thumb-on .pc-check { background: #0a84ff; }
+.pc-thumb-on .pc-check svg { opacity: 1; transform: none; }
+@keyframes pc-check-in { from { opacity: 0; transform: scale(.7); } }
+/* A photo being deleted shrinks and fades away */
+.pc-thumb-out { opacity: 0; transform: scale(.8); pointer-events: none; }
+/* Cancel, top right while selecting: plain text in the sheet's ink colour (pure black or white to suit the wallpaper), like the Photos app's */
+.pc-cancel {
+  appearance: none; border: 0; background: transparent; cursor: pointer; padding: 8px 6px; margin: 4px 4px 0 0;
+  font: 600 1.05rem var(--pc-serif); font-style: italic; color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
+  -webkit-tap-highlight-color: transparent;
+}
+.pc-cancel:active { opacity: .55; }
+.pc-cancel:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; border-radius: 6px; }
+
+/* The trash: bottom right of the sheet, over the photos on its own soft glass; dim until a photo is selected */
+.pc-toolbar { position: absolute; z-index: 3; right: clamp(14px, 2.4vw, 28px); bottom: clamp(14px, 2.4vw, 28px); animation: pc-fade .2s ease both; }
+.pc-trash {
+  appearance: none; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; padding: 0;
+  color: rgb(var(--pc-burgundy)); background: rgba(255, 255, 255, .78); border: 1px solid rgba(255, 255, 255, .8);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 4px 16px rgba(40, 28, 10, .25);
+  -webkit-tap-highlight-color: transparent; transition: opacity .2s, transform .12s;
+}
+.pc-trash:active:not(:disabled) { transform: scale(.92); }
+.pc-trash:disabled { opacity: .45; cursor: default; }
+.pc-trash:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 3px; }
+
+/* The question: slides up from the bottom of the screen over a dim, a red Delete over a Cancel, like the iPhone's action sheet */
+.pc-ask {
+  position: fixed; inset: 0; z-index: 5; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 8px;
+  padding: 12px max(12px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-bottom)); background: rgba(0, 0, 0, .28); animation: pc-fade .2s ease both;
+}
+.pc-ask > * { width: min(420px, 100%); animation: pc-ask-up .28s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes pc-ask-up { from { transform: translateY(40px); opacity: 0; } }
+.pc-ask-card, .pc-ask-cancel {
+  border-radius: 14px; background: rgba(255, 255, 255, .9); -webkit-backdrop-filter: blur(24px) saturate(1.4); backdrop-filter: blur(24px) saturate(1.4); overflow: hidden;
+}
+.pc-ask-note { margin: 0; padding: 14px 18px 12px; text-align: center; font-size: .78rem; line-height: 1.45; color: #000; border-bottom: 1px solid rgba(0, 0, 0, .12); }
+.pc-ask-delete, .pc-ask-cancel {
+  appearance: none; border: 0; cursor: pointer; display: block; padding: 0; height: 56px; font: 500 1.02rem 'DM Mono', ui-monospace, monospace; background: transparent; -webkit-tap-highlight-color: transparent;
+}
+.pc-ask-delete { width: 100%; color: rgb(var(--pc-burgundy)); }
+.pc-ask-cancel { color: #000; font-weight: 600; background: rgba(255, 255, 255, .92); }
+.pc-ask-delete:active { background: rgba(0, 0, 0, .08); }
+.pc-ask-cancel:active { background: rgba(235, 235, 235, .95); }
+.pc-ask button:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: -3px; }
+@media (prefers-reduced-motion: reduce) { .pc-thumb, .pc-check, .pc-ask > * { animation: none; transition: none; } }
 
 @media (max-width: 560px) {
   .pc-sheet { --pc-panel-r: 24px; }

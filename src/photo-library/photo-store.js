@@ -47,6 +47,9 @@ export const hasPhoto = async id => (await run(PHOTOS, 'readonly', store => stor
 /** Every stored photo record. */
 export const getAllPhotos = () => run(PHOTOS, 'readonly', store => store.getAll())
 
+/** Deletes the photos with these ids, all in one transaction (so a failure leaves them all, not some). */
+export const deletePhotos = ids => run(PHOTOS, 'readwrite', store => ids.map(id => store.delete(id)).at(-1) ?? store.count())
+
 /** Deletes all stored photos. */
 export const clearPhotos = () => run(PHOTOS, 'readwrite', store => store.clear())
 

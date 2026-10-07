@@ -2,21 +2,22 @@
  * The user's imported photos as React state.
  *
  * Loads whatever is stored on the device, turns it into the { src, full, date }
- * list PhotoCalendar takes (`full` is a function that makes the full-size URL on first use), and exposes import and remove actions. The blob
+ * list PhotoCalendar takes (`id` is the stored record's id, `full` is a function that makes the full-size URL on first use), and exposes import and remove actions. The blob
  * URLs are revoked whenever the list changes, so memory is released.
  */
 import { useCallback, useEffect, useState } from 'react'
-import { clearPhotos, getAllPhotos, requestPersistence } from './photo-store.js'
+import { clearPhotos, deletePhotos, getAllPhotos, requestPersistence } from './photo-store.js'
 import { importFiles } from './import-photos.js'
 
 /**
  * @returns {{
- *   photos: {src:string, full:string, date:string}[],
+ *   photos: {id:string, src:string, full:Function, date:string}[],
  *   ready: boolean,
  *   progress: {done:number, total:number} | null,
  *   lastResult: object | null,
  *   addFiles: (files:File[]) => Promise<void>,
  *   removeAll: () => Promise<void>,
+ *   removePhotos: (srcs:string[]) => Promise<void>,
  * }}
  */
 export default function usePhotoLibrary() {
@@ -45,7 +46,7 @@ export default function usePhotoLibrary() {
             // Without a preview (the browser could not decode it) the full photo stands in
             const src = r.thumb ? URL.createObjectURL(r.thumb) : full()
             if (r.thumb) urls.push(src)
-            return { src, full, date: r.date }
+            return { id: r.id, src, full, date: r.date }
           })
         setPhotos(list)
         setReady(true)
@@ -71,5 +72,18 @@ export default function usePhotoLibrary() {
     setVersion(v => v + 1)
   }, [photos.length])
 
-  return { photos, ready, progress, lastResult, addFiles, removeAll }
+  /**
+   * Removes the photos whose previews are `srcs` (what the calendar knows them by) from the device and from the list. The list
+   * is trimmed in place rather than reloaded, so the rest of the photos do not flash; the removed previews' URLs are let go
+   * with the others at the next reload.
+   */
+  const removePhotos = useCallback(async srcs => {
+    const gone = new Set(srcs)
+    const ids = photos.filter(p => gone.has(p.src)).map(p => p.id)
+    if (!ids.length) return
+    await deletePhotos(ids)
+    setPhotos(list => list.filter(p => !gone.has(p.src)))
+  }, [photos])
+
+  return { photos, ready, progress, lastResult, addFiles, removeAll, removePhotos }
 }
