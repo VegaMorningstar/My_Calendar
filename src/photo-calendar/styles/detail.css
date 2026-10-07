@@ -136,16 +136,28 @@
 .pc-cancel:active { opacity: .55; }
 .pc-cancel:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 2px; border-radius: 6px; }
 
-/* The trash: bottom right of the sheet, over the photos on its own soft glass; dim until a photo is selected */
+/* The trash: bottom right of the sheet. The same red round with a pure white symbol as the Back button on the "Get your calendar"
+   page (.ec-back in export.css), so "leave / throw away" reads the same everywhere. Dim until a photo is selected. */
 .pc-toolbar { position: absolute; z-index: 3; right: clamp(14px, 2.4vw, 28px); bottom: clamp(14px, 2.4vw, 28px); animation: pc-fade .2s ease both; }
 .pc-trash {
-  appearance: none; width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; padding: 0;
-  color: rgb(var(--pc-burgundy)); background: rgba(255, 255, 255, .78); border: 1px solid rgba(255, 255, 255, .8);
-  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: 0 4px 16px rgba(40, 28, 10, .25);
+  appearance: none; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; padding: 0;
+  color: #fff; border: 1px solid rgba(150, 34, 48, .95);
+  background: linear-gradient(135deg, rgb(226, 98, 108), rgb(204, 66, 80));
+  box-shadow: 0 0 10px 1px rgba(235, 96, 106, .5), inset 0 1px 1px rgba(255, 255, 255, .35);
   -webkit-tap-highlight-color: transparent; transition: opacity .2s, transform .12s;
 }
-.pc-trash:active:not(:disabled) { transform: scale(.92); }
-.pc-trash:disabled { opacity: .45; cursor: default; }
+.pc-trash svg { display: block; }
+.pc-trash:hover:not(:disabled) { background: linear-gradient(135deg, rgb(232, 112, 120), rgb(212, 78, 92)); animation: pc-trash-jiggle .5s ease-out; }
+.pc-trash:active:not(:disabled) { transform: scale(.9); }
+.pc-trash:disabled { opacity: .5; cursor: default; box-shadow: none; filter: saturate(.7); }
+@keyframes pc-trash-jiggle {
+  0%   { transform: scale(1) rotate(0); }
+  25%  { transform: scale(1.07) rotate(-4deg); }
+  50%  { transform: scale(.97) rotate(3deg); }
+  75%  { transform: scale(1.03) rotate(-1.5deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+@media (prefers-reduced-motion: reduce) { .pc-trash:hover:not(:disabled) { animation: none; } }
 .pc-trash:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 3px; }
 
 /* The question: slides up from the bottom of the screen over a dim, a red Delete over a Cancel, like the iPhone's action sheet */

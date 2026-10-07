@@ -307,7 +307,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         {selecting && (
           <div className="pc-toolbar">
             <button type="button" className="pc-trash" disabled={!selected.size || removing.size > 0} onClick={() => setConfirming(true)} aria-label={selected.size ? `Delete ${countWord(selected.size)}` : 'Delete'} title="Delete">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12.2a1.8 1.8 0 0 0 1.8 1.6h6.4a1.8 1.8 0 0 0 1.8-1.6L18 7M9 7V4.8A.8.8 0 0 1 9.8 4h4.4a.8.8 0 0 1 .8.8V7" />
               </svg>
             </button>
