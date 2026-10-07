@@ -15,7 +15,8 @@ const FIRST_JITTER = 0.6
 /**
  * @param {number} count       photos on the day
  * @param {number} intervalMs  the least time each photo stays up
- * @returns {number} index of the photo to show
+ * @returns {number} index of the photo to show, always inside the day's photos: when photos are deleted the day gets shorter, and a
+ *   remembered position past the end must not leave the tile blank (with one photo left the timer never runs, so it would stay blank)
  */
 export default function usePhotoRotation(count, intervalMs) {
   const [index, setIndex] = useState(0)
@@ -25,9 +26,9 @@ export default function usePhotoRotation(count, intervalMs) {
     if (count < 2) return
     const wait = intervalMs * (1 + (firstWait.current ? FIRST_JITTER : JITTER) * Math.random())
     firstWait.current = false
-    const timer = setTimeout(() => setIndex(i => (i + 1) % count), wait)
+    const timer = setTimeout(() => setIndex(i => ((i % count) + 1) % count), wait)
     return () => clearTimeout(timer)
   }, [index, count, intervalMs])
 
-  return index
+  return count > 0 ? index % count : 0
 }
