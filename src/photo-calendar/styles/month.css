@@ -17,6 +17,12 @@
 }
 .pc-blank { aspect-ratio: var(--pc-tile-ratio); }
 
+/* The polka dot ribbon on today's tile: in the top right corner, a little tilted, clear of the date at the top left */
+.pc-ribbon {
+  position: absolute; z-index: 2; top: 2px; right: 2px; width: clamp(15px, 38%, 30px); height: auto; pointer-events: none;
+  transform: rotate(9deg); filter: drop-shadow(0 1px 1px rgba(60, 20, 30, .28));
+}
+
 /* No photo: transparent, drawn as a groove cut into the glass. */
 .pc-empty {
   /* A faint wash in the tone opposite the ink keeps the text legible over busy wallpapers */

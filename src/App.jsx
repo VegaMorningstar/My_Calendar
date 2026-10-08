@@ -22,6 +22,9 @@ import { LibraryHint, SettingsMenu, Toast, rememberWallpaperEdges, usePhotoLibra
 const FOOTER_ONE_ROW_PX = 60
 /** How long (ms) the "find the tour again" note stays up after the tour is left early. */
 const TOUR_NOTE_MS = 4500
+/** How long (ms) the wise turtle's words stay up after today's tile is opened. */
+const TURTLE_MS = 6500
+const TURTLE_SAYS = '\u{1F422} A wise turtle once said: "Yesterday is history, tomorrow is a mystery, but today is a gift. That is why it is called the present."'
 
 /**
  * True when the page runs under the iPhone status bar. Then the top safe-area inset is more
@@ -153,6 +156,16 @@ export default function App() {
     </>
   )
 
+  // Opening today's tile: a wise turtle has something to say
+  const [turtle, setTurtle] = useState(false)
+  const turtleTimer = useRef(0)
+  const showTurtle = () => {
+    clearTimeout(turtleTimer.current)
+    setTurtle(true)
+    turtleTimer.current = setTimeout(() => setTurtle(false), TURTLE_MS)
+  }
+  useEffect(() => () => clearTimeout(turtleTimer.current), [])
+
   // Leaving the tour early (the cross or Escape) says where to find it again
   const [tourNote, setTourNote] = useState(false)
   const tourNoteTimer = useRef(0)
@@ -175,7 +188,7 @@ export default function App() {
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
-          <PhotoCalendar photos={calendarPhotos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<><AddPhotosButton onFiles={library.addFiles} busy={library.progress !== null} /><CameraButton onFiles={library.addFiles} /></>} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} renderDayAdd={renderDayAdd} />
+          <PhotoCalendar photos={calendarPhotos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<><AddPhotosButton onFiles={library.addFiles} busy={library.progress !== null} /><CameraButton onFiles={library.addFiles} /></>} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} renderDayAdd={renderDayAdd} onTodayOpen={showTurtle} />
           {!tour.open && <LibraryHint library={library} />}
         </div>
       </div>
@@ -191,6 +204,7 @@ export default function App() {
       <UpdatePrompt />
       {tour.open && <Tour onClose={onTourClose} />}
       <Toast text="You can find the tour again in the gear menu, under How to use?" open={tourNote} />
+      <Toast text={TURTLE_SAYS} open={turtle} />
     </main>
   )
 }

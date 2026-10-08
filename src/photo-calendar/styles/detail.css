@@ -43,7 +43,7 @@
 /* Horizontal swipes are read by the sheet; vertical drags still scroll the photos */
 .pc-sheet-scroll { touch-action: pan-y; }
 .pc-gallery-scroll { touch-action: pan-y; }
-.pc-detail-actions { display: flex; align-items: flex-start; gap: 0; flex: none; margin-left: auto; }
+.pc-detail-actions { display: flex; align-items: center; gap: 0; flex: none; margin-left: auto; }
 /* The + and the camera that add photos to the day, side by side before the close button; their glass tiles carry padding, so they sit close */
 .pc-detail-add { display: flex; align-items: center; margin-right: 4px; }
 /* pure white glyphs on the clear glass, like the close button */
