@@ -45,7 +45,7 @@
 .pc-gallery-scroll { touch-action: pan-y; }
 .pc-detail-actions { display: flex; align-items: center; gap: 0; flex: none; margin-left: auto; }
 /* The + and the camera that add photos to the day, side by side before the close button; their glass tiles carry padding, so they sit close */
-.pc-detail-add { display: flex; align-items: center; margin-right: 4px; }
+.pc-detail-add { display: flex; align-items: center; margin-right: -7px; } /* -7px makes the gap from the camera to the close button the same as from the + to the camera (their glass tiles carry different padding) */
 /* pure white glyphs on the clear glass, like the close button */
 .pc-detail-add .lib-gear-icon { color: #fff; }
 /* What the sheet says when the day has no photos */
