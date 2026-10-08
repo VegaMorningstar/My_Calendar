@@ -12,6 +12,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SideArrows from '../components/SideArrows.jsx'
+import { useCalendarScript } from '../lib/calendarScript.js'
 import usePageInk from '../hooks/usePageInk.js'
 import useTimedVisible from '../hooks/useTimedVisible.js'
 import useSwipeNav from '../hooks/useSwipeNav.js'
@@ -92,6 +93,17 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
 
   // The side arrows show for 3 seconds when the page opens and after every change of month, then fade away
   const arrows = useTimedVisible(`${year}-${month}`, 3000, 3000)
+
+  // A script from the page around the calendar (the guided tour, see lib/calendarScript.js) can open the chooser for today and pick
+  // one of its photos, so the tour can show how a day's photo is chosen
+  const script = useCalendarScript()
+  useEffect(() => {
+    if (!script) return
+    const t = new Date()
+    const thisMonth = year === t.getFullYear() && month === t.getMonth()
+    if (script.choose != null && thisMonth) setChoice(c => ({ ...c, [dateKey(year, month, t.getDate())]: script.choose }))
+    setPicking(script.pick && thisMonth ? t.getDate() : null)
+  }, [script]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /** Moves the sheet to the previous (-1) or next (+1) month. */
   const step = delta => {
@@ -246,6 +258,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
               key={t.day}
               type="button"
               className="ec-hit"
+              data-day={t.day}
               style={{ left: `${(t.x / PW) * 100}%`, top: `${(t.y / PH) * 100}%`, width: `${(t.w / PW) * 100}%`, height: `${(t.h / PH) * 100}%` }}
               aria-label={`${MONTHS[month]} ${ordinal(t.day)}, ${photoCountLabel(byDay.get(t.day).length)}. Choose the photo`}
               onClick={() => setPicking(t.day)}

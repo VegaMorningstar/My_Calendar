@@ -44,6 +44,16 @@
 .tour-hint { position: absolute; width: 0; height: 0; pointer-events: none; }
 .tour-hint i { position: absolute; left: -17px; top: -17px; width: 34px; height: 34px; border-radius: 50%; background: rgba(255, 255, 255, .85); box-shadow: 0 0 0 5px rgba(255, 255, 255, .28), 0 4px 14px rgba(0, 0, 0, .3); }
 .tour-hint i:nth-child(2) { display: none; }
+/* Tap: a dot pressing down while a ring spreads from it */
+.tour-hint-tap i:first-child { animation: tour-tap 1.5s ease-in-out infinite; }
+.tour-hint-tap i:nth-child(2) { display: block; background: none; box-shadow: none; border: 3px solid rgba(255, 255, 255, .9); animation: tour-tap-ring 1.5s ease-out infinite; }
+@keyframes tour-tap { 0% { transform: scale(1.35); opacity: 0; } 25% { transform: scale(1); opacity: 1; } 40% { transform: scale(.82); opacity: 1; } 60% { transform: scale(1); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
+@keyframes tour-tap-ring { 0%, 36% { transform: scale(.7); opacity: 0; } 40% { opacity: 1; } 100% { transform: scale(2.1); opacity: 0; } }
+/* A tap on each place in turn: the same, one place after another (--k is the place's number) */
+.tour-hint-tapseq i:first-child { animation: tour-seq 3.6s ease-in-out infinite; animation-delay: calc(var(--k, 0) * 1.2s); opacity: 0; }
+.tour-hint-tapseq i:nth-child(2) { display: block; background: none; box-shadow: none; border: 3px solid rgba(255, 255, 255, .9); opacity: 0; animation: tour-seq-ring 3.6s ease-out infinite; animation-delay: calc(var(--k, 0) * 1.2s); }
+@keyframes tour-seq { 0% { transform: scale(1.35); opacity: 0; } 6% { transform: scale(1); opacity: 1; } 12% { transform: scale(.82); opacity: 1; } 22% { transform: scale(1); opacity: 1; } 30%, 100% { transform: scale(1); opacity: 0; } }
+@keyframes tour-seq-ring { 0%, 10% { transform: scale(.7); opacity: 0; } 12% { opacity: 1; } 32%, 100% { transform: scale(2.1); opacity: 0; } }
 /* Swipe: one dot sweeping sideways */
 .tour-hint-swipe i:first-child { animation: tour-swipe 1.8s ease-in-out infinite; }
 @keyframes tour-swipe { 0% { transform: translateX(-70px); opacity: 0; } 20% { opacity: 1; } 70% { transform: translateX(70px); opacity: 1; } 100% { transform: translateX(70px); opacity: 0; } }

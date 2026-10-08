@@ -7,7 +7,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { viewportDeficit } from './diagnostics.js'
-import { ExportPage, PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
+import { ExportPage, PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor, useCalendarScript } from './photo-calendar/index.js'
 import CameraButton from './CameraButton.jsx'
 import Tour from './tour/Tour.jsx'
 import { samplePhotos } from './tour/samplePhotos.js'
@@ -136,6 +136,14 @@ export default function App() {
   // The guided tour: it starts by itself the first time the app opens with an empty calendar, and again from "How to use". While it
   // runs the calendar also shows three sample photos on today (never saved), so a new person has a day to open.
   const tour = useTour(library.ready, emptyLibrary)
+  // The tour opens the calendar-export page to show how it works, and closes it again when it moves on or ends
+  const script = useCalendarScript()
+  const hadScript = useRef(false)
+  useEffect(() => {
+    if (script) { hadScript.current = true; setExportOpen(!!script.export) }
+    else if (hadScript.current) { hadScript.current = false; setExportOpen(false) }
+  }, [script])
+
   // Leaving the tour early (the cross or Escape) says where to find it again
   const [tourNote, setTourNote] = useState(false)
   const tourNoteTimer = useRef(0)
@@ -170,7 +178,7 @@ export default function App() {
           <GetCalendarButton onOpen={() => setExportOpen(true)} />
         </div>
       </div>
-      {exportOpen && <ExportPage photos={library.photos} year={calView.year} month={calView.month} onClose={() => setExportOpen(false)} />}
+      {exportOpen && <ExportPage photos={calendarPhotos} year={calView.year} month={calView.month} onClose={() => setExportOpen(false)} />}
       <UpdatePrompt />
       {tour.open && <Tour onClose={onTourClose} />}
       <Toast text="You can find the tour again in the gear menu, under How to use?" open={tourNote} />

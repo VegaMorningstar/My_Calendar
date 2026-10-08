@@ -30,7 +30,7 @@ function measure(targets) {
   const rects = []
   for (const t of targets) {
     const { sel, inset = 0 } = typeof t === 'string' ? { sel: t } : t
-    const el = document.querySelector(sel)
+    const el = document.querySelector(sel.replace('{today}', String(new Date().getDate())))
     if (!el) return null
     const r = el.getBoundingClientRect()
     if (r.width < 2 || r.height < 2) return null
@@ -98,7 +98,7 @@ export default function Tour({ onClose }) {
   const step = STEPS[i]
   const last = i === STEPS.length - 1
   const [targets, setTargets] = useState([])
-  const [anchor, setAnchor] = useState(null) // where the gesture hint plays
+  const [anchors, setAnchors] = useState([]) // where the gesture hint plays: one place, or several in turn
   const [size, setSize] = useState(() => ({ W: window.innerWidth, H: window.innerHeight }))
   const [cardH, setCardH] = useState(200)
   const cardRef = useRef(null)
@@ -106,31 +106,38 @@ export default function Tour({ onClose }) {
   const rects = useGlide(targets)
 
   // Put the calendar in this step's state, wait for what it points at, and measure it. Re-measured now and then while the step
-  // is up, because a sheet can still be settling or the window can change.
+  // is up, because a sheet can still be settling or the window can change. A step can also change itself part way (a `then` list):
+  // after a moment it sets a new script and points at something else, for example a tap and then what the tap opens.
+  const [phase, setPhase] = useState(0) // 0 the step as written, 1 and on the parts of its `then` list
+  useEffect(() => { setPhase(0) }, [i])
   useEffect(() => {
     let live = true
-    setCalendarScript(step.script)
+    const phases = [step, ...(step.then ?? [])]
+    const shown = phases[phase] ?? step
+    setCalendarScript(shown.script)
     ;(async () => {
-      let found = await settle(step.targets, () => live)
+      let found = await settle(shown.targets, () => live)
       if (!live) return
       // Something below the fold (the bottom buttons on a phone on its side): scroll it into view, then measure again
-      const offscreen = step.targets.filter((_, k) => found[k] && (found[k].y < 0 || found[k].y + found[k].h > window.innerHeight))
+      const offscreen = shown.targets.filter((_, k) => found[k] && (found[k].y < 0 || found[k].y + found[k].h > window.innerHeight))
       if (offscreen.length) {
-        for (const t of offscreen) document.querySelector(typeof t === 'string' ? t : t.sel)?.scrollIntoView({ block: 'center', behavior: 'instant' })
+        for (const t of offscreen) document.querySelector((typeof t === 'string' ? t : t.sel).replace('{today}', String(new Date().getDate())))?.scrollIntoView({ block: 'center', behavior: 'instant' })
         await wait(120)
-        found = await settle(step.targets, () => live)
+        found = await settle(shown.targets, () => live)
         if (!live) return
       }
       setTargets(found)
-      const at = step.at ? measure([step.at]) : null
-      setAnchor(step.gesture ? (at?.[0] ?? found[0] ?? null) : null)
+      const at = shown.gesture ? measure([].concat(shown.at ?? [])) : null
+      setAnchors(shown.gesture ? (at ?? (found[0] ? [found[0]] : [])) : [])
     })()
     const again = setInterval(() => {
-      const now = measure(step.targets)
+      const now = measure(shown.targets)
       if (now) setTargets(old => (sameRects(now, old) ? old : now))
     }, 400)
-    return () => { live = false; clearInterval(again) }
-  }, [i]) // eslint-disable-line react-hooks/exhaustive-deps
+    const nextPhase = phases[phase + 1]
+    const later = nextPhase ? setTimeout(() => setPhase(phase + 1), nextPhase.after) : 0
+    return () => { live = false; clearInterval(again); clearTimeout(later) }
+  }, [i, phase]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // When the tour ends the calendar goes back to normal
   useEffect(() => () => {
@@ -194,7 +201,9 @@ export default function Tour({ onClose }) {
         </mask>
         <rect width={W} height={H} mask="url(#tour-holes)" />
       </svg>
-      {anchor && step.gesture && <span key={`${i}-${anchor.x}`} className={`tour-hint tour-hint-${step.gesture}`} style={{ left: anchor.x + anchor.w / 2, top: anchor.y + anchor.h / 2 }} aria-hidden="true"><i /><i /></span>}
+      {anchors.map((a, k) => (
+        <span key={`${i}-${phase}-${k}-${Math.round(a.x)}`} className={`tour-hint tour-hint-${([step, ...(step.then ?? [])][phase] ?? step).gesture}`} style={{ left: a.x + a.w / 2, top: a.y + a.h / 2, '--k': k }} aria-hidden="true"><i /><i /></span>
+      ))}
 
       <div key={i} ref={cardRef} className={`tour-card tour-${place}`}>
         <button type="button" className="tour-x" onClick={leave} aria-label="Close the tour" title="Close the tour">

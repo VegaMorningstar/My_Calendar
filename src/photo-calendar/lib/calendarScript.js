@@ -8,7 +8,9 @@
  *
  * A script looks like:
  *   { view: 'month' | 'year',  day: boolean (today's sheet open),  photo: boolean (its first photo full screen),
- *     select: boolean (its photos in selecting mode),  menu: boolean (the settings menu open),  arrows: boolean (side arrows held on) }
+ *     select: boolean (its photos in selecting mode),  menu: boolean (the settings menu open),  arrows: boolean (side arrows held on),
+ *     export: boolean (the calendar-export page open),  pick: boolean (on it, today's photo chooser open),
+ *     choose: number (on it, today's photo set to this one of its photos) }
  */
 import { useSyncExternalStore } from 'react'
 
