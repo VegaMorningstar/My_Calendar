@@ -20,6 +20,7 @@ import { createPortal } from 'react-dom'
 import { GlassButtons, LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
 import { FULL_WEEKDAYS, MONTHS, ordinal } from '../lib/dates.js'
 import PhotoViewer from './PhotoViewer.jsx'
+import Ribbon from './Ribbon.jsx'
 import useTimedVisible from '../hooks/useTimedVisible.js'
 import SideArrows from './SideArrows.jsx'
 import { saveOriginals } from '../lib/saveOriginals.js'
@@ -235,6 +236,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   }
   const countWord = n => `${n} ${n === 1 ? 'Photo' : 'Photos'}`
 
+  const t = new Date()
+  const isToday = year === t.getFullYear() && month === t.getMonth() && day === t.getDate()
   const weekday = FULL_WEEKDAYS[new Date(year, month, day).getDay()]
   // Blurred in the middle, but not at the rim: edgeBlurMultiplier 0 keeps the edge at full sharpness, so it still refracts crisply
   const closeMaterial = { ...CLOSE_MATERIAL, ...WHITE_INK, tintStrength: 0, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0 }
@@ -267,6 +270,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         aria-label={`${weekday} ${ordinal(day)} ${MONTHS[month]} ${year}`}
         tabIndex={-1}
       >
+        {/* Today's sheet wears the polka dot ribbon, tied on its top left corner */}
+        {isToday && <Ribbon className="pc-ribbon pc-ribbon-sheet" />}
         {/* showPhotos off: the sheet covers the calendar, so the date photos must not show through it */}
         <LiquidGlassPanel params={sheetGlass} showPhotos={false} />
         <div

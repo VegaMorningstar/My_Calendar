@@ -65,6 +65,16 @@
   box-shadow: 0 24px 70px rgba(40,28,10,.28), inset 1.5px 1.5px 7px rgba(255,255,255,.75);
   animation: pc-rise .38s cubic-bezier(.2,.8,.2,1) both;
 }
+/* The ribbon on today's sheet: a bow tied on the top left corner, tilted, over the glass (the bow's own look is in month.css) */
+.pc-sheet > .pc-ribbon-sheet { top: -21px; left: -12px; right: auto; width: clamp(42px, 12vw, 56px); z-index: 4; transform: rotate(-16deg); }
+
+/* Room above the sheet for the bow, so a sheet that fills the screen's height does not cut it off; on a phone on its side there is no height to spare, so the bow sits lower */
+.pc-overlay:has(> .pc-sheet > .pc-ribbon-sheet) { padding-top: max(var(--pc-pad), 26px, env(safe-area-inset-top)); }
+@media (orientation: landscape) and (max-height: 520px) {
+  .pc-overlay:has(> .pc-sheet > .pc-ribbon-sheet) { padding-top: 8px; }
+  .pc-sheet > .pc-ribbon-sheet { top: -7px; width: 38px; }
+}
+
 /* The sheet's content is a column that does not scroll itself: the date and buttons at the top stay put, and only
    the photos (.pc-gallery-scroll) scroll. Every box in the chain can shrink (min-height: 0), which is what lets the
    photos' box take the height that is left. */
