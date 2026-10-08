@@ -19,8 +19,12 @@
 .pc-arrow:hover, .pc-arrow:focus-visible { animation: pc-arrow-wiggle .62s cubic-bezier(.3, .6, .4, 1); }
 .pc-arrow:active { animation: none; transform: scale(.82, .9); transition: transform .08s ease-out; }
 .pc-arrow:focus-visible { outline: 2px solid rgba(var(--pc-teal, 70, 170, 164), 1); outline-offset: -4px; border-radius: 50%; }
+/* Faded away (see useTimedVisible): still there to be reached, and a touch or the pointer brings it back */
+.pc-arrow[data-hidden] { opacity: 0; transition: opacity .5s ease; }
+.pc-arrow:not([data-hidden]) { transition: opacity .25s ease; }
 /* Nothing further that way: dimmed, and no wiggle */
 .pc-arrow[data-off] { opacity: .28; cursor: default; }
+.pc-arrow[data-off][data-hidden] { opacity: 0; }
 .pc-arrow[data-off]:hover, .pc-arrow[data-off]:focus-visible { animation: none; }
 @keyframes pc-arrow-wiggle {
   0%   { transform: translateX(0) scale(1, 1); }

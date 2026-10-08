@@ -13,6 +13,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import SideArrows from '../components/SideArrows.jsx'
 import usePageInk from '../hooks/usePageInk.js'
+import useTimedVisible from '../hooks/useTimedVisible.js'
 import useSwipeNav from '../hooks/useSwipeNav.js'
 import { getBackgroundImage, paperColor } from '../wwn-glass/index.js'
 import { MONTHS, dateKey, fullSources, groupByDate, ordinal, photoCountLabel } from '../lib/dates.js'
@@ -88,6 +89,9 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
     const i = choice[dateKey(year, month, day)] ?? 0
     return i < 0 ? null : srcs[i] ?? null
   }, [byDay, choice, year, month])
+
+  // The side arrows show for 3 seconds when the page opens and after every change of month, then fade away
+  const arrows = useTimedVisible(`${year}-${month}`, 3000, 3000)
 
   /** Moves the sheet to the previous (-1) or next (+1) month. */
   const step = delta => {
@@ -232,7 +236,7 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
       <h2 className="ec-sr" aria-live="polite">{MONTHS[month]} {year}</h2>
 
       {/* Previous and next month at the sides of the screen (the same arrows as the calendar's), like the photo viewer's */}
-      <SideArrows onPrev={() => step(-1)} onNext={() => step(1)} prevLabel="Previous month" nextLabel="Next month" />
+      <SideArrows onPrev={() => step(-1)} onNext={() => step(1)} prevLabel="Previous month" nextLabel="Next month" visible={arrows.visible} onReveal={arrows.reveal} />
 
       <div className="ec-stage" ref={stageRef} {...swipe}>
         <div className="ec-sheet" style={{ width: cssW, height: cssH }}>

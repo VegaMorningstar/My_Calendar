@@ -34,11 +34,16 @@ import usePageInk from './hooks/usePageInk.js'
 import usePanelEdge from './hooks/usePanelEdge.js'
 import usePinchZoom from './hooks/usePinchZoom.js'
 import useSwipeNav from './hooks/useSwipeNav.js'
+import useTimedVisible from './hooks/useTimedVisible.js'
 import useTrackpadSwipe from './hooks/useTrackpadSwipe.js'
 import { MONTHS, countInMonth, dateKey, fullSources, groupByDate, monthCells } from './lib/dates.js'
 import { PANEL_FALLBACK } from './lib/glass-config.js'
 import './styles/base.css'
 import './styles/compact.css'
+
+/** How long (ms) the side arrows show when the app opens, and after the view changes. */
+const ARROWS_FIRST_MS = 5000
+const ARROWS_CHANGE_MS = 3000
 
 export default function PhotoCalendar({
   photos = [],
@@ -110,6 +115,9 @@ export default function PhotoCalendar({
     : countInMonth(byDate, view.y, view.m)
 
   const noun = isYear ? 'year' : 'month'
+  // The side arrows show for 5 seconds when the app opens, then fade away; any move to another month or year (a swipe, a key, an
+  // arrow, the year button) brings them back for 3 seconds
+  const arrows = useTimedVisible(`${view.y}-${view.m}-${view.mode}`, ARROWS_FIRST_MS, ARROWS_CHANGE_MS)
   return (
     <>
     <section
@@ -176,7 +184,7 @@ export default function PhotoCalendar({
         they take the calendar's ink colours from here */}
     {createPortal(
       <div className="pc-arrows-main" style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo }}>
-        <SideArrows onPrev={() => go(-1)} onNext={() => go(1)} prevLabel={`Previous ${noun}`} nextLabel={`Next ${noun}`} />
+        <SideArrows onPrev={() => go(-1)} onNext={() => go(1)} prevLabel={`Previous ${noun}`} nextLabel={`Next ${noun}`} visible={arrows.visible} onReveal={arrows.reveal} />
       </div>,
       document.body,
     )}

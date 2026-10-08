@@ -20,6 +20,7 @@ import { createPortal } from 'react-dom'
 import { GlassButtons, LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
 import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, ordinal, photoCountLabel } from '../lib/dates.js'
 import PhotoViewer from './PhotoViewer.jsx'
+import useTimedVisible from '../hooks/useTimedVisible.js'
 import SideArrows from './SideArrows.jsx'
 import { saveOriginals } from '../lib/saveOriginals.js'
 import usePageInk from '../hooks/usePageInk.js'
@@ -89,6 +90,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   const cancelSelect = () => { setSelected(null); setConfirming(false) }
   const toggle = src => setSelected(cur => { const next = new Set(cur); if (!next.delete(src)) next.add(src); return next })
 
+  // The side arrows show for 3 seconds when the sheet opens and after every change of day, then fade away
+  const arrows = useTimedVisible(`${year}-${month}-${day}`, 3000, 3000)
   /** Which way the last move went, so the new day slides in from the right side. */
   const [slide, setSlide] = useState('next')
 
@@ -241,7 +244,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         <SideArrows
           onPrev={() => stepDay(-1)} onNext={() => stepDay(1)}
           prevLabel={hasPrev ? 'Previous day with photos' : 'No earlier day'} nextLabel={hasNext ? 'Next day with photos' : 'No later day'}
-          prevDisabled={!hasPrev} nextDisabled={!hasNext}
+          prevDisabled={!hasPrev} nextDisabled={!hasNext} visible={arrows.visible} onReveal={arrows.reveal}
         />
       )}
       <div
