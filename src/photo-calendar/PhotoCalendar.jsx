@@ -58,7 +58,6 @@ export default function PhotoCalendar({
   onDeletePhotos,
   originalsOf,
   renderDayAdd,
-  onTodayOpen,
   className = '',
 }) {
   const panelRef = useRef(null)
@@ -185,7 +184,7 @@ export default function PhotoCalendar({
             pageInk={pageInk}
             anim={anim}
             liquidTiles={liquidTiles}
-            onOpenDay={day => { setOpenDay({ year: view.y, month: view.m, day }); if (dateKey(view.y, view.m, day) === todayKey) onTodayOpen?.() }}
+            onOpenDay={day => setOpenDay({ year: view.y, month: view.m, day })}
           />
         )}
       </div>
