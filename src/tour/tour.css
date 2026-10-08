@@ -33,7 +33,6 @@
 .tour-dots span { width: 6px; height: 6px; border-radius: 50%; background: rgba(0, 0, 0, .16); transition: background .2s, transform .2s; }
 .tour-dots .seen { background: rgba(0, 0, 0, .5); }
 .tour-dots .on { background: #000; transform: scale(1.35); }
-.tour-skip { appearance: none; border: 0; background: none; cursor: pointer; padding: 8px 2px; font: italic 1rem 'Playfair Display', Georgia, serif; color: #000; text-decoration: underline; text-underline-offset: 3px; -webkit-tap-highlight-color: transparent; }
 .tour-nav { display: flex; gap: 8px; margin-left: auto; }
 .tour-back, .tour-next { appearance: none; cursor: pointer; border-radius: 22px; height: 40px; padding: 0 20px; font: 600 .86rem 'DM Mono', ui-monospace, monospace; -webkit-tap-highlight-color: transparent; }
 .tour-back { color: #000; background: rgba(0, 0, 0, .07); border: 0; }

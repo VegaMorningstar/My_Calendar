@@ -15,10 +15,12 @@ import useTour from './tour/useTour.js'
 import GetCalendarButton from './GetCalendarButton.jsx'
 import TileStyleToggle, { initialGlassTiles } from './TileStyleToggle.jsx'
 import UpdatePrompt from './pwa/UpdatePrompt.jsx'
-import { LibraryHint, SettingsMenu, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
+import { LibraryHint, SettingsMenu, Toast, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
 /** Height (px) of the bottom row of buttons when it is one line. */
 const FOOTER_ONE_ROW_PX = 60
+/** How long (ms) the "find the tour again" note stays up after the tour is left early. */
+const TOUR_NOTE_MS = 4500
 
 /**
  * True when the page runs under the iPhone status bar. Then the top safe-area inset is more
@@ -134,6 +136,17 @@ export default function App() {
   // The guided tour: it starts by itself the first time the app opens with an empty calendar, and again from "How to use". While it
   // runs the calendar also shows three sample photos on today (never saved), so a new person has a day to open.
   const tour = useTour(library.ready, emptyLibrary)
+  // Leaving the tour early (the cross or Escape) says where to find it again
+  const [tourNote, setTourNote] = useState(false)
+  const tourNoteTimer = useRef(0)
+  const onTourClose = reason => {
+    tour.finish()
+    if (reason !== 'skipped') return
+    clearTimeout(tourNoteTimer.current)
+    setTourNote(true)
+    tourNoteTimer.current = setTimeout(() => setTourNote(false), TOUR_NOTE_MS)
+  }
+  useEffect(() => () => clearTimeout(tourNoteTimer.current), [])
   const calendarPhotos = useMemo(() => (tour.open ? [...library.photos, ...samplePhotos()] : library.photos), [tour.open, library.photos])
 
   return (
@@ -159,7 +172,8 @@ export default function App() {
       </div>
       {exportOpen && <ExportPage photos={library.photos} year={calView.year} month={calView.month} onClose={() => setExportOpen(false)} />}
       <UpdatePrompt />
-      {tour.open && <Tour onClose={tour.finish} />}
+      {tour.open && <Tour onClose={onTourClose} />}
+      <Toast text="You can find the tour again in the gear menu, under How to use?" open={tourNote} />
     </main>
   )
 }

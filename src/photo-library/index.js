@@ -12,3 +12,4 @@ export { default as useWallpaper } from './useWallpaper.js'
 export const rememberWallpaperEdges = (top, bottom) => writeWallpaperHint({ top, bottom })
 export { default as LibraryHint } from './LibraryHint.jsx'
 export { captureDate } from './exif-date.js'
+export { default as Toast } from './Toast.jsx'

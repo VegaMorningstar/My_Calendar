@@ -1,10 +1,10 @@
 /**
- * The guided tour: a dimmed screen with a spotlight on the part of the app being explained, a short card, and Back, Next and Skip.
+ * The guided tour: a dimmed screen with a spotlight on the part of the app being explained, a short card, and Back, Next and a cross to leave.
  *
  * It runs on the real app. Each step sets a "script" (photo-calendar/lib/calendarScript.js) that puts the calendar in the state to
  * show (the year view, today's sheet open, the settings menu open), waits for what it points at to be on screen, and moves the
  * spotlight to it. While it runs, the tour covers the app, so nothing under it can be pressed by accident; it can always be left:
- * Skip, the cross on the card, or Escape. Right and Left arrow keys step, Enter goes on.
+ * the cross on the card, or Escape. Right and Left arrow keys step, Enter goes on.
  */
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { setCalendarScript } from '../photo-calendar/index.js'
@@ -90,7 +90,8 @@ const SHIELD = (
 )
 
 /**
- * @param {() => void} onClose  called when the tour ends, finished or skipped
+ * @param {(reason: 'done' | 'skipped') => void} onClose  called when the tour ends: 'done' after the last step, 'skipped' when it is left early
+ *   (the cross, or Escape)
  */
 export default function Tour({ onClose }) {
   const [i, setI] = useState(0)
@@ -147,12 +148,13 @@ export default function Tour({ onClose }) {
   useEffect(() => { nextRef.current?.focus({ preventScroll: true }) }, [i])
 
   const go = d => setI(n => Math.min(STEPS.length - 1, Math.max(0, n + d)))
-  const next = () => (last ? onClose() : go(1))
+  const leave = () => onClose('skipped')
+  const next = () => (last ? onClose('done') : go(1))
 
   // Keys belong to the tour while it is up: Escape leaves, the arrows step. Captured, so the calendar behind never sees them.
   useEffect(() => {
     const onKey = e => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') leave()
       else if (e.key === 'ArrowRight' || e.key === 'Enter') { if (e.target?.closest?.('button') && e.key === 'Enter') return; next() }
       else if (e.key === 'ArrowLeft') go(-1)
       else return
@@ -195,7 +197,7 @@ export default function Tour({ onClose }) {
       {anchor && step.gesture && <span key={`${i}-${anchor.x}`} className={`tour-hint tour-hint-${step.gesture}`} style={{ left: anchor.x + anchor.w / 2, top: anchor.y + anchor.h / 2 }} aria-hidden="true"><i /><i /></span>}
 
       <div key={i} ref={cardRef} className={`tour-card tour-${place}`}>
-        <button type="button" className="tour-x" onClick={onClose} aria-label="Close the tour" title="Close the tour">
+        <button type="button" className="tour-x" onClick={leave} aria-label="Close the tour" title="Close the tour">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
         </button>
         {step.icon === 'shield' && <div className="tour-icon">{SHIELD}</div>}
@@ -205,7 +207,6 @@ export default function Tour({ onClose }) {
           <div className="tour-dots" aria-label={`Step ${i + 1} of ${STEPS.length}`}>
             {STEPS.map((_, k) => <span key={k} className={k === i ? 'on' : k < i ? 'seen' : ''} />)}
           </div>
-          <button type="button" className="tour-skip" onClick={onClose}>Skip tour</button>
           <div className="tour-nav">
             {i > 0 && <button type="button" className="tour-back" onClick={() => go(-1)}>Back</button>}
             <button type="button" className="tour-next" onClick={next} ref={nextRef}>{last ? 'Done' : 'Next'}</button>
