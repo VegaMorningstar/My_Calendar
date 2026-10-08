@@ -65,6 +65,14 @@ export default function CameraDialog({ onPhoto, onClose }) {
       <button type="button" className="cam-btn cam-close" onClick={onClose} aria-label="Close the camera" title="Close">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
       </button>
+      {/* Flip: top right, level with Close; turns the picture left to right, for the preview and the saved photo alike */}
+      <button type="button" className={`cam-btn cam-flipbtn${flipped ? ' cam-flipbtn-on' : ''}`} onClick={toggleFlip} aria-pressed={flipped} aria-label="Flip the picture left to right" title="Flip the picture left to right">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M12 3v18" strokeDasharray="2.2 2.6" />
+          <path d="M9.5 6.5 3.5 18h6z" />
+          <path d="M14.5 6.5 20.5 18h-6z" fill="currentColor" fillOpacity=".45" />
+        </svg>
+      </button>
       <div className="cam-stack">
         {/* The Polaroid: white frame, the picture, and the date written underneath */}
         <figure className="cam-polaroid" style={{ '--cam-ar': ratio }}>
@@ -92,14 +100,6 @@ export default function CameraDialog({ onPhoto, onClose }) {
               <circle cx="32" cy="32" r="20.5" fill="rgba(255,255,255,.55)" />
             </svg>
           </div>
-          {/* Flip: turns the picture left to right, for the preview and the saved photo alike */}
-          <button type="button" className={`cam-btn cam-flipbtn${flipped ? ' cam-flipbtn-on' : ''}`} onClick={toggleFlip} aria-pressed={flipped} aria-label="Flip the picture left to right" title="Flip the picture left to right">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M12 3v18" strokeDasharray="2.2 2.6" />
-              <path d="M9.5 6.5 3.5 18h6z" />
-              <path d="M14.5 6.5 20.5 18h-6z" fill="currentColor" fillOpacity=".45" />
-            </svg>
-          </button>
         </div>
       </div>
     </div>
