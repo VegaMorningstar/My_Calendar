@@ -13,6 +13,10 @@ import { captureFrame, useCameraStream } from './useCameraStream.js'
 import './camera.css'
 
 /** The shutter: a round WWN glass tile, 64px, with the white ring drawn over it. */
+/** Whether the picture is turned left to right is remembered on the device. A laptop camera's picture is not turned by the page, and some cameras turn it themselves, so the person decides. */
+const FLIP_KEY = 'mycal.camFlip'
+const savedFlip = () => { try { return localStorage.getItem(FLIP_KEY) === '1' } catch { return false } }
+
 const SHUTTER_MATERIAL = { ...BUTTON_MATERIAL, size: 64, radius: 32, edge: 11 }
 
 /** '6 October 2026': the date written on the print. */
@@ -25,6 +29,7 @@ export const printDate = (d = new Date()) => d.toLocaleDateString('en-GB', { day
 export default function CameraDialog({ onPhoto, onClose }) {
   const videoRef = useRef(null)
   const [saveError, setSaveError] = useState(false)
+  const [flipped, setFlipped] = useState(savedFlip) // the picture is shown, and saved, turned left to right
   const [today, setToday] = useState(() => printDate())
   // The picture's shape (width over height), so the window in the print is exactly that shape: no bars at the sides or above
   const { state: streamState, message: streamMessage, ratio } = useCameraStream(videoRef)
@@ -42,8 +47,14 @@ export default function CameraDialog({ onPhoto, onClose }) {
     }
   }, [onClose])
 
+  const toggleFlip = () => {
+    const next = !flipped
+    setFlipped(next)
+    try { localStorage.setItem(FLIP_KEY, next ? '1' : '0') } catch { /* not saved, still flips */ }
+  }
+
   const shoot = async () => {
-    const file = await captureFrame(videoRef.current)
+    const file = await captureFrame(videoRef.current, 1, flipped)
     if (file) onPhoto(file)
     else if (videoRef.current?.videoWidth) setSaveError(true)
   }
@@ -58,7 +69,7 @@ export default function CameraDialog({ onPhoto, onClose }) {
         {/* The Polaroid: white frame, the picture, and the date written underneath */}
         <figure className="cam-polaroid" style={{ '--cam-ar': ratio }}>
           <div className="cam-window">
-            <video ref={videoRef} className="cam-video" playsInline muted autoPlay />
+            <video ref={videoRef} className="cam-video" style={flipped ? { transform: 'scaleX(-1)' } : undefined} playsInline muted autoPlay />
             {state !== 'live' && <p className="cam-note" role="status">{state === 'error' ? message : 'Starting the camera...'}</p>}
           </div>
           <figcaption className="cam-date">{today}</figcaption>
@@ -81,6 +92,14 @@ export default function CameraDialog({ onPhoto, onClose }) {
               <circle cx="32" cy="32" r="20.5" fill="rgba(255,255,255,.55)" />
             </svg>
           </div>
+          {/* Flip: turns the picture left to right, for the preview and the saved photo alike */}
+          <button type="button" className={`cam-btn cam-flipbtn${flipped ? ' cam-flipbtn-on' : ''}`} onClick={toggleFlip} aria-pressed={flipped} aria-label="Flip the picture left to right" title="Flip the picture left to right">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 3v18" strokeDasharray="2.2 2.6" />
+              <path d="M9.5 6.5 3.5 18h6z" />
+              <path d="M14.5 6.5 20.5 18h-6z" fill="currentColor" fillOpacity=".45" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>

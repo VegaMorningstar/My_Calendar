@@ -79,9 +79,10 @@ export function useCameraStream(videoRef, { facing = 'environment', deviceId = n
  * sides of a wider picture) and may be zoomed in digitally; both are applied here, at the camera's full resolution.
  * @param {HTMLVideoElement} video
  * @param {number} [digitalZoom]  how far the picture is enlarged on screen (1 = not at all)
+ * @param {boolean} [flip]  true to turn the picture left to right, as the person asked to see it
  * @returns {Promise<File|null>}  null when there was nothing to take
  */
-export function captureFrame(video, digitalZoom = 1) {
+export function captureFrame(video, digitalZoom = 1, flip = false) {
   if (!video || !video.videoWidth) return Promise.resolve(null)
   const vw = video.videoWidth, vh = video.videoHeight
   // The part of the picture that shows: the box's own shape, cut from the middle, then narrowed by the zoom
@@ -93,7 +94,9 @@ export function captureFrame(video, digitalZoom = 1) {
   const c = document.createElement('canvas')
   c.width = Math.round(sw)
   c.height = Math.round(sh)
-  c.getContext('2d').drawImage(video, sx, sy, sw, sh, 0, 0, c.width, c.height)
+  const ctx = c.getContext('2d')
+  if (flip) { ctx.translate(c.width, 0); ctx.scale(-1, 1) }
+  ctx.drawImage(video, sx, sy, sw, sh, 0, 0, c.width, c.height)
   const taken = new Date()
   return new Promise(resolve => {
     c.toBlob(blob => {

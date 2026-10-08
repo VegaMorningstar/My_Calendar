@@ -26,7 +26,11 @@
   color: #000; transform: rotate(-1deg);
 }
 
-.cam-bar { width: 100%; display: flex; align-items: center; justify-content: center; }
+.cam-bar { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; justify-items: center; }
+/* The shutter stays in the middle; Flip sits beside it, in the third column */
+.cam-bar .cam-shutter-slot { grid-column: 2; grid-row: 1; }
+.cam-flipbtn { grid-column: 3; grid-row: 1; justify-self: start; margin-left: 22px; transition: background .15s; }
+.cam-flipbtn-on { background: rgba(255, 255, 255, .34); border-color: rgba(255, 255, 255, .6); }
 .cam-btn {
   appearance: none; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: #fff;
   background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .3); -webkit-tap-highlight-color: transparent;
