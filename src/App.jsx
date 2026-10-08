@@ -5,10 +5,13 @@
  * The calendar shows whatever photos the user has imported from their device,
  * on top of the wallpaper they chose (or the frosted default), which is painted on the page root.
  */
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { viewportDeficit } from './diagnostics.js'
 import { ExportPage, PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor } from './photo-calendar/index.js'
 import CameraButton from './CameraButton.jsx'
+import Tour from './tour/Tour.jsx'
+import { samplePhotos } from './tour/samplePhotos.js'
+import useTour from './tour/useTour.js'
 import GetCalendarButton from './GetCalendarButton.jsx'
 import TileStyleToggle, { initialGlassTiles } from './TileStyleToggle.jsx'
 import UpdatePrompt from './pwa/UpdatePrompt.jsx'
@@ -128,6 +131,11 @@ export default function App() {
   // While the calendar is empty, a hint line hangs under it; the calendar leaves room for that
   const emptyLibrary = library.photos.length === 0 && library.progress === null
 
+  // The guided tour: it starts by itself the first time the app opens with an empty calendar, and again from "How to use". While it
+  // runs the calendar also shows three sample photos on today (never saved), so a new person has a day to open.
+  const tour = useTour(library.ready, emptyLibrary)
+  const calendarPhotos = useMemo(() => (tour.open ? [...library.photos, ...samplePhotos()] : library.photos), [tour.open, library.photos])
+
   return (
     <main className="stage" style={{ '--pc-extra-height': `${(emptyLibrary ? 56 : 0) + footerExtra}px` }}>
       {underStatusBar && <div className="app-status-scrim" aria-hidden="true" />}
@@ -137,12 +145,12 @@ export default function App() {
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
-          <PhotoCalendar photos={library.photos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<CameraButton onFiles={library.addFiles} />} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} />
-          <LibraryHint library={library} />
+          <PhotoCalendar photos={calendarPhotos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<CameraButton onFiles={library.addFiles} />} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} />
+          {!tour.open && <LibraryHint library={library} />}
         </div>
       </div>
       <div className="stage-footer" ref={footerRef}>
-        <SettingsMenu library={library} wallpaper={wallpaper} />
+        <SettingsMenu library={library} wallpaper={wallpaper} onHowTo={tour.start} />
         {/* The two buttons on the right stay together: on a narrow screen they drop to a second row as a pair */}
         <div className="stage-footer-right">
           <TileStyleToggle glass={glassTiles} onChange={setGlassTiles} />
@@ -151,6 +159,7 @@ export default function App() {
       </div>
       {exportOpen && <ExportPage photos={library.photos} year={calView.year} month={calView.month} onClose={() => setExportOpen(false)} />}
       <UpdatePrompt />
+      {tour.open && <Tour onClose={tour.finish} />}
     </main>
   )
 }

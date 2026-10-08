@@ -6,6 +6,10 @@
 export { default as PhotoCalendar } from './PhotoCalendar.jsx'
 export { default } from './PhotoCalendar.jsx'
 
+// A way for the page around the calendar (the guided tour) to put the calendar's screens in a given state
+export { getCalendarScript, setCalendarScript, useCalendarScript } from './lib/calendarScript.js'
+export { dateKey } from './lib/dates.js'
+
 // Pieces, for building a different layout around the same parts
 export { default as MonthView } from './components/MonthView.jsx'
 export { default as YearView } from './components/YearView.jsx'

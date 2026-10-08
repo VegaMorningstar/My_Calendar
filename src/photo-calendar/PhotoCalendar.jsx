@@ -30,6 +30,7 @@ import MonthView from './components/MonthView.jsx'
 import PhotoCount from './components/PhotoCount.jsx'
 import YearView from './components/YearView.jsx'
 import useCalendarView from './hooks/useCalendarView.js'
+import { useCalendarScript } from './lib/calendarScript.js'
 import usePageInk from './hooks/usePageInk.js'
 import usePanelEdge from './hooks/usePanelEdge.js'
 import usePinchZoom from './hooks/usePinchZoom.js'
@@ -68,6 +69,30 @@ export default function PhotoCalendar({
   const [openDay, setOpenDay] = useState(null)
   // Keyboard shortcuts pause while the day view is open
   const { view, anim, isYear, go, zoom, toggleZoom, goTo } = useCalendarView({ initialDate, enabled: !openDay && !paused })
+
+  // A script from the page around the calendar (the guided tour, see lib/calendarScript.js) can put the calendar in a state: the
+  // year view, or today's sheet open. When the script is cleared the calendar goes back to the month with nothing open.
+  const script = useCalendarScript()
+  const hadScript = useRef(false)
+  const now0 = useRef(view)
+  now0.current = view
+  useEffect(() => {
+    const t = new Date()
+    const here = now0.current
+    if (script) {
+      hadScript.current = true
+      if (script.view && script.view !== here.mode) zoom(script.view)
+      if (script.day) {
+        if (here.y !== t.getFullYear() || here.m !== t.getMonth()) goTo(t.getFullYear(), t.getMonth())
+        setOpenDay({ year: t.getFullYear(), month: t.getMonth(), day: t.getDate() })
+      } else setOpenDay(null)
+    } else if (hadScript.current) {
+      hadScript.current = false
+      setOpenDay(null)
+      if (here.mode !== 'month') zoom('month')
+      if (here.y !== t.getFullYear() || here.m !== t.getMonth()) goTo(t.getFullYear(), t.getMonth())
+    }
+  }, [script]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Tell the page around the calendar which month (or year) is showing
   useEffect(() => { onViewChange?.({ year: view.y, month: view.m, mode: view.mode }) }, [view.y, view.m, view.mode]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -184,7 +209,7 @@ export default function PhotoCalendar({
         they take the calendar's ink colours from here */}
     {createPortal(
       <div className="pc-arrows-main" style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo }}>
-        <SideArrows onPrev={() => go(-1)} onNext={() => go(1)} prevLabel={`Previous ${noun}`} nextLabel={`Next ${noun}`} visible={arrows.visible} onReveal={arrows.reveal} />
+        <SideArrows onPrev={() => go(-1)} onNext={() => go(1)} prevLabel={`Previous ${noun}`} nextLabel={`Next ${noun}`} visible={arrows.visible || !!script?.arrows} onReveal={arrows.reveal} />
       </div>,
       document.body,
     )}

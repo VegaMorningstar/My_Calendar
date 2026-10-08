@@ -1,7 +1,7 @@
 /**
  * The settings button: a gear that opens a small menu with
  *   Import photos / Add more photos, Remove photos, Set wallpaper, Reset wallpaper,
- *   and Info (how the app treats the photos).
+ *   How to use (the guided tour) and Info (how the app treats the photos).
  * Also owns the toast that reports what happened (photos added, wallpaper set).
  *
  * The gear and the menu are Write-With-Nature glass, the same pieces the calendar
@@ -13,7 +13,7 @@
  * decides exactly which photos to use, and everything is stored on the device.
  */
 import { useEffect, useRef, useState } from 'react'
-import { BUTTON_MATERIAL, GlassButtons, LiquidGlassPanel, ordinal, usePageInk, usePanelEdge, usePanelGlass } from '../photo-calendar/index.js'
+import { BUTTON_MATERIAL, GlassButtons, LiquidGlassPanel, getCalendarScript, ordinal, useCalendarScript, usePageInk, usePanelEdge, usePanelGlass } from '../photo-calendar/index.js'
 import DebugPanel from '../DebugPanel.jsx'
 import InfoItem from './InfoItem.jsx'
 import Toast from './Toast.jsx'
@@ -38,11 +38,15 @@ const MENU_FALLBACK = { scale: -60, chroma: 4, blur: 8, saturate: 1.25, aberrati
 /**
  * @param {object}   library    the value returned by usePhotoLibrary()
  * @param {object}   wallpaper  the value returned by useWallpaper()
+ * @param {Function} [onHowTo]  starts the guided tour (the "How to use" item)
  */
-export default function SettingsMenu({ library, wallpaper }) {
+export default function SettingsMenu({ library, wallpaper, onHowTo }) {
   const { photos, progress, lastResult, addFiles, removeAll } = library
   const [open, setOpen] = useState(false)
   const [debug, setDebug] = useState(false) // the diagnostics card, opened by holding Info
+  // The guided tour can open the menu to point at it, and the menu stays open while it explains it
+  const script = useCalendarScript()
+  useEffect(() => { if (script) setOpen(!!script.menu) }, [script])
   const rootRef = useRef(null)
   const gearSlotRef = useRef(null)
   const gearInk = usePageInk(gearSlotRef) // the icon's colour follows what is behind the gear
@@ -70,7 +74,7 @@ export default function SettingsMenu({ library, wallpaper }) {
   // ── Closing: a press outside the menu, or Escape ───────────────────────────
   useEffect(() => {
     if (!open) return
-    const onPress = e => { if (!rootRef.current?.contains(e.target)) setOpen(false) }
+    const onPress = e => { if (!getCalendarScript() && !rootRef.current?.contains(e.target)) setOpen(false) }
     const onKey = e => {
       if (e.key !== 'Escape') return
       e.stopPropagation() // the calendar behind must not also react to Escape
@@ -141,6 +145,11 @@ export default function SettingsMenu({ library, wallpaper }) {
           {hasWallpaper && (
             <button type="button" role="menuitem" className="lib-item" onClick={() => { setOpen(false); wallpaper.clear() }} disabled={busy}>
               Reset wallpaper
+            </button>
+          )}
+          {onHowTo && (
+            <button type="button" role="menuitem" className="lib-item" onClick={() => { setOpen(false); onHowTo() }}>
+              How to use?
             </button>
           )}
           <InfoItem onDebug={() => { setOpen(false); setDebug(true) }} />

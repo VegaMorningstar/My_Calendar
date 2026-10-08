@@ -46,8 +46,10 @@
   background: rgba(var(--lib-hi), var(--lib-veil, 0));
 }
 
+/* All the text in the menu is in italics, in the app's italic face (Playfair Display, like the matte and Get your calendar buttons;
+   DM Mono, the menu's old face, has no italic here) */
 .lib-item {
-  appearance: none; cursor: pointer; font: inherit; font-size: .82rem; letter-spacing: .04em;
+  appearance: none; cursor: pointer; font: italic 400 1.02rem 'Playfair Display', Georgia, serif; letter-spacing: .01em;
   min-height: 44px; padding: 0 16px; border: 0; border-radius: 14px; text-align: left;
   color: rgb(var(--lib-ink)); background: transparent;
   -webkit-tap-highlight-color: transparent; transition: background .15s;
@@ -89,12 +91,12 @@
 .lib-menu-wrap:has(.lib-info-text) { width: min(340px, calc(100vw - 24px)); }
 .lib-info-text {
   max-height: clamp(80px, calc(100dvh - 360px), 340px); overflow-y: auto; padding: 4px 16px 10px; scrollbar-width: none;
-  font-size: .74rem; line-height: 1.5; letter-spacing: .01em; color: rgb(var(--lib-ink));
+  font: italic 400 .9rem/1.45 'Playfair Display', Georgia, serif; letter-spacing: .005em; color: rgb(var(--lib-ink));
 }
 .lib-info-text::-webkit-scrollbar { display: none; }
 .lib-info-text p { margin: 0 0 8px; }
 .lib-info-text p:last-child { margin-bottom: 0; }
-.lib-info-text strong { font-weight: 600; }
+.lib-info-text strong { font-weight: 700; }
 
 /* ── The "Get your calendar" button: a glass tile with a lilac glow, at the right end of the row ── */
 .lib-get { flex: none; }

@@ -23,6 +23,7 @@ import PhotoViewer from './PhotoViewer.jsx'
 import useTimedVisible from '../hooks/useTimedVisible.js'
 import SideArrows from './SideArrows.jsx'
 import { saveOriginals } from '../lib/saveOriginals.js'
+import { useCalendarScript } from '../lib/calendarScript.js'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
 import usePinchZoom from '../hooks/usePinchZoom.js'
@@ -153,6 +154,15 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
 
   // A new day starts at the top of its photos, with nothing selected
   useEffect(() => { scrollRef.current?.scrollTo({ top: 0 }); setSelected(null); setConfirming(false) }, [year, month, day])
+
+  // A script from the page around the calendar (the guided tour) can open the first photo full screen, or show the photos in
+  // selecting mode, so the tour can show what they look like (lib/calendarScript.js). Declared after the reset above.
+  const script = useCalendarScript()
+  useEffect(() => {
+    if (!script) return
+    setViewing(script.photo && srcs.length ? 0 : null)
+    setSelected(script.select && srcs.length ? new Set([srcs[0]]) : null)
+  }, [script, srcs.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Swipe between days ──────────────────────────────────────────────────────
   const drag = useRef(null)
