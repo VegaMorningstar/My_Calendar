@@ -20,3 +20,4 @@ cursor-butterflies/
 - `follow.ts` imports the artwork from `./butterfly` instead of `../butterflies/butterfly`.
 - The spaced dashes in the comments of both files are plain hyphens (this repo bans the long dash); no code changed.
 - The app mounts three (WWN's default is five; `count` is the dial).
+- The app hides the canvas while a photo is full screen (`.pc-photo-open #cursor-butterflies-canvas` in `photo-calendar/styles/detail.css`); `follow.ts` is not involved.

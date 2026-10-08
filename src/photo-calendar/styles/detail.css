@@ -265,3 +265,6 @@
   .pc-detail-meta { margin-top: 4px; font-size: .62rem; }
 }
 .pc-gallery-scroll::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* While a photo is full screen, the cursor butterflies (a canvas on <body>, above everything) are not shown */
+.pc-photo-open #cursor-butterflies-canvas { visibility: hidden; }

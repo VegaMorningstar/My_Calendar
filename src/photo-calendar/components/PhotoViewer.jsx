@@ -123,6 +123,12 @@ export default function PhotoViewer({ srcs, index, onIndex, onClose }) {
   const setBackdrop = a => rootRef.current.style.setProperty('--pc-bg-a', String(a))
 
   // A new photo starts fitted to the screen
+  // Tells the page a photo is full screen, so what flies over the page (the cursor butterflies, see src/cursor-butterflies) stays out of the picture
+  useEffect(() => {
+    document.documentElement.classList.add('pc-photo-open')
+    return () => document.documentElement.classList.remove('pc-photo-open')
+  }, [])
+
   useEffect(() => { reset(false); setBackdrop(0.94) }, [index]) // eslint-disable-line
 
   // ── Keyboard ────────────────────────────────────────────────────────────────
