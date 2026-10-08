@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { viewportDeficit } from './diagnostics.js'
 import { ExportPage, PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor, useCalendarScript } from './photo-calendar/index.js'
 import AddPhotosButton from './AddPhotosButton.jsx'
+import CursorButterflies from './cursor-butterflies/CursorButterflies.jsx'
 import CameraButton from './CameraButton.jsx'
 import Tour from './tour/Tour.jsx'
 import { samplePhotos } from './tour/samplePhotos.js'
@@ -22,6 +23,8 @@ import { LibraryHint, SettingsMenu, Toast, rememberWallpaperEdges, usePhotoLibra
 const FOOTER_ONE_ROW_PX = 60
 /** How long (ms) the "find the tour again" note stays up after the tour is left early. */
 const TOUR_NOTE_MS = 4500
+/** How many butterflies follow the cursor. */
+const BUTTERFLIES = 3
 
 /**
  * True when the page runs under the iPhone status bar. Then the top safe-area inset is more
@@ -189,6 +192,8 @@ export default function App() {
       </div>
       {exportOpen && <ExportPage photos={calendarPhotos} year={calView.year} month={calView.month} onClose={() => setExportOpen(false)} />}
       <UpdatePrompt />
+      {/* Three blue butterflies that follow the cursor, from Write-With-Nature (src/cursor-butterflies) */}
+      <CursorButterflies count={BUTTERFLIES} />
       {tour.open && <Tour onClose={onTourClose} />}
       <Toast text="You can find the tour again in the gear menu, under How to use?" open={tourNote} />
     </main>
