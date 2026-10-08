@@ -21,14 +21,14 @@
     --pc-tile-max: calc(var(--pc-tile-h) * var(--pc-tile-ratio));
     /* Exactly seven boxes, six 3px gaps and the panel's 14px side padding, so a box is as wide as --pc-tile-max says (the
        general formula assumes 4px gaps and 22px padding, which would make the boxes, and so the rows, slightly bigger). */
-    width: min(1400px, 100%, calc(7 * var(--pc-tile-max) + 6 * 3px + 28px));
+    width: min(1400px, calc(100% - 2 * var(--pc-arrow-room, 0px)), calc(7 * var(--pc-tile-max) + 6 * 3px + 28px));
   }
   .pc-panel {
     display: flex; flex-direction: column;
     padding: 6px 14px 10px; --pc-panel-r: 22px; --pc-gap: 3px; --pc-radius: 7px;
   }
 
-  /* One line: title on the left, buttons on the right (they are 54px tall with padding; tuck that in) */
+  /* One line: the title and the year button */
   .pc-head { flex-wrap: nowrap; margin-bottom: 0; }
   .pc-title { width: auto; gap: 8px; }
   .pc-title-row { --pc-month-size: 1.45rem; }
@@ -37,7 +37,6 @@
   /* No room for a line under the panel: the control sits at the right of the panel instead, level with its bottom edge */
   .pc-under { display: block; margin: 0; }
   .pc-under-right { position: absolute; right: -52px; bottom: 0; margin: 0; }
-  .pc-nav { margin: -12px 0; }
 
   .pc-weekdays { margin: 3px 0 2px; }
   .pc-weekdays span { font-size: .62rem; letter-spacing: .03em; }

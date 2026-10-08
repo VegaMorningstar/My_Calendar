@@ -21,9 +21,11 @@
  *   className     extra class on the root element
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { LiquidGlassPanel, usePanelGlass } from './wwn-glass/index.js'
 import CalendarHeader from './components/CalendarHeader.jsx'
 import DayDetail from './components/DayDetail.jsx'
+import SideArrows from './components/SideArrows.jsx'
 import MonthView from './components/MonthView.jsx'
 import PhotoCount from './components/PhotoCount.jsx'
 import YearView from './components/YearView.jsx'
@@ -107,7 +109,9 @@ export default function PhotoCalendar({
     ? MONTHS.reduce((n, _, m) => n + countInMonth(byDate, view.y, m), 0)
     : countInMonth(byDate, view.y, view.m)
 
+  const noun = isYear ? 'year' : 'month'
   return (
+    <>
     <section
       className={`pc-root ${className}`}
       aria-label="Photo calendar"
@@ -121,7 +125,7 @@ export default function PhotoCalendar({
       <div className={`pc-panel${isYear ? ' pc-bare' : ''}`} ref={panelRef} {...swipe}>
         {/* The year view has no glass surface: its contents sit straight on the wallpaper */}
         {!isYear && <LiquidGlassPanel params={glassEdge} />}
-        <CalendarHeader view={view} isYear={isYear} onStep={go} onToggleZoom={toggleZoom} />
+        <CalendarHeader view={view} isYear={isYear} onToggleZoom={toggleZoom} />
 
         {isYear ? (
           <YearView
@@ -168,5 +172,14 @@ export default function PhotoCalendar({
         />
       )}
     </section>
+    {/* Previous and next at the sides of the screen. On <body>, because the calendar's containment would trap a fixed-position child;
+        they take the calendar's ink colours from here */}
+    {createPortal(
+      <div className="pc-arrows-main" style={{ '--pc-ink': pageInk.ink, '--pc-hi': pageInk.halo }}>
+        <SideArrows onPrev={() => go(-1)} onNext={() => go(1)} prevLabel={`Previous ${noun}`} nextLabel={`Next ${noun}`} />
+      </div>,
+      document.body,
+    )}
+    </>
   )
 }

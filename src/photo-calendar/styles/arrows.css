@@ -1,0 +1,46 @@
+/*
+ * The side arrows (SideArrows): a plain chevron at each side of the screen, level with its middle.
+ * --pc-arrow-room is the width at each side that panels leave free for them (a panel's width is held to 100% less twice this).
+ */
+:root { --pc-arrow-room: 56px; }
+@media (max-width: 560px) { :root { --pc-arrow-room: 28px; } }
+
+.pc-arrow {
+  position: fixed; z-index: 5; top: 50%; margin-top: -22px; width: 44px; height: 44px; padding: 0; flex: none;
+  appearance: none; border: 0; background: none; cursor: pointer; display: grid; place-items: center;
+  color: rgb(var(--pc-ink, 0, 0, 0)); filter: drop-shadow(0 1px 0 rgba(var(--pc-hi, 255, 255, 255), .7));
+  -webkit-tap-highlight-color: transparent; transition: opacity .25s ease;
+}
+.pc-arrow svg { display: block; }
+.pc-arrow-prev { left: max(14px, env(safe-area-inset-left)); --nudge: -3px; }
+.pc-arrow-next { right: max(14px, env(safe-area-inset-right)); --nudge: 3px; }
+/* Hover (or keyboard focus, or the touch that starts a tap): the arrow wiggles like jelly, pushed out the way it points and
+   settling back; pressing squashes it. */
+.pc-arrow:hover, .pc-arrow:focus-visible { animation: pc-arrow-wiggle .62s cubic-bezier(.3, .6, .4, 1); }
+.pc-arrow:active { animation: none; transform: scale(.82, .9); transition: transform .08s ease-out; }
+.pc-arrow:focus-visible { outline: 2px solid rgba(var(--pc-teal, 70, 170, 164), 1); outline-offset: -4px; border-radius: 50%; }
+/* Nothing further that way: dimmed, and no wiggle */
+.pc-arrow[data-off] { opacity: .28; cursor: default; }
+.pc-arrow[data-off]:hover, .pc-arrow[data-off]:focus-visible { animation: none; }
+@keyframes pc-arrow-wiggle {
+  0%   { transform: translateX(0) scale(1, 1); }
+  16%  { transform: translateX(var(--nudge)) scale(1.1, .92); }
+  34%  { transform: translateX(calc(var(--nudge) * -.35)) scale(.94, 1.07); }
+  52%  { transform: translateX(calc(var(--nudge) * .3)) scale(1.04, .97); }
+  70%  { transform: translateX(calc(var(--nudge) * -.1)) scale(.99, 1.02); }
+  100% { transform: translateX(0) scale(1, 1); }
+}
+@media (prefers-reduced-motion: reduce) { .pc-arrow:hover, .pc-arrow:focus-visible { animation: none; } }
+@media (max-width: 560px) {
+  .pc-arrow { width: 32px; height: 32px; margin-top: -16px; }
+  .pc-arrow svg { width: 22px; height: 22px; }
+  .pc-arrow-prev { left: max(0px, env(safe-area-inset-left)); }
+  .pc-arrow-next { right: max(0px, env(safe-area-inset-right)); }
+  /* The button is small, so the area that answers a tap is larger than it looks */
+  .pc-arrow::after { content: ''; position: absolute; inset: -8px; border-radius: 50%; }
+}
+
+/* The calendar's own arrows (in a wrapper on <body>) are cleared with the rest of the page while a day or the export page is open
+   (see app.css); the day sheet and the export page have arrows of their own */
+.pc-arrows-main { display: contents; }
+.pc-day-open .pc-arrows-main .pc-arrow, .pc-export-open .pc-arrows-main .pc-arrow { opacity: 0; pointer-events: none; }

@@ -3,7 +3,7 @@
  *
  * Photos show as a grid of square thumbnails; tapping one opens it full screen
  * in PhotoViewer. Moving between days:
- *   Left / Right arrow keys, or a horizontal swipe, or the < > buttons
+ *   Left / Right arrow keys, or a horizontal swipe, or the arrows at the sides of the screen
  *   go to the previous / next date that has photos.
  * Deleting works as in the iPhone Photos app (when the page gives `onDelete`): press and hold a photo and it is selected, every
  * photo of the day shows an empty circle, and a tap on a photo adds it to or takes it off the selection. The header says how many
@@ -20,11 +20,12 @@ import { createPortal } from 'react-dom'
 import { GlassButtons, LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
 import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, ordinal, photoCountLabel } from '../lib/dates.js'
 import PhotoViewer from './PhotoViewer.jsx'
+import SideArrows from './SideArrows.jsx'
 import { saveOriginals } from '../lib/saveOriginals.js'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
 import usePinchZoom from '../hooks/usePinchZoom.js'
-import { CLOSE_MATERIAL, NAV_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
+import { CLOSE_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
 
@@ -221,12 +222,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
 
   const weekday = FULL_WEEKDAYS[new Date(year, month, day).getDay()]
   // Blurred in the middle, but not at the rim: edgeBlurMultiplier 0 keeps the edge at full sharpness, so it still refracts crisply
-  const navMaterial = { ...NAV_MATERIAL, letterSize: 22, ...WHITE_INK, tintStrength: 0, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0 }
   const closeMaterial = { ...CLOSE_MATERIAL, ...WHITE_INK, tintStrength: 0, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0 }
-  const navItems = [
-    { key: 'prev-day', label: '<', title: hasPrev ? 'Previous day with photos' : 'No earlier day', onClick: () => stepDay(-1), fallbackClass: 'pc-round' },
-    { key: 'next-day', label: '>', title: hasNext ? 'Next day with photos' : 'No later day', onClick: () => stepDay(1), fallbackClass: 'pc-round' },
-  ]
   const closeItem = [{
     key: 'close', label: '×', title: 'Close', onClick: onClose,
     fallbackClass: 'pc-round',
@@ -240,6 +236,14 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
       // Only a press on the veil itself counts as "clicking away", not one inside the sheet
       onMouseDown={e => { if (e.target === e.currentTarget && performance.now() - viewerClosedAt.current > 500) onClose() }}
     >
+      {/* Previous and next day with photos, at the sides of the screen; not while selecting photos (a day change would drop the selection) */}
+      {!selecting && (
+        <SideArrows
+          onPrev={() => stepDay(-1)} onNext={() => stepDay(1)}
+          prevLabel={hasPrev ? 'Previous day with photos' : 'No earlier day'} nextLabel={hasNext ? 'Next day with photos' : 'No later day'}
+          prevDisabled={!hasPrev} nextDisabled={!hasNext}
+        />
+      )}
       <div
         className="pc-sheet"
         ref={sheetRef}
@@ -275,7 +279,6 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
                 </div>
               ) : (
                 <div className="pc-detail-actions">
-                  <GlassButtons items={navItems} material={navMaterial} showPhotos={false} />
                   <GlassButtons items={closeItem} material={closeMaterial} showPhotos={false} />
                 </div>
               )}

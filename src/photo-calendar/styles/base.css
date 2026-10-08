@@ -33,7 +33,8 @@
   position: relative; /* the control beside the panel on a landscape phone (see compact.css) is placed against it */
   /* On a short window the calendar narrows so that its square date boxes still fit the height, rather
      than the boxes shrinking inside wide columns (seven boxes, six gaps, and the panel's padding). */
-  width: min(1400px, 100%, calc(7 * var(--pc-tile-max) + 6 * var(--pc-gap) + 44px));
+  /* never wider than the screen less the room the side arrows need at each side (arrows.css) */
+  width: min(1400px, calc(100% - 2 * var(--pc-arrow-room, 0px)), calc(7 * var(--pc-tile-max) + 6 * var(--pc-gap) + 44px));
   transition: width .35s ease; /* a month with more or fewer rows eases to its size */
   /* The layout responds to the element's own width, not the screen's, so it
      also fits when embedded in a narrow column. */
@@ -110,8 +111,6 @@
   font-family: var(--pc-serif); font-style: italic; font-size: clamp(.78rem, 1.6vw, .9rem); line-height: 1.2; color: rgb(var(--pc-ink));
 }
 
-/* GlassButtons pads its canvas, so the row is taller than the buttons; the negative margins tuck that in (matters most when the arrows sit on a row of their own) */
-.pc-nav { display: flex; align-items: center; gap: 10px; flex: none; margin: -8px 0 -12px auto; }
 
 .pc-round {
   appearance: none; cursor: pointer; font: inherit;

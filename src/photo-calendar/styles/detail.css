@@ -12,11 +12,12 @@
   display: grid; place-items: center; grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   /* Clear of the notch and status bar, the home indicator and the rounded corners (installed on an iPhone) */
   --pc-pad: clamp(10px, 3vw, 40px);
+  /* The sides also leave room for the previous / next arrows (--pc-arrow-room, see arrows.css) */
   padding:
     max(var(--pc-pad), env(safe-area-inset-top))
-    max(var(--pc-pad), env(safe-area-inset-right))
+    max(var(--pc-pad), var(--pc-arrow-room), env(safe-area-inset-right))
     max(var(--pc-pad), env(safe-area-inset-bottom))
-    max(var(--pc-pad), env(safe-area-inset-left));
+    max(var(--pc-pad), var(--pc-arrow-room), env(safe-area-inset-left));
   animation: pc-fade .28s ease both;
 }
 /* A veil in the opposite tone to the ink: pale over a light page, dark over a dark one. It is its own layer
@@ -211,7 +212,7 @@
 
 /* A phone on its side: a tighter header so the photos get the height (see compact.css) */
 @media (orientation: landscape) and (max-height: 520px) {
-  .pc-overlay { padding: 8px max(12px, env(safe-area-inset-left)) 8px max(12px, env(safe-area-inset-right)); }
+  .pc-overlay { padding: 8px max(12px, var(--pc-arrow-room), env(safe-area-inset-right)) 8px max(12px, var(--pc-arrow-room), env(safe-area-inset-left)); }
   .pc-sheet { --pc-panel-r: 22px; }
   .pc-sheet-scroll { padding: 12px 18px; }
   .pc-detail-head { margin-bottom: 8px; }

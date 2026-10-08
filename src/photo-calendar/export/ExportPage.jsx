@@ -4,13 +4,14 @@
  *
  * Pressing Save asks how the calendar should be saved: as a picture (PNG) or as a print-ready page (PDF).
  * The shuffle button picks a random photo for every day that has more than one, instead of choosing them one by one.
- * Months can be changed on this page too (the arrows, the left and right keys, or a swipe on the sheet); the photo chosen for
+ * Months can be changed on this page too (the arrows at the sides, the left and right keys, or a swipe on the sheet); the photo chosen for
  * each day is remembered per month, so going back to a month finds it as it was left.
  *
  * The sheet on the screen is the same drawing that Save writes to the file (drawCalendarPage), just smaller, so what is
  * seen is what is saved. Plain styling like the year view: no glass, everything sits straight on the wallpaper.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import SideArrows from '../components/SideArrows.jsx'
 import usePageInk from '../hooks/usePageInk.js'
 import useSwipeNav from '../hooks/useSwipeNav.js'
 import { getBackgroundImage, paperColor } from '../wwn-glass/index.js'
@@ -230,13 +231,8 @@ export default function ExportPage({ photos, year: startYear, month: startMonth,
       {/* The month is on the sheet itself, so it is not repeated here; this only tells a screen reader which month it has moved to */}
       <h2 className="ec-sr" aria-live="polite">{MONTHS[month]} {year}</h2>
 
-      {/* Previous and next month at the sides of the screen, like the photo viewer's arrows */}
-      <button type="button" className="ec-arrow ec-prev" onClick={() => step(-1)} aria-label="Previous month">
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 4.5 7.5 12l7.5 7.5" /></svg>
-      </button>
-      <button type="button" className="ec-arrow ec-next" onClick={() => step(1)} aria-label="Next month">
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 4.5 16.5 12 9 19.5" /></svg>
-      </button>
+      {/* Previous and next month at the sides of the screen (the same arrows as the calendar's), like the photo viewer's */}
+      <SideArrows onPrev={() => step(-1)} onNext={() => step(1)} prevLabel="Previous month" nextLabel="Next month" />
 
       <div className="ec-stage" ref={stageRef} {...swipe}>
         <div className="ec-sheet" style={{ width: cssW, height: cssH }}>
