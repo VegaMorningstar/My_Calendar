@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { viewportDeficit } from './diagnostics.js'
 import { ExportPage, PhotoCalendar, WALLPAPER_OVERSCAN_PX, bottomEdgeColor, setBackgroundImage, topEdgeColor, useCalendarScript } from './photo-calendar/index.js'
+import AddPhotosButton from './AddPhotosButton.jsx'
 import CameraButton from './CameraButton.jsx'
 import Tour from './tour/Tour.jsx'
 import { samplePhotos } from './tour/samplePhotos.js'
@@ -166,7 +167,7 @@ export default function App() {
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
-          <PhotoCalendar photos={calendarPhotos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<CameraButton onFiles={library.addFiles} />} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} />
+          <PhotoCalendar photos={calendarPhotos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<><AddPhotosButton onFiles={library.addFiles} busy={library.progress !== null} /><CameraButton onFiles={library.addFiles} /></>} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} />
           {!tour.open && <LibraryHint library={library} />}
         </div>
       </div>

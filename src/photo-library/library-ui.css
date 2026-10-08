@@ -107,6 +107,8 @@
 
 /* ── The camera button: a glass tile like the gear, beside it ── */
 .lib-camera { position: relative; flex: none; }
+.lib-plus { position: relative; flex: none; }
+.lib-plus-slot { position: relative; line-height: 0; margin: -8px -10px -8px -10px; }
 /* GlassButtons pads its canvas; this tucks the tile in beside the gear without clipping it */
 .lib-camera-slot { position: relative; line-height: 0; margin: -8px -10px -8px -10px; }
 

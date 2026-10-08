@@ -8,11 +8,12 @@
  *                 today's day of the month.
  *   gesture       an animated hint of the touch to make: 'tap', 'tapseq' (a tap on each place in turn), 'swipe', 'pinch' or 'hold'
  *   at            where the gesture plays: a selector, or a list of them (the first target by default)
- *   then          parts that follow, each { after (ms), script, targets, gesture, at }: after the wait the step sets the new script and
+ *   then          parts that follow, each { after (ms), script, targets, gesture, at, text? }: after the wait the step sets the new script and
  *                 points at the new targets, so a tap is shown and then what it does
  *   icon          'shield' draws a shield over the card's title (for the privacy step)
  */
 const GEAR = { sel: '.lib-settings .lib-gear-icon', inset: -11 }
+const PLUS = { sel: '.lib-plus .lib-gear-icon', inset: -11 }
 
 export const STEPS = [
   {
@@ -82,12 +83,12 @@ export const STEPS = [
   },
   {
     title: 'Add your photos',
-    text: 'Open the gear, then Import photos.',
+    text: 'Tap + to pick photos from your phone.',
     script: { view: 'month' },
-    targets: [GEAR],
+    targets: [PLUS],
     gesture: 'tap',
-    at: GEAR.sel,
-    then: [{ after: 1700, script: { view: 'month', menu: true }, targets: ['.lib-menu', GEAR] }],
+    at: PLUS.sel,
+    then: [{ after: 1900, text: 'The gear menu adds photos too, and sets a wallpaper.', script: { view: 'month', menu: true }, targets: ['.lib-menu', GEAR], gesture: 'tap', at: GEAR.sel }],
   },
   {
     title: 'Select, save, delete',
@@ -106,7 +107,7 @@ export const STEPS = [
   },
   {
     title: 'Take a photo',
-    text: 'It lands on today. To see this tour again: gear menu, How to use?',
+    text: 'The camera adds one straight onto today. To see this tour again: gear menu, How to use?',
     script: { view: 'month' },
     targets: [{ sel: '.lib-camera .lib-gear-icon', inset: -11 }],
     gesture: 'tap',

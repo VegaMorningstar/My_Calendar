@@ -16,7 +16,7 @@ export default function LibraryHint({ library }) {
   if (!empty) return null
   return (
     <p className="lib-hint" ref={ref} style={{ '--lib-ink': ink.ink, '--lib-hi': ink.halo }}>
-      No photos yet. Tap the gear at the bottom left to import some.
+      No photos yet. Tap the + to add some.
     </p>
   )
 }

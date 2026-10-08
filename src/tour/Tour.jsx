@@ -187,6 +187,11 @@ export default function Tour({ onClose }) {
     place = ((box.y0 + box.y1) / 2 > H * 0.55 && fitsTop) || (coversBottom && fitsTop) ? 'top' : 'bottom'
   } else if (step.icon) place = 'center'
 
+  // The part of the step now showing (a step's `then` parts may say something of their own)
+  const now = [step, ...(step.then ?? [])][phase] ?? step
+  const title = now.title ?? step.title
+  const text = now.text ?? step.text
+
   return (
     <div className="tour" role="dialog" aria-modal="true" aria-label="How to use">
       {/* Catches every press, so the app under the tour cannot be pressed by accident */}
@@ -202,7 +207,7 @@ export default function Tour({ onClose }) {
         <rect width={W} height={H} mask="url(#tour-holes)" />
       </svg>
       {anchors.map((a, k) => (
-        <span key={`${i}-${phase}-${k}-${Math.round(a.x)}`} className={`tour-hint tour-hint-${([step, ...(step.then ?? [])][phase] ?? step).gesture}`} style={{ left: a.x + a.w / 2, top: a.y + a.h / 2, '--k': k }} aria-hidden="true"><i /><i /></span>
+        <span key={`${i}-${phase}-${k}-${Math.round(a.x)}`} className={`tour-hint tour-hint-${now.gesture}`} style={{ left: a.x + a.w / 2, top: a.y + a.h / 2, '--k': k }} aria-hidden="true"><i /><i /></span>
       ))}
 
       <div key={i} ref={cardRef} className={`tour-card tour-${place}`}>
@@ -210,8 +215,8 @@ export default function Tour({ onClose }) {
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
         </button>
         {step.icon === 'shield' && <div className="tour-icon">{SHIELD}</div>}
-        <h2 className="tour-title">{step.title}</h2>
-        <p className="tour-text" aria-live="polite">{step.text}</p>
+        <h2 className="tour-title">{title}</h2>
+        <p className="tour-text" aria-live="polite">{text}</p>
         <div className="tour-foot">
           <div className="tour-dots" aria-label={`Step ${i + 1} of ${STEPS.length}`}>
             {STEPS.map((_, k) => <span key={k} className={k === i ? 'on' : k < i ? 'seen' : ''} />)}
