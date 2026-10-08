@@ -17,7 +17,7 @@
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { GlassButtons, LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
+import { LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
 import { FULL_WEEKDAYS, MONTHS, ordinal } from '../lib/dates.js'
 import PhotoViewer from './PhotoViewer.jsx'
 import Ribbon from './Ribbon.jsx'
@@ -28,20 +28,12 @@ import { useCalendarScript } from '../lib/calendarScript.js'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
 import usePinchZoom from '../hooks/usePinchZoom.js'
-import { CLOSE_MATERIAL, PANEL_FALLBACK } from '../lib/glass-config.js'
+import { PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
 
 /** How much the sheet's glass blurs the wallpaper behind its middle (the calendar panel uses 1.2). */
 const SHEET_BLUR = 5
-
-/**
- * The glass buttons on the sheet are frosted like the sheet itself: the wallpaper behind them blurred as much, and no
- * date photos in what they refract. They have no tint at all, so the glass is clear and only the white glyph is on it.
- */
-const SHEET_BUTTON_BLUR = 4
-/** The glyphs on these buttons are pure white on any wallpaper. */
-const WHITE_INK = { letterR: 255, letterG: 255, letterB: 255, letterLightR: 255, letterLightG: 255, letterLightB: 255 }
 
 /** How long (ms) a photo is pressed to select it, and how far (px) the finger may move meanwhile (more is a scroll). */
 const HOLD_MS = 450
@@ -240,11 +232,6 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   const isToday = year === t.getFullYear() && month === t.getMonth() && day === t.getDate()
   const weekday = FULL_WEEKDAYS[new Date(year, month, day).getDay()]
   // Blurred in the middle, but not at the rim: edgeBlurMultiplier 0 keeps the edge at full sharpness, so it still refracts crisply
-  const closeMaterial = { ...CLOSE_MATERIAL, ...WHITE_INK, tintStrength: 0, blur: SHEET_BUTTON_BLUR, edgeBlurMultiplier: 0 }
-  const closeItem = [{
-    key: 'close', label: '×', title: 'Close', onClick: onClose,
-    fallbackClass: 'pc-round',
-  }]
 
   return createPortal(
     <div
@@ -300,7 +287,10 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
                 <div className="pc-detail-actions">
                   {/* Add photos to this day: the + and the camera, beside the close button */}
                   {addSlot && <div className="pc-detail-add">{addSlot}</div>}
-                  <GlassButtons items={closeItem} material={closeMaterial} showPhotos={false} />
+                  {/* Close: a solid red round button with a white cross drawn dead centre, like the export page's Back */}
+                  <button type="button" className="pc-solid pc-solid-red" onClick={onClose} aria-label="Close" title="Close">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+                  </button>
                 </div>
               )}
             </header>

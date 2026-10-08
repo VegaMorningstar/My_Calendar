@@ -148,8 +148,8 @@ export default function App() {
   // The + and the camera on a day's sheet: whatever they add lands on that day (key is 'YYYY-MM-DD'), whatever the photo's own date says
   const renderDayAdd = key => (
     <>
-      <AddPhotosButton frosted onFiles={files => library.addFiles(files, { date: key })} busy={library.progress !== null} />
-      <CameraButton frosted onFiles={files => library.addFiles(files, { date: key })} />
+      <AddPhotosButton solid onFiles={files => library.addFiles(files, { date: key })} busy={library.progress !== null} />
+      <CameraButton solid onFiles={files => library.addFiles(files, { date: key })} />
     </>
   )
 

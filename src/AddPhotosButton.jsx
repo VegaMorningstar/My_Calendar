@@ -10,15 +10,13 @@ import { BUTTON_MATERIAL, GlassButtons, usePageInk } from './photo-calendar/inde
 import './photo-library/library-ui.css'
 
 const MATERIAL = { ...BUTTON_MATERIAL, size: 44, radius: 22, edge: 10 }
-/** On the day sheet the glass is frosted like the sheet's close button: the wallpaper blurred, no tint, and no date photos in what it refracts. */
-const FROSTED = { tintStrength: 0, blur: 4, edgeBlurMultiplier: 0 }
 
 /**
  * @param {(files: File[]) => void} onFiles  gets the chosen photos; pass the library's addFiles
  * @param {boolean} [busy]  an import is running: the button waits
- * @param {boolean} [frosted]  drawn as on the day sheet (see FROSTED)
+ * @param {boolean} [solid]  drawn as on the day sheet: a solid teal green round button with a white plus, like the export page's buttons, instead of glass
  */
-export default function AddPhotosButton({ onFiles, busy = false, frosted = false }) {
+export default function AddPhotosButton({ onFiles, busy = false, solid = false }) {
   const slotRef = useRef(null)
   const ink = usePageInk(slotRef)
   const input = useRef(null)
@@ -33,17 +31,22 @@ export default function AddPhotosButton({ onFiles, busy = false, frosted = false
     <div className="lib-plus">
       {/* The picker opens synchronously inside the press, which iOS requires */}
       <input ref={input} type="file" accept="image/*" multiple hidden onChange={onPicked} aria-hidden="true" tabIndex={-1} />
-      <div className="lib-plus-slot" ref={slotRef} style={{ '--lib-ink': ink.ink }}>
-        <GlassButtons
-          material={frosted ? { ...MATERIAL, ...FROSTED } : MATERIAL}
-          showPhotos={!frosted}
-          items={[{ key: 'add-photos', label: '', title: 'Add photos', width: MATERIAL.size, onClick: () => { if (!busy) input.current?.click() }, fallbackClass: 'lib-gear' }]}
-        />
-        {/* A plus, drawn over the tile, centred; taps pass through to the tile underneath */}
-        <svg className="lib-gear-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true">
-          <path d="M12 5v14M5 12h14" />
-        </svg>
-      </div>
+      {solid ? (
+        <button type="button" className="pc-solid pc-solid-teal" onClick={() => { if (!busy) input.current?.click() }} aria-label="Add photos" title="Add photos">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        </button>
+      ) : (
+        <div className="lib-plus-slot" ref={slotRef} style={{ '--lib-ink': ink.ink }}>
+          <GlassButtons
+            material={MATERIAL}
+            items={[{ key: 'add-photos', label: '', title: 'Add photos', width: MATERIAL.size, onClick: () => { if (!busy) input.current?.click() }, fallbackClass: 'lib-gear' }]}
+          />
+          {/* A plus, drawn over the tile, centred; taps pass through to the tile underneath */}
+          <svg className="lib-gear-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </div>
+      )}
     </div>
   )
 }

@@ -45,9 +45,37 @@
 .pc-gallery-scroll { touch-action: pan-y; }
 .pc-detail-actions { display: flex; align-items: center; gap: 0; flex: none; margin-left: auto; }
 /* The + and the camera that add photos to the day, side by side before the close button; their glass tiles carry padding, so they sit close */
-.pc-detail-add { display: flex; align-items: center; margin-right: -7px; } /* -7px makes the gap from the camera to the close button the same as from the + to the camera (their glass tiles carry different padding) */
-/* pure white glyphs on the clear glass, like the close button */
-.pc-detail-add .lib-gear-icon { color: #fff; }
+.pc-detail-add { display: flex; align-items: center; gap: 10px; margin-right: 10px; }
+/* The three round buttons on a day's sheet, solid like the export page's Back and Save: a gradient disc with a darker edge, a soft
+   glow of its own colour, a pure white symbol dead centre, and the same wiggle on hover and bounce on press. Teal green for the +
+   that adds photos, violet for the camera, red for close. All 32px (small, so they do not dominate the sheet; the press area is 44px), so
+   they sit level and the same distance apart. */
+.pc-solid {
+  appearance: none; position: relative; width: 32px; height: 32px; padding: 0; margin: 0; border-radius: 50%; display: grid; place-items: center; cursor: pointer; flex: none;
+  color: #fff; -webkit-tap-highlight-color: transparent;
+}
+.pc-solid svg { display: block; width: 16px; height: 16px; }
+/* The button is small, so the area that answers a press is larger than it looks */
+.pc-solid::after { content: ''; position: absolute; inset: -6px; border-radius: 50%; }
+.pc-solid-teal {
+  background: linear-gradient(135deg, rgb(72, 198, 186), rgb(36, 148, 140)); border: 1px solid rgba(18, 98, 94, .95);
+  box-shadow: 0 0 8px 1px rgba(60, 190, 178, .5), inset 0 1px 1px rgba(255, 255, 255, .35);
+}
+.pc-solid-teal:hover { background: linear-gradient(135deg, rgb(84, 208, 196), rgb(46, 160, 152)); }
+.pc-solid-violet {
+  background: linear-gradient(135deg, rgb(152, 124, 224), rgb(130, 98, 208)); border: 1px solid rgba(104, 72, 184, .95);
+  box-shadow: 0 0 10px 1px rgba(170, 130, 245, .5), inset 0 1px 1px rgba(255, 255, 255, .35);
+}
+.pc-solid-violet:hover { background: linear-gradient(135deg, rgb(162, 136, 230), rgb(140, 110, 214)); }
+.pc-solid-red {
+  background: linear-gradient(135deg, rgb(226, 98, 108), rgb(204, 66, 80)); border: 1px solid rgba(150, 34, 48, .95);
+  box-shadow: 0 0 10px 1px rgba(235, 96, 106, .5), inset 0 1px 1px rgba(255, 255, 255, .35);
+}
+.pc-solid-red:hover { background: linear-gradient(135deg, rgb(232, 112, 120), rgb(212, 78, 92)); }
+.pc-solid:hover, .pc-solid:focus-visible { animation: pc-trash-jiggle .5s ease-out; }
+.pc-solid:active { animation: none; transform: scale(.9); }
+.pc-solid:focus-visible { outline: 2px solid rgba(var(--pc-teal), .9); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .pc-solid:hover, .pc-solid:focus-visible { animation: none; } }
 /* What the sheet says when the day has no photos */
 .pc-empty-day { margin: 8px 0 0; font: italic 400 13px/1.5 'Playfair Display', Georgia, serif; color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
 

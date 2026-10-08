@@ -63,9 +63,9 @@ export const STEPS = [
       after: 1800,
       text: 'The + picks photos and the camera takes one. Both go onto that day.',
       script: { view: 'month', day: 'yesterday' },
-      targets: [{ sel: '.pc-detail-add .lib-plus .lib-gear-icon', inset: -11 }, { sel: '.pc-detail-add .lib-camera .lib-gear-icon', inset: -11 }],
+      targets: [{ sel: '.pc-detail-add .lib-plus .pc-solid', inset: -8 }, { sel: '.pc-detail-add .lib-camera .pc-solid', inset: -8 }],
       gesture: 'tapseq',
-      at: ['.pc-detail-add .lib-plus .lib-gear-icon', '.pc-detail-add .lib-camera .lib-gear-icon'],
+      at: ['.pc-detail-add .lib-plus .pc-solid', '.pc-detail-add .lib-camera .pc-solid'],
     }],
   },
   {
