@@ -85,8 +85,9 @@ export default function PhotoCalendar({
       hadScript.current = true
       if (script.view && script.view !== here.mode) zoom(script.view)
       if (script.day) {
-        if (here.y !== t.getFullYear() || here.m !== t.getMonth()) goTo(t.getFullYear(), t.getMonth())
-        setOpenDay({ year: t.getFullYear(), month: t.getMonth(), day: t.getDate() })
+        const d = script.day === 'yesterday' ? new Date(t.getFullYear(), t.getMonth(), t.getDate() - 1) : t
+        if (here.y !== d.getFullYear() || here.m !== d.getMonth()) goTo(d.getFullYear(), d.getMonth())
+        setOpenDay({ year: d.getFullYear(), month: d.getMonth(), day: d.getDate() })
       } else setOpenDay(null)
     } else if (hadScript.current) {
       hadScript.current = false

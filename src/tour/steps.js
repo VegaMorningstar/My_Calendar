@@ -4,8 +4,8 @@
  *   title, text   what the card says: short, plain, in the order a new person meets the app
  *   script        the state to put the calendar's screens in (see photo-calendar/lib/calendarScript.js)
  *   targets       what to spotlight: CSS selectors, or { sel, inset } to shrink (or, negative, grow) the box by `inset` px a side, for the
- *                 glass buttons, whose boxes carry padding; none means the card alone, over a dimmed screen. `{today}` in a selector is
- *                 today's day of the month.
+ *                 glass buttons, whose boxes carry padding; none means the card alone, over a dimmed screen. `{today}` and `{yesterday}` in a
+ *                 selector are those days of the month.
  *   gesture       an animated hint of the touch to make: 'tap', 'tapseq' (a tap on each place in turn), 'swipe', 'pinch' or 'hold'
  *   at            where the gesture plays: a selector, or a list of them (the first target by default)
  *   then          parts that follow, each { after (ms), script, targets, gesture, at, text? }: after the wait the step sets the new script and
@@ -18,7 +18,7 @@ const PLUS = { sel: '.lib-plus .lib-gear-icon', inset: -11 }
 export const STEPS = [
   {
     title: 'Your calendar',
-    text: 'Photos sit on the day they were taken.',
+    text: 'Photos sit on the day they were taken. Today wears a ribbon.',
     script: { view: 'month' },
     targets: ['.pc-panel'],
   },
@@ -43,7 +43,7 @@ export const STEPS = [
     script: { view: 'month' },
     targets: ['.pc-photo'],
     gesture: 'tap',
-    then: [{ after: 1700, text: 'Add to a day with + or the camera.', script: { view: 'month', day: true }, targets: ['.pc-sheet'] }],
+    then: [{ after: 1700, text: 'Its photos are here.', script: { view: 'month', day: true }, targets: ['.pc-sheet'] }],
   },
   {
     title: 'Full screen',
@@ -52,6 +52,21 @@ export const STEPS = [
     targets: ['.pc-thumb'],
     gesture: 'tap',
     then: [{ after: 1700, script: { view: 'month', day: true, photo: true }, targets: ['.pc-viewer-img'] }],
+  },
+  {
+    title: 'Add to any day',
+    text: 'Tap a day gone by, even an empty one.',
+    script: { view: 'month' },
+    targets: ['.pc-day[data-day="{yesterday}"]'],
+    gesture: 'tap',
+    then: [{
+      after: 1800,
+      text: 'The + picks photos and the camera takes one. Both go onto that day.',
+      script: { view: 'month', day: 'yesterday' },
+      targets: [{ sel: '.pc-detail-add .lib-plus .lib-gear-icon', inset: -11 }, { sel: '.pc-detail-add .lib-camera .lib-gear-icon', inset: -11 }],
+      gesture: 'tapseq',
+      at: ['.pc-detail-add .lib-plus .lib-gear-icon', '.pc-detail-add .lib-camera .lib-gear-icon'],
+    }],
   },
   {
     title: 'Get your calendar',

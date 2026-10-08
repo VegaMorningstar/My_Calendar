@@ -21,6 +21,9 @@ const WAIT_MS = 1800
 const wait = ms => new Promise(r => setTimeout(r, ms))
 const reduced = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
+/** A selector with `{today}` and `{yesterday}` filled in with those days of the month. */
+const fill = sel => sel.replace('{today}', String(new Date().getDate())).replace('{yesterday}', String(new Date(Date.now() - 864e5).getDate()))
+
 /**
  * The rectangles (viewport px) of the elements the targets find, or null if one is missing or still moving. A target is a selector, or
  * { sel, inset } to shrink its rectangle by `inset` px on every side (negative grows it): the glass buttons carry padding for their
@@ -30,7 +33,7 @@ function measure(targets) {
   const rects = []
   for (const t of targets) {
     const { sel, inset = 0 } = typeof t === 'string' ? { sel: t } : t
-    const el = document.querySelector(sel.replace('{today}', String(new Date().getDate())))
+    const el = document.querySelector(fill(sel))
     if (!el) return null
     const r = el.getBoundingClientRect()
     if (r.width < 2 || r.height < 2) return null
@@ -121,7 +124,7 @@ export default function Tour({ onClose }) {
       // Something below the fold (the bottom buttons on a phone on its side): scroll it into view, then measure again
       const offscreen = shown.targets.filter((_, k) => found[k] && (found[k].y < 0 || found[k].y + found[k].h > window.innerHeight))
       if (offscreen.length) {
-        for (const t of offscreen) document.querySelector((typeof t === 'string' ? t : t.sel).replace('{today}', String(new Date().getDate())))?.scrollIntoView({ block: 'center', behavior: 'instant' })
+        for (const t of offscreen) document.querySelector(fill(typeof t === 'string' ? t : t.sel))?.scrollIntoView({ block: 'center', behavior: 'instant' })
         await wait(120)
         found = await settle(shown.targets, () => live)
         if (!live) return

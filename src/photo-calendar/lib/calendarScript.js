@@ -7,7 +7,7 @@
  * behaves as it always does.
  *
  * A script looks like:
- *   { view: 'month' | 'year',  day: boolean (today's sheet open),  photo: boolean (its first photo full screen),
+ *   { view: 'month' | 'year',  day: true (today's sheet open) | 'yesterday' (yesterday's, which has no photos in the tour),  photo: boolean (its first photo full screen),
  *     select: boolean (its photos in selecting mode),  menu: boolean (the settings menu open),  arrows: boolean (side arrows held on),
  *     export: boolean (the calendar-export page open),  pick: boolean (on it, today's photo chooser open),
  *     choose: number (on it, today's photo set to this one of its photos) }

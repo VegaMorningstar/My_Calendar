@@ -96,7 +96,7 @@ export default function DayCell({ day, weekday, fullLabel, srcs, isToday, rotate
     const inks = { ...namedInkVars('num', numInk), ...namedInkVars('dow', dowInk) }
     if (canOpenEmpty) {
       return (
-        <button type="button" className={`pc-day pc-empty${today}`} data-glass-tile="" ref={cellRef} style={inks} onClick={onOpen} aria-label={`${fullLabel}, no photos. Open to add one`}>
+        <button type="button" className={`pc-day pc-empty${today}`} data-glass-tile="" data-day={day} ref={cellRef} style={inks} onClick={onOpen} aria-label={`${fullLabel}, no photos. Open to add one`}>
           <span className="pc-num">{day}</span>
           <span className="pc-dow">{weekday}</span>
           {isToday && <Ribbon />}
@@ -104,7 +104,7 @@ export default function DayCell({ day, weekday, fullLabel, srcs, isToday, rotate
       )
     }
     return (
-      <div className={`pc-day pc-empty${today}`} data-glass-tile="" ref={cellRef} style={inks}>
+      <div className={`pc-day pc-empty${today}`} data-glass-tile="" data-day={day} ref={cellRef} style={inks}>
         <span className="pc-num">{day}</span>
         <span className="pc-dow">{weekday}</span>
         {isToday && <Ribbon />}
@@ -117,7 +117,7 @@ export default function DayCell({ day, weekday, fullLabel, srcs, isToday, rotate
     <button
       type="button"
       ref={cellRef}
-      data-glass-tile=""
+      data-glass-tile="" data-day={day}
       className={`pc-day pc-photo${today}`}
       style={inkVars || undefined}
       onClick={onOpen}
