@@ -42,6 +42,8 @@ export default function MonthView({ year, month, weekStartsOn, byDate, todayKey,
               rotateMs={rotateMs}
               pageInk={pageInk}
               onOpen={() => onOpenDay(day)}
+              // An empty day opens too, to add a photo, unless it is still to come
+              canOpenEmpty={key <= todayKey}
             />
           )
         })}

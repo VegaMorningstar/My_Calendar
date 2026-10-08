@@ -10,12 +10,15 @@ import { BUTTON_MATERIAL, GlassButtons, usePageInk } from './photo-calendar/inde
 import './photo-library/library-ui.css'
 
 const MATERIAL = { ...BUTTON_MATERIAL, size: 44, radius: 22, edge: 10 }
+/** On the day sheet the glass is frosted like the sheet's close button: the wallpaper blurred, no tint, and no date photos in what it refracts. */
+const FROSTED = { tintStrength: 0, blur: 4, edgeBlurMultiplier: 0 }
 
 /**
  * @param {(files: File[]) => void} onFiles  gets the chosen photos; pass the library's addFiles
  * @param {boolean} [busy]  an import is running: the button waits
+ * @param {boolean} [frosted]  drawn as on the day sheet (see FROSTED)
  */
-export default function AddPhotosButton({ onFiles, busy = false }) {
+export default function AddPhotosButton({ onFiles, busy = false, frosted = false }) {
   const slotRef = useRef(null)
   const ink = usePageInk(slotRef)
   const input = useRef(null)
@@ -32,7 +35,8 @@ export default function AddPhotosButton({ onFiles, busy = false }) {
       <input ref={input} type="file" accept="image/*" multiple hidden onChange={onPicked} aria-hidden="true" tabIndex={-1} />
       <div className="lib-plus-slot" ref={slotRef} style={{ '--lib-ink': ink.ink }}>
         <GlassButtons
-          material={MATERIAL}
+          material={frosted ? { ...MATERIAL, ...FROSTED } : MATERIAL}
+          showPhotos={!frosted}
           items={[{ key: 'add-photos', label: '', title: 'Add photos', width: MATERIAL.size, onClick: () => { if (!busy) input.current?.click() }, fallbackClass: 'lib-gear' }]}
         />
         {/* A plus, drawn over the tile, centred; taps pass through to the tile underneath */}

@@ -18,7 +18,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { GlassButtons, LiquidGlassPanel, usePanelGlass } from '../wwn-glass/index.js'
-import { FULL_WEEKDAYS, MONTHS, dayOfYear, daysInYear, ordinal, photoCountLabel } from '../lib/dates.js'
+import { FULL_WEEKDAYS, MONTHS, ordinal } from '../lib/dates.js'
 import PhotoViewer from './PhotoViewer.jsx'
 import useTimedVisible from '../hooks/useTimedVisible.js'
 import SideArrows from './SideArrows.jsx'
@@ -60,9 +60,11 @@ const SWIPE_PX = 70
  * @param {Function} onStep        (delta:-1|1) => void, go to the previous / next such date
  * @param {Function} onClose       () => void
  * @param {(srcs:string[]) => Promise<void>} [onDelete]  removes these photos
+ * @param {React.ReactNode} [addSlot]  buttons that add photos to this day (the + and the camera), shown beside the close button; the host passes
+ *   them for today and days gone by, not for days to come
  * @param {(srcs:string[]) => File[]} [originalsOf]  the original files of these photos, at once (for Save). Without both this and onDelete there is no selecting.
  */
-export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onStep, onClose, onDelete, originalsOf }) {
+export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onStep, onClose, onDelete, originalsOf, addSlot }) {
   const { year, month, day } = date
   const sheetRef = useRef(null)
   // Text colours follow what is behind the sheet, which is not what is behind the calendar
@@ -280,11 +282,10 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
               <div>
                 <h2 className="pc-detail-dow">{weekday}</h2>
                 <p className="pc-detail-date">{ordinal(day)} {MONTHS[month]} {year}</p>
-                <p className="pc-detail-meta" aria-live="polite">
-                  {selecting
-                    ? (selected.size ? `${countWord(selected.size)} Selected` : 'Select Items')
-                    : <>Day {dayOfYear(year, month, day)} of {daysInYear(year)} · {photoCountLabel(srcs.length)}</>}
-                </p>
+                {/* Only while selecting photos: how many are selected. (The "Day x of 365, n photos" line is gone.) */}
+                {selecting && (
+                  <p className="pc-detail-meta" aria-live="polite">{selected.size ? `${countWord(selected.size)} Selected` : 'Select Items'}</p>
+                )}
               </div>
               {selecting ? (
                 <div className="pc-detail-actions">
@@ -292,6 +293,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
                 </div>
               ) : (
                 <div className="pc-detail-actions">
+                  {/* Add photos to this day: the + and the camera, beside the close button */}
+                  {addSlot && <div className="pc-detail-add">{addSlot}</div>}
                   <GlassButtons items={closeItem} material={closeMaterial} showPhotos={false} />
                 </div>
               )}
@@ -299,6 +302,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
 
             {/* The photos have a scroll area of their own: the date and the buttons above stay put */}
             <div className="pc-gallery-scroll" ref={scrollRef}>
+              {/* A day with no photos says so, and points at the buttons that add one */}
+              {srcs.length === 0 && <p className="pc-empty-day">{addSlot ? 'No Photos - Import from Photos or Click one' : 'No photos on this day.'}</p>}
               <div className={`pc-gallery${selecting ? ' pc-selecting' : ''}`}>
                 {srcs.map((src, i) => {
                   const on = selecting && selected.has(src)

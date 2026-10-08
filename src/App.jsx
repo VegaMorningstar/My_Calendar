@@ -145,6 +145,14 @@ export default function App() {
     else if (hadScript.current) { hadScript.current = false; setExportOpen(false) }
   }, [script])
 
+  // The + and the camera on a day's sheet: whatever they add lands on that day (key is 'YYYY-MM-DD'), whatever the photo's own date says
+  const renderDayAdd = key => (
+    <>
+      <AddPhotosButton frosted onFiles={files => library.addFiles(files, { date: key })} busy={library.progress !== null} />
+      <CameraButton frosted onFiles={files => library.addFiles(files, { date: key })} />
+    </>
+  )
+
   // Leaving the tour early (the cross or Escape) says where to find it again
   const [tourNote, setTourNote] = useState(false)
   const tourNoteTimer = useRef(0)
@@ -167,7 +175,7 @@ export default function App() {
       <div className="stage-column">
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
-          <PhotoCalendar photos={calendarPhotos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<><AddPhotosButton onFiles={library.addFiles} busy={library.progress !== null} /><CameraButton onFiles={library.addFiles} /></>} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} />
+          <PhotoCalendar photos={calendarPhotos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<><AddPhotosButton onFiles={library.addFiles} busy={library.progress !== null} /><CameraButton onFiles={library.addFiles} /></>} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} renderDayAdd={renderDayAdd} />
           {!tour.open && <LibraryHint library={library} />}
         </div>
       </div>

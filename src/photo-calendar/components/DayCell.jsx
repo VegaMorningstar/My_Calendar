@@ -5,7 +5,8 @@
  * timer, shows its photo count on hover, and opens the full-screen day view on
  * click. A day without photos is a transparent, engraved box showing only the
  * date and weekday, and its text colour follows the brightness of the wallpaper
- * directly behind that one box.
+ * directly behind that one box. Today and days gone by open the day view even
+ * when empty (it is where a photo is added to that day); days still to come do not.
  */
 import { useEffect, useRef } from 'react'
 import { todayTint } from '../glass-tiles/GlassTileGrid.jsx'
@@ -29,8 +30,9 @@ const WEEKDAY_SPOT = [0, 0.65, 0.5, 1]
  * @param {number}   rotateMs   least time each photo stays up
  * @param {*}        pageInk    page ink; a change re-samples the photo text colours
  * @param {Function} onOpen     () => void, opens the day view
+ * @param {boolean}  canOpenEmpty  an empty day is a button too (today and the past)
  */
-export default function DayCell({ day, weekday, fullLabel, srcs, isToday, rotateMs, pageInk, onOpen }) {
+export default function DayCell({ day, weekday, fullLabel, srcs, isToday, rotateMs, pageInk, onOpen, canOpenEmpty = false }) {
   const n = srcs.length
   const cellRef = useRef(null)
   // Empty days measure the wallpaper behind the spot each piece of text sits on (the date
@@ -68,8 +70,17 @@ export default function DayCell({ day, weekday, fullLabel, srcs, isToday, rotate
   })
 
   if (n === 0) {
+    const inks = { ...namedInkVars('num', numInk), ...namedInkVars('dow', dowInk) }
+    if (canOpenEmpty) {
+      return (
+        <button type="button" className={`pc-day pc-empty${today}`} data-glass-tile="" ref={cellRef} style={inks} onClick={onOpen} aria-label={`${fullLabel}, no photos. Open to add one`}>
+          <span className="pc-num">{day}</span>
+          <span className="pc-dow">{weekday}</span>
+        </button>
+      )
+    }
     return (
-      <div className={`pc-day pc-empty${today}`} data-glass-tile="" ref={cellRef} style={{ ...namedInkVars('num', numInk), ...namedInkVars('dow', dowInk) }}>
+      <div className={`pc-day pc-empty${today}`} data-glass-tile="" ref={cellRef} style={inks}>
         <span className="pc-num">{day}</span>
         <span className="pc-dow">{weekday}</span>
       </div>

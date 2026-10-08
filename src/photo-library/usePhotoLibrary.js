@@ -15,7 +15,7 @@ import { importFiles } from './import-photos.js'
  *   ready: boolean,
  *   progress: {done:number, total:number} | null,
  *   lastResult: object | null,
- *   addFiles: (files:File[]) => Promise<void>,
+ *   addFiles: (files:File[], options?:{date?:string}) => Promise<void>,
  *   removeAll: () => Promise<void>,
  *   removePhotos: (srcs:string[]) => Promise<void>,
  *   originalsOf: (srcs:string[]) => File[],
@@ -58,10 +58,10 @@ export default function usePhotoLibrary() {
     return () => { live = false; urls.forEach(URL.revokeObjectURL) }
   }, [version])
 
-  const addFiles = useCallback(async files => {
+  const addFiles = useCallback(async (files, options) => {
     setLastResult(null)
     setProgress({ done: 0, total: files.length })
-    const result = await importFiles(files, (done, total) => setProgress({ done, total }))
+    const result = await importFiles(files, (done, total) => setProgress({ done, total }), options)
     if (result.added) requestPersistence()
     setProgress(null)
     setLastResult(result)

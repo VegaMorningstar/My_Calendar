@@ -43,7 +43,7 @@ export const STEPS = [
     script: { view: 'month' },
     targets: ['.pc-photo'],
     gesture: 'tap',
-    then: [{ after: 1700, script: { view: 'month', day: true }, targets: ['.pc-sheet'] }],
+    then: [{ after: 1700, text: 'Add to a day with + or the camera.', script: { view: 'month', day: true }, targets: ['.pc-sheet'] }],
   },
   {
     title: 'Full screen',

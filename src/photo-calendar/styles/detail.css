@@ -44,6 +44,12 @@
 .pc-sheet-scroll { touch-action: pan-y; }
 .pc-gallery-scroll { touch-action: pan-y; }
 .pc-detail-actions { display: flex; align-items: flex-start; gap: 0; flex: none; margin-left: auto; }
+/* The + and the camera that add photos to the day, side by side before the close button; their glass tiles carry padding, so they sit close */
+.pc-detail-add { display: flex; align-items: center; margin-right: 4px; }
+/* pure white glyphs on the clear glass, like the close button */
+.pc-detail-add .lib-gear-icon { color: #fff; }
+/* What the sheet says when the day has no photos */
+.pc-empty-day { margin: 8px 0 0; font: italic 400 13px/1.5 'Playfair Display', Georgia, serif; color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7); }
 
 @keyframes pc-rise { from { opacity: 0; transform: translateY(14px) scale(.97); } }
 

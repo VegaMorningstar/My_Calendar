@@ -57,6 +57,7 @@ export default function PhotoCalendar({
   underRight = null,
   onDeletePhotos,
   originalsOf,
+  renderDayAdd,
   className = '',
 }) {
   const panelRef = useRef(null)
@@ -100,11 +101,13 @@ export default function PhotoCalendar({
   /** Every date that has photos, oldest first: the stops for the day view's previous / next. */
   const photoDays = useMemo(() => [...byDate.keys()].sort(), [byDate])
   const openKey = openDay && dateKey(openDay.year, openDay.month, openDay.day)
-  const openPos = openKey ? photoDays.indexOf(openKey) : -1
+  // The nearest days with photos either side of the open day (an open day may itself have none, when it is open to add one)
+  const prevKey = openKey ? photoDays.filter(k => k < openKey).pop() : undefined
+  const nextKey = openKey ? photoDays.find(k => k > openKey) : undefined
 
   /** Moves the day view to the previous (-1) or next (+1) date that has photos, and the calendar behind it with it. */
   const stepDay = delta => {
-    const key = photoDays[openPos + delta]
+    const key = delta < 0 ? prevKey : nextKey
     if (!key) return
     const [year, month, day] = key.split('-').map(Number)
     setOpenDay({ year, month: month - 1, day })
@@ -195,8 +198,10 @@ export default function PhotoCalendar({
         <DayDetail
           date={openDay}
           srcs={byDate.get(openKey) ?? []}
-          hasPrev={openPos > 0}
-          hasNext={openPos >= 0 && openPos < photoDays.length - 1}
+          hasPrev={!!prevKey}
+          hasNext={!!nextKey}
+          // Photos can be added to today and to days gone by, not to days still to come
+          addSlot={renderDayAdd && openKey <= todayKey ? renderDayAdd(openKey) : null}
           onStep={stepDay}
           fullBySrc={fullBySrc}
           onClose={() => setOpenDay(null)}
