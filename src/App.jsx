@@ -18,6 +18,7 @@ import GetCalendarButton from './GetCalendarButton.jsx'
 import TileStyleToggle, { initialGlassTiles } from './TileStyleToggle.jsx'
 import { UpdatePrompt } from './pwa-update/index.js'
 import UpdateButton from './UpdateButton.jsx'
+import useCenteredCalendar from './useCenteredCalendar.js'
 import { LibraryHint, SettingsMenu, Toast, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
 /** Height (px) of the bottom row of buttons when it is one line. */
@@ -123,6 +124,8 @@ export default function App() {
   // The row of buttons at the bottom is one line on most screens and two on a narrow one. The calendar is sized to leave room
   // for one line, so any extra height of the row is passed on to it (--pc-extra-height) and nothing has to scroll.
   const footerRef = useRef(null)
+  const columnRef = useRef(null)
+  useCenteredCalendar(columnRef) // portrait: the month panel itself sits in the middle of the screen
   const [footerExtra, setFooterExtra] = useState(0)
   useEffect(() => {
     const el = footerRef.current
@@ -176,7 +179,7 @@ export default function App() {
       {/* A thin strip in the wallpaper's top-edge colour, there for iOS to tint the status bar from.
           Only needed when the page cannot run under the bar; when it does, the strip would show as a band. */}
       {!underStatusBar && topColor && <div className="app-top-strip" style={{ background: topColor }} aria-hidden="true" />}
-      <div className="stage-column">
+      <div className="stage-column" ref={columnRef}>
         {/* The hint hangs below the calendar without taking space, so the calendar itself stays centred */}
         <div className="stage-calendar">
           <PhotoCalendar photos={calendarPhotos} liquidTiles={glassTiles} onViewChange={setCalView} paused={exportOpen} underRight={<><AddPhotosButton onFiles={library.addFiles} busy={library.progress !== null} /><CameraButton onFiles={library.addFiles} /></>} onDeletePhotos={library.removePhotos} originalsOf={library.originalsOf} renderDayAdd={renderDayAdd} />
