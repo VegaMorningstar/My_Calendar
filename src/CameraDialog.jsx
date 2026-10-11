@@ -60,7 +60,7 @@ export default function CameraDialog({ onPhoto, onClose }) {
   }
 
   return (
-    <div className="cam-scrim" role="dialog" aria-modal="true" aria-label="Take a photo" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
+    <div className="cam-scrim" data-no-swipe role="dialog" aria-modal="true" aria-label="Take a photo" onMouseDown={e => { if (e.target === e.currentTarget) onClose() }}>
       {/* Close: the top left corner of the screen */}
       <button type="button" className="cam-btn cam-close" onClick={onClose} aria-label="Close the camera" title="Close">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>

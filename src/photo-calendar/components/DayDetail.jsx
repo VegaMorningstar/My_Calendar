@@ -28,6 +28,7 @@ import { useCalendarScript } from '../lib/calendarScript.js'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
 import usePinchZoom from '../hooks/usePinchZoom.js'
+import useScreenSwipe from '../hooks/useScreenSwipe.js'
 import { PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
 import '../styles/detail.css'
@@ -40,9 +41,6 @@ const HOLD_MS = 450
 const HOLD_SLOP_PX = 10
 /** How long (ms) deleted photos take to shrink away before they are removed. */
 const REMOVE_MS = 220
-
-/** A horizontal drag longer than this many px (and mostly sideways) changes day. */
-const SWIPE_PX = 70
 
 /**
  * @param {{year:number, month:number, day:number}} date  the day to show
@@ -160,29 +158,9 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   }, [script, srcs.length]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Swipe between days ──────────────────────────────────────────────────────
-  const drag = useRef(null)
-  const swiped = useRef(false)
-  const fingers = useRef(new Set()) // touches currently down: two or more are a pinch, never a swipe
-  const wasPinch = useRef(false)
-  const onPointerDown = e => {
-    fingers.current.add(e.pointerId)
-    if (fingers.current.size > 1) wasPinch.current = true
-    drag.current = { x: e.clientX, y: e.clientY }; swiped.current = false
-  }
-  const onPointerUp = e => {
-    fingers.current.delete(e.pointerId)
-    const start = drag.current
-    drag.current = null
-    if (wasPinch.current) { if (!fingers.current.size) wasPinch.current = false; return }
-    if (!start || selecting) return
-    const dx = e.clientX - start.x
-    const dy = e.clientY - start.y
-    if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      swiped.current = true // so the thumbnail under the finger does not also open
-      setTimeout(() => { swiped.current = false }, 400) // a stale flag must not eat a later keyboard activation
-      stepDay(dx < 0 ? 1 : -1)
-    }
-  }
+  // Anywhere on the screen, not only on the sheet (useScreenSwipe). Off while a photo is full screen (the viewer swipes between
+  // photos) and while selecting.
+  useScreenSwipe(delta => stepDay(delta), viewing === null && !selecting)
 
   // A photo's full-size source can be a URL or a function that makes one on first use
   const resolveFull = s => {
@@ -261,13 +239,7 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
         {isToday && <Ribbon className="pc-ribbon pc-ribbon-sheet" />}
         {/* showPhotos off: the sheet covers the calendar, so the date photos must not show through it */}
         <LiquidGlassPanel params={sheetGlass} showPhotos={false} />
-        <div
-          className="pc-sheet-scroll"
-          onPointerDown={onPointerDown}
-          onPointerUp={onPointerUp}
-          onPointerCancel={e => { fingers.current.delete(e.pointerId); drag.current = null; if (!fingers.current.size) wasPinch.current = false }}
-          onClickCapture={e => { if (swiped.current) { e.stopPropagation(); e.preventDefault(); swiped.current = false } }}
-        >
+        <div className="pc-sheet-scroll">
           {/* Keyed by date, so every day change replays the slide-in */}
           <div key={`${year}-${month}-${day}`} className={`pc-day-content pc-slide-${slide}`}>
             <header className="pc-detail-head">

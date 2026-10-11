@@ -196,7 +196,7 @@ export default function Tour({ onClose }) {
   const text = now.text ?? step.text
 
   return (
-    <div className="tour" role="dialog" aria-modal="true" aria-label="How to use">
+    <div className="tour" data-no-swipe role="dialog" aria-modal="true" aria-label="How to use">
       {/* Catches every press, so the app under the tour cannot be pressed by accident */}
       <div className="tour-block" />
       {/* The dim is one rectangle with a clear, rounded hole for each spotlight (a mask, so holes that overlap stay clear) */}

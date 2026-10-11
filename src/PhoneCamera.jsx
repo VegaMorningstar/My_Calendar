@@ -253,7 +253,7 @@ export default function PhoneCamera({ onPhoto, onClose, onFallback }) {
 
   return (
     <div
-      className={`pcam${deficit >= 20 ? ' pcam-curved' : ''}`} role="dialog" aria-modal="true" aria-label="Take a photo"
+      className={`pcam${deficit >= 20 ? ' pcam-curved' : ''}`} data-no-swipe role="dialog" aria-modal="true" aria-label="Take a photo"
       onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp}
       style={{
         transform: leaving ? 'translateY(100%)' : dragY ? `translateY(${dragY}px)` : undefined,

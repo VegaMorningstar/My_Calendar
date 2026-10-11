@@ -17,7 +17,7 @@
  *   liquidTiles   draw the date boxes as WWN liquid glass tiles (default true; CSS boxes without WebGPU)
  *   onViewChange  called with { year, month, mode } (month is zero-based, mode 'month' or 'year') whenever the view changes, so
  *                 the page around the calendar knows which month is on screen (the "Get your calendar" button uses it)
- *   paused        true switches the keyboard shortcuts off, while the page around the calendar has a screen of its own open
+ *   paused        true switches the keyboard shortcuts and swipes off, while the page around the calendar has a screen of its own open
  *   className     extra class on the root element
  */
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -34,7 +34,7 @@ import { useCalendarScript } from './lib/calendarScript.js'
 import usePageInk from './hooks/usePageInk.js'
 import usePanelEdge from './hooks/usePanelEdge.js'
 import usePinchZoom from './hooks/usePinchZoom.js'
-import useSwipeNav from './hooks/useSwipeNav.js'
+import useScreenSwipe from './hooks/useScreenSwipe.js'
 import useTimedVisible from './hooks/useTimedVisible.js'
 import useTrackpadSwipe from './hooks/useTrackpadSwipe.js'
 import { MONTHS, countInMonth, dateKey, fullSources, groupByDate, monthCells } from './lib/dates.js'
@@ -115,9 +115,10 @@ export default function PhotoCalendar({
     goTo(year, month - 1)
   }
 
-  // Swiping the panel steps the month (or the year, in year view); left is next, right is previous.
-  // A finger swipe on a phone, a two-finger trackpad swipe on a laptop.
-  const swipe = useSwipeNav(go)
+  // Swiping steps the month (or the year, in year view); left is next, right is previous. A finger (or mouse) swipe anywhere on the
+  // screen (useScreenSwipe; off while a day is open, which swipes between days, and while the page has paused the calendar),
+  // a two-finger trackpad swipe over the panel on a laptop.
+  useScreenSwipe(go, !openDay && !paused)
   useTrackpadSwipe(panelRef, go) // the same on a laptop: a two-finger sideways swipe over the panel
 
   // Pinching the panel changes level, like the Photos app: year, month, day. Fingers together (or a trackpad pinch-in) goes
@@ -159,7 +160,7 @@ export default function PhotoCalendar({
         ...(isYear ? { '--pc-tile-max': '9999px' } : null),
       }}
     >
-      <div className={`pc-panel${isYear ? ' pc-bare' : ''}`} ref={panelRef} {...swipe}>
+      <div className={`pc-panel${isYear ? ' pc-bare' : ''}`} ref={panelRef}>
         {/* The year view has no glass surface: its contents sit straight on the wallpaper */}
         {!isYear && <LiquidGlassPanel params={glassEdge} />}
         <CalendarHeader view={view} isYear={isYear} onToggleZoom={toggleZoom} />

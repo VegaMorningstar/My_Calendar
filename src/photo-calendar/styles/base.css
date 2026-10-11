@@ -51,7 +51,8 @@
      so the box takes it off again and the glass corner lands on --pc-panel-r */
   --pc-panel-r: 34px;
   border-radius: calc(var(--pc-panel-r) - var(--pc-edge, 0px));
-  /* Sideways drags are read as swipes between months (useSwipeNav); up and down still scroll the page */
+  /* Up and down still scroll the page, and the browser leaves a pinch to the app (usePinchZoom); sideways swipes are read
+     anywhere on the screen by useScreenSwipe */
   touch-action: pan-y;
   border: 1px solid rgba(255,255,255,.6);
   box-shadow:
