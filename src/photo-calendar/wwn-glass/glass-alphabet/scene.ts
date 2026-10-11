@@ -115,6 +115,10 @@ const Params = d.struct({
   bodyChromatic: d.f32,
   bodyDepth: d.f32,
   letterBlur: d.f32,
+  // LOCAL CHANGE (calendar): a hairline light edge under dark letters, as if engraved (0 = none, the default), and how far
+  // below the glyph it falls, in canvas heights
+  letterEtch: d.f32,
+  letterEtchOffset: d.f32,
   letterColor: d.vec3f,
   // OURS: the ink used where the backdrop is bright, and the luminance band
   // the glyph crosses over from one to the other in. The fluid cursor is
@@ -168,6 +172,9 @@ export type SceneParams = {
   bodyChromatic: number;
   bodyDepth: number;
   letterBlur: number;
+  /** LOCAL CHANGE (calendar): strength of a light hairline under dark letters (0 to 1, default 0), and its offset in canvas heights. */
+  letterEtch?: number;
+  letterEtchOffset?: number;
   letterR: number;
   letterG: number;
   letterB: number;
@@ -303,6 +310,8 @@ export async function setupTileGlass(
     bodyChromatic: 0.01,
     bodyDepth: 0.05,
     letterBlur: 0,
+    letterEtch: 0,
+    letterEtchOffset: 0,
     letterColor: d.vec3f(0.11, 0.1, 0.06),
     letterColorLight: d.vec3f(0.96, 0.94, 0.88),
     inkLumLo: 0.3,
@@ -495,11 +504,19 @@ export async function setupTileGlass(
     const behindLum = std.dot(behind, d.vec3f(0.2126, 0.7152, 0.0722));
     // Smoothstepped across a band, not switched at a threshold: a step would
     // snap the whole grid over as a trail drifted past.
+    const darkInkWeight = std.smoothstep(paramsUniform.$.inkLumLo, paramsUniform.$.inkLumHi, behindLum);
     const ink = std.mix(
       paramsUniform.$.letterColorLight,
       paramsUniform.$.letterColor,
-      std.smoothstep(paramsUniform.$.inkLumLo, paramsUniform.$.inkLumHi, behindLum),
+      darkInkWeight,
     );
+    // LOCAL CHANGE (calendar): the engraved edge. Where the glyph sits just above this pixel (the mask a little higher up) and
+    // this pixel is not itself glyph, a light hairline: it falls under the strokes, as a cut in glass catches the light. Only for
+    // dark ink (a white glyph needs none), and 0 unless a button asks (letterEtch), so the words and date numbers are as before.
+    const etchAbove = std.textureSampleLevel(
+      letterView.$, sampler.$, uv - d.vec2f(0, paramsUniform.$.letterEtchOffset), paramsUniform.$.letterBlur,
+    ).w;
+    const etch = std.saturate(etchAbove - maskBody.y) * paramsUniform.$.letterEtch * darkInkWeight;
 
     // The winning tile's own tint if it has one, the scene's if it does not.
     const tintIsOwn = ownTint.w >= 0;
@@ -519,8 +536,8 @@ export async function setupTileGlass(
     // ringTint 1 (the default) this changes nothing.
     const tintFade = std.mix(d.f32(1), paramsUniform.$.ringTint, std.smoothstep(paramsUniform.$.start - paramsUniform.$.ringTintBlend, paramsUniform.$.end, sdfDist));
     const fadedTint = TintParams({ color: tint.color, strength: tint.strength * tintFade });
-    const tintedBlur = d.vec4f(std.mix(applyTint(paperBody, fadedTint).rgb, ink, maskBody), 1);
-    const tintedRing = d.vec4f(std.mix(applyTint(paperRing, fadedTint).rgb, ink, maskRing), 1);
+    const tintedBlur = d.vec4f(std.mix(std.mix(applyTint(paperBody, fadedTint).rgb, ink, maskBody), d.vec3f(1, 1, 1), etch), 1);
+    const tintedRing = d.vec4f(std.mix(std.mix(applyTint(paperRing, fadedTint).rgb, ink, maskRing), d.vec3f(1, 1, 1), etch), 1);
 
     // Their third term is the untouched background at weights.outside. Between
     // tiles that would paint our reconstruction of the page over the real page,
@@ -710,6 +727,8 @@ export async function setupTileGlass(
         bodyChromatic: p.bodyChromatic,
         bodyDepth: Math.max(p.bodyDepth, 1e-4),
         letterBlur: p.letterBlur,
+        letterEtch: p.letterEtch ?? 0,
+        letterEtchOffset: p.letterEtchOffset ?? 0,
         letterColor: d.vec3f(p.letterR / 255, p.letterG / 255, p.letterB / 255),
         // Falling back to the dark ink rather than to nothing. A caller that
         // does not know about these would otherwise write undefined/255 -

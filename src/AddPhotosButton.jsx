@@ -9,7 +9,8 @@ import { useRef } from 'react'
 import { BUTTON_MATERIAL, GlassButtons, usePageInk } from './photo-calendar/index.js'
 import './photo-library/library-ui.css'
 
-const MATERIAL = { ...BUTTON_MATERIAL, size: 44, radius: 22, edge: 10 }
+// letterEtch: a light hairline under the symbol, as if cut into the glass (see glass-alphabet/scene.ts)
+const MATERIAL = { ...BUTTON_MATERIAL, size: 44, radius: 22, edge: 10, letterEtch: 0.7, letterEtchPx: 1.1 }
 
 /**
  * @param {(files: File[]) => void} onFiles  gets the chosen photos; pass the library's addFiles
@@ -39,12 +40,8 @@ export default function AddPhotosButton({ onFiles, busy = false, solid = false }
         <div className="lib-plus-slot" ref={slotRef} style={{ '--lib-ink': ink.ink }}>
           <GlassButtons
             material={MATERIAL}
-            items={[{ key: 'add-photos', label: '', title: 'Add photos', width: MATERIAL.size, onClick: () => { if (!busy) input.current?.click() }, fallbackClass: 'lib-gear' }]}
+            items={[{ key: 'add-photos', label: '', title: 'Add photos', width: MATERIAL.size, symbol: 'plus', symbolSize: 24, symbolStroke: 2.3, icon: <svg className="lib-gear-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"> <path d="M12 5v14M5 12h14" /> </svg>, onClick: () => { if (!busy) input.current?.click() }, fallbackClass: 'lib-gear' }]}
           />
-          {/* A plus, drawn over the tile, centred; taps pass through to the tile underneath */}
-          <svg className="lib-gear-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true">
-            <path d="M12 5v14M5 12h14" />
-          </svg>
         </div>
       )}
     </div>

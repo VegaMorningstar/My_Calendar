@@ -22,7 +22,7 @@
  * WebGPU, not whether the glass drew, and the two part company more often
  * than you would think.
  */
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, cloneElement } from 'react'
 import { BUTTON_MATERIAL } from './constants.ts'
 import { tokens } from '../theme.js'
 import { POINTER_DEFAULTS } from '../glass-alphabet/constants.ts'
@@ -239,7 +239,11 @@ export default function GlassButtons({
                 : list[i].tint
 
             tiles.push({ cx: cx / H, cy: cy / H, hx: hx / H, hy: hy / H, glow, tint })
-            glyphs.push({ letter: list[i].label, x: cx, y: cy, alpha: 1 })
+            // LOCAL CHANGE (calendar): an item with a `symbol` ('plus', 'camera') puts that into the glass's letter mask in place of its
+            // label, sized by `symbolSize` and pen `symbolStroke` (see glass-alphabet/icons.js)
+            glyphs.push(list[i].symbol
+              ? { symbol: list[i].symbol, size: list[i].symbolSize ?? 24, stroke: list[i].symbolStroke ?? 2, x: cx, y: cy, alpha: 1 }
+              : { letter: list[i].label, x: cx, y: cy, alpha: 1 })
           }
           scene.setTiles(tiles)
 
@@ -263,6 +267,8 @@ export default function GlassButtons({
             bodyChromatic: mm.bodyChromatic,
             bodyDepth: halfBox / H,
             letterBlur: mm.letterBlur,
+            letterEtch: mm.letterEtch ?? 0, // LOCAL CHANGE (calendar): see glass-alphabet/scene.ts
+            letterEtchOffset: (mm.letterEtchPx ?? 1) / H,
             // Both ends of the adaptive ramp get the same colour when the theme
             // pins one, which switches adaptation off without a second code
             // path in the shader: the mix has nothing left to mix between.
@@ -401,7 +407,11 @@ export default function GlassButtons({
               : null),
           }}
         >
-          {glassReady ? '' : item.label}
+          {/* LOCAL CHANGE (calendar): an item can carry an `icon` (an element, drawn in its own colour); it sits inside the button, which
+              the springs lift and squash, so it jiggles with the glass the way the label's letters do. Without an icon, the label is drawn
+              by the shader, and shown here only when the shader is not running. */}
+          {/* With a `symbol` the shader draws the picture, so the element is only kept (invisible) for anything that measures it */}
+          {item.icon && glassReady && item.symbol ? cloneElement(item.icon, { style: { opacity: 0 } }) : (item.icon ?? (glassReady ? '' : item.label))}
         </button>
       ))}
     </div>

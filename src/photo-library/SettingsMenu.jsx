@@ -118,15 +118,16 @@ export default function SettingsMenu({ library, wallpaper, onHowTo }) {
           material={GEAR_MATERIAL}
           items={[{
             key: 'settings', label: '', title: 'Settings', width: GEAR_MATERIAL.size,
+            icon: ( // inside the button, so it jiggles with the tile
+              <svg className="lib-gear-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path d={GEAR_PATH} />
+              </svg>
+            ),
             onClick: () => setOpen(o => !o), fallbackClass: 'lib-gear',
             aria: { 'aria-haspopup': 'menu', 'aria-expanded': open },
           }]}
         />
-        {/* Centred over the tile; taps pass through to the tile underneath */}
-        <svg className="lib-gear-icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <circle cx="12" cy="12" r="3" />
-          <path d={GEAR_PATH} />
-        </svg>
       </div>
 
       {open && (

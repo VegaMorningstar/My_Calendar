@@ -30,6 +30,7 @@
 import { paintPaper } from '../liquid-glass/backdrop.js'
 import { tokens, theme, contentVersionIn } from '../theme.js'
 import { LETTER_TEX_W, LETTER_TEX_H } from './scene.ts'
+import { drawSymbol } from './icons.js' // LOCAL CHANGE (calendar): symbols as well as letters
 
 export function createTileBackdrop({ fluid: withFluid = true } = {}) {
   const paper = document.createElement('canvas')
@@ -138,7 +139,9 @@ export function createTileBackdrop({ fluid: withFluid = true } = {}) {
       letterCtx.textBaseline = 'middle'
       for (const g of glyphs) {
         letterCtx.fillStyle = `rgba(255,255,255,${(style.opacity * g.alpha).toFixed(3)})`
-        letterCtx.fillText(g.letter, g.x, g.y)
+        // LOCAL CHANGE (calendar): a glyph can be a symbol (see icons.js) instead of a letter
+        if (g.symbol) drawSymbol(letterCtx, g.symbol, g.x, g.y, g.size, g.stroke, letterCtx.fillStyle)
+        else letterCtx.fillText(g.letter, g.x, g.y)
       }
       letterCtx.restore()
     }

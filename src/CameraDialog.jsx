@@ -84,21 +84,23 @@ export default function CameraDialog({ onPhoto, onClose }) {
           <CameraFlorals />
         </figure>
         <div className="cam-bar">
-          {/* The shutter: liquid glass, with a white ring drawn over it like a phone's shutter. While the camera is still starting
-              it is dimmed and does nothing (a disabled button does not take a press). */}
+          {/* The shutter: liquid glass, with a white ring like a phone's shutter drawn inside it (so it jiggles with the glass). While
+              the camera is still starting it is dimmed and does nothing (a disabled button does not take a press). */}
           <div className={`cam-shutter-slot${state === 'live' ? '' : ' cam-shutter-off'}`}>
             <GlassButtons
               material={SHUTTER_MATERIAL}
               items={[{
                 key: 'shutter', label: '', title: 'Take the photo', width: SHUTTER_MATERIAL.size,
+                icon: (
+                  <svg className="cam-shutter-ring" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
+                    <circle cx="32" cy="32" r="27" fill="none" stroke="#fff" strokeWidth="3.5" />
+                    <circle cx="32" cy="32" r="20.5" fill="rgba(255,255,255,.55)" />
+                  </svg>
+                ),
                 onClick: shoot, fallbackClass: 'cam-shutter',
                 aria: { disabled: state !== 'live' },
               }]}
             />
-            <svg className="cam-shutter-ring" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true">
-              <circle cx="32" cy="32" r="27" fill="none" stroke="#fff" strokeWidth="3.5" />
-              <circle cx="32" cy="32" r="20.5" fill="rgba(255,255,255,.55)" />
-            </svg>
           </div>
         </div>
       </div>
