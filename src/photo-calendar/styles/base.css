@@ -114,7 +114,16 @@
 /* The year in the button sits on the same line as the month's letters: the button moves down by the
    distance from the month's centre to its baseline (0.417 of its size), less the few px the digits sit
    below the button's own centre. position: relative, so the layout does not change. */
-.pc-zoom { line-height: 0; flex: none; margin: -12px 0 -12px -6px; position: relative; top: calc(var(--pc-month-size) * 0.417 - 3.8px); }
+.pc-zoom {
+  line-height: 0; flex: none; margin: -12px 0 -12px -6px; position: relative;
+  /* The year digits sit on the month's baseline. The button's text is at a fixed place in its glass, the month's grows with the screen, so
+     the fit (0.417 of the month's size, less 3.8px) is out by --pc-year-nudge: about 2px on phones and tablets (a smaller month name),
+     0.9px once the month name is at its biggest (48px); the 20px year digits sit lower on their line than the 17px ones did. Measured against the month's own baseline at 9 screen sizes. */
+  --pc-year-nudge: clamp(0.9px, calc(0.9px + (48px - var(--pc-month-size)) * 0.1), 1.9px);
+  /* Then a deliberate lift of 10% of the month's size (about 3px on a phone), so the pill sits a little above the baseline, as asked */
+  --pc-year-lift: calc(var(--pc-month-size) * 0.1);
+  top: calc(var(--pc-month-size) * 0.417 - 3.8px - var(--pc-year-nudge) - var(--pc-year-lift));
+}
 .pc-month {
   margin: 0; font-family: var(--pc-serif); font-weight: 600; letter-spacing: .02em;
   font-size: var(--pc-month-size, clamp(1.9rem, 5vw, 3rem)); line-height: 1;

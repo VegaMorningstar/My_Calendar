@@ -10,12 +10,12 @@ import { BUTTON_MATERIAL } from '../wwn-glass/index.js'
  * `letterFamily` setting, see wwn-glass/README.md).
  */
 export const NAV_MATERIAL = {
-  ...BUTTON_MATERIAL, size: 40, radius: 20, edge: 9, letterSize: 17, letterWeight: 700,
+  ...BUTTON_MATERIAL, size: 40, radius: 20, edge: 9, letterSize: 20, letterWeight: 700,
   letterFamily: "'Times New Roman', Times, serif",
 }
 
 /** A phone on its side is short, so the header buttons shrink: smaller tiles and text. */
-export const COMPACT_NAV_MATERIAL = { ...NAV_MATERIAL, size: 30, radius: 15, edge: 6, letterSize: 14 }
+export const COMPACT_NAV_MATERIAL = { ...NAV_MATERIAL, size: 30, radius: 15, edge: 6, letterSize: 16.5 }
 export const COMPACT_YEAR_BUTTON_WIDTH = 58
 
 /** The close button's material: a larger glyph, since the multiplication sign is small. */

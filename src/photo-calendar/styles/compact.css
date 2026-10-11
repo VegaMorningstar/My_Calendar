@@ -32,6 +32,7 @@
   .pc-head { flex-wrap: nowrap; margin-bottom: 0; }
   .pc-title { width: auto; gap: 8px; }
   .pc-title-row { --pc-month-size: 1.45rem; }
+  .pc-title-row .pc-zoom { --pc-year-nudge: 1.1px; } /* the year digits (16.5px here) sit about 1px low on their line */
   .pc-year { font-size: .95rem; }
   .pc-count { display: none; }
   /* No room for a line under the panel: the controls sit at the right of the panel instead, one above the other, level with its bottom edge */
