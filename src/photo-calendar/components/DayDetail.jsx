@@ -28,6 +28,7 @@ import { useCalendarScript } from '../lib/calendarScript.js'
 import usePageInk from '../hooks/usePageInk.js'
 import usePanelEdge from '../hooks/usePanelEdge.js'
 import usePinchZoom from '../hooks/usePinchZoom.js'
+import usePhotoRatios from '../lib/usePhotoRatios.js'
 import useScreenSwipe from '../hooks/useScreenSwipe.js'
 import { PANEL_FALLBACK } from '../lib/glass-config.js'
 import '../styles/base.css'
@@ -73,6 +74,8 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
   /** The photos selected for deletion (their previews' URLs), or null when not selecting. */
   const [selected, setSelected] = useState(null)
   const selecting = selected !== null
+  // Each photo's own shape, so the gallery can lay them out as vertical and horizontal rectangles (see usePhotoRatios)
+  const shapes = usePhotoRatios(srcs)
   /** The "Delete N Photos" sheet is open. */
   const [confirming, setConfirming] = useState(false)
   /** Photos shrinking away while they are deleted. */
@@ -272,14 +275,14 @@ export default function DayDetail({ date, srcs, fullBySrc, hasPrev, hasNext, onS
               {/* A day with no photos says so, and points at the buttons that add one */}
               {srcs.length === 0 && <p className="pc-empty-day">{addSlot ? 'No Photos - Import from Photos or Click one' : 'No photos on this day.'}</p>}
               <div className={`pc-gallery${selecting ? ' pc-selecting' : ''}`}>
-                {srcs.map((src, i) => {
+                {shapes.ready && srcs.map((src, i) => {
                   const on = selecting && selected.has(src)
                   return (
                     <button
                       type="button"
                       key={src}
                       className={`pc-thumb${on ? ' pc-thumb-on' : ''}${removing.has(src) ? ' pc-thumb-out' : ''}`}
-                      style={{ animationDelay: `${Math.min(i, 16) * 30}ms` }}
+                      style={{ animationDelay: `${Math.min(i, 16) * 30}ms`, '--r': shapes.ratio(src) }}
                       aria-label={selecting ? `Photo ${i + 1} of ${srcs.length}, ${on ? 'selected' : 'not selected'}` : `Open photo ${i + 1} of ${srcs.length}`}
                       aria-pressed={selecting ? on : undefined}
                       onClick={() => onThumbClick(i, src)}

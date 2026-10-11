@@ -141,11 +141,18 @@
   color: rgb(var(--pc-ink)); text-shadow: 0 1px 0 rgba(var(--pc-hi), .7);
 }
 
-/* The day's photos as a grid of square thumbnails, like the Photos app's album view */
-.pc-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 4px; }
+/* The day's photos as rows of equal height, each photo at its own shape: vertical and horizontal rectangles, not squares (the shapes
+   are measured by usePhotoRatios and arrive as --r, width over height). A photo asks for a width of --r times the row height and
+   grows with the others to fill its row, so a row's height is nearly the same all along it. The empty ::after soaks up the free space
+   on the last row, so those photos keep their size and sit at the left instead of stretching across. No photo is taller than
+   --pc-max-h, which stops a day with one picture from filling the sheet. */
+.pc-gallery { --pc-row-h: 150px; --pc-max-h: 340px; display: flex; flex-wrap: wrap; gap: 4px; align-content: flex-start; }
+.pc-gallery::after { content: ''; flex: 1000 1 0; }
 .pc-thumb {
   appearance: none; padding: 0; border: 0; cursor: pointer; position: relative; overflow: hidden;
-  aspect-ratio: 1; border-radius: 6px; background: rgba(var(--pc-ink), .1);
+  flex: calc(var(--r, 1) * 100) 1 calc(var(--r, 1) * var(--pc-row-h)); min-width: 0;
+  aspect-ratio: var(--r, 1); max-width: calc(var(--r, 1) * var(--pc-max-h));
+  border-radius: 6px; background: rgba(var(--pc-ink), .1);
   -webkit-tap-highlight-color: transparent;
   animation: pc-rise .5s cubic-bezier(.2,.8,.2,1) both;
 }
@@ -250,7 +257,7 @@
 
 @media (max-width: 560px) {
   .pc-sheet { --pc-panel-r: 24px; }
-  .pc-gallery { grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .pc-gallery { --pc-row-h: 110px; --pc-max-h: 260px; gap: 2px; }
   .pc-thumb { border-radius: 3px; }
 }
 
