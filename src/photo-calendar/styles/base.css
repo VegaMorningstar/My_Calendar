@@ -33,13 +33,32 @@
   position: relative; /* the control beside the panel on a landscape phone (see compact.css) is placed against it */
   /* On a short window the calendar narrows so that its square date boxes still fit the height, rather
      than the boxes shrinking inside wide columns (seven boxes, six gaps, and the panel's padding). */
-  /* never wider than the screen less the room the side arrows need at each side (arrows.css) */
+  /* never wider than the screen less the room the side arrows need at each side (arrows.css); in portrait the panel takes the whole width instead (below) */
   width: min(1400px, calc(100% - 2 * var(--pc-arrow-room, 0px)), calc(7 * var(--pc-tile-max) + 6 * var(--pc-gap) + 44px));
   transition: width .35s ease; /* a month with more or fewer rows eases to its size */
   /* The layout responds to the element's own width, not the screen's, so it
      also fits when embedded in a narrow column. */
   container: pc / inline-size;
   -webkit-text-size-adjust: 100%; text-size-adjust: 100%;
+}
+
+/* Portrait (a phone held upright, a window taller than it is wide): the panel takes the whole width, because the side arrows
+   fade away and may lie over it (arrows.css), and the date boxes are upright rectangles, 3:4 like a phone's own photos, so a
+   photo shows as much of itself as possible. --pc-tile-max is still the widest a box may be: the rows' share of the height
+   (the same budget as above, a box's height) times the ratio. The panel's width is worked out from the padding and gap it really
+   has (below 656px wide the narrow-container rules at the end of this file apply: 10px padding, 3px gaps), so the boxes come out
+   exactly as wide as --pc-tile-max says and a month never overflows the height. The landscape layouts keep their squares. */
+@media (orientation: portrait) {
+  .pc-root {
+    --pc-tile-ratio: 0.75;
+    --pc-pad-x: clamp(10px, 2vw, 22px);
+    --pc-gap-p: 4px;
+    --pc-tile-max: max(33px, calc((100dvh - 312px - var(--pc-extra-height, 0px) - (var(--pc-rows, 6) - 1) * var(--pc-gap-p)) / var(--pc-rows, 6) * var(--pc-tile-ratio)));
+    width: min(1400px, 100%, calc(7 * var(--pc-tile-max) + 6 * var(--pc-gap-p) + 2 * var(--pc-pad-x) + 2px));
+  }
+}
+@media (orientation: portrait) and (max-width: 656px) {
+  .pc-root { --pc-pad-x: 10px; --pc-gap-p: 3px; }
 }
 
 /* ── The glass slab ───────────────────────────────────────────────────── */

@@ -1,6 +1,7 @@
 /*
  * The side arrows (SideArrows): a plain chevron at each side of the screen, level with its middle.
- * --pc-arrow-room is the width at each side that panels leave free for them (a panel's width is held to 100% less twice this).
+ * --pc-arrow-room is the width at each side that the day sheet and a landscape calendar leave free for them (a panel's width is
+ * held to 100% less twice this). The calendar in portrait leaves none: the arrows fade away, and lie over its edges while they show.
  */
 :root { --pc-arrow-room: 56px; }
 @media (max-width: 560px) { :root { --pc-arrow-room: 28px; } }
@@ -42,6 +43,12 @@
   .pc-arrow-next { right: max(0px, env(safe-area-inset-right)); }
   /* The button is small, so the area that answers a tap is larger than it looks */
   .pc-arrow::after { content: ''; position: absolute; inset: -8px; border-radius: 50%; }
+}
+
+/* The calendar in portrait runs under its arrows, so while they are faded away a touch must go through them to the date box beneath
+   (a hidden arrow would otherwise take the tap and only show itself). A swipe anywhere, or a step by key, brings them back. */
+@media (orientation: portrait) and (pointer: coarse) {
+  .pc-arrows-main .pc-arrow[data-hidden] { pointer-events: none; }
 }
 
 /* The calendar's own arrows (in a wrapper on <body>) are cleared with the rest of the page while a day or the export page is open
