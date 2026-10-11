@@ -49,7 +49,7 @@ The calendar is a progressive web app: installable, full-screen, and usable offl
 - **iPhone / iPad (Safari):** Share, then "Add to Home Screen".
 - **Android / desktop Chrome and Edge:** use the install icon in the address bar, or the menu's "Install app".
 
-How it works: `public/manifest.webmanifest` describes the app, `public/sw.js` is the service worker, and `src/pwa/register.js` registers it (production builds only). Every built file is precached, so after one online visit the app opens offline, and photos you imported are already on the device. Each deploy gets a new cache version automatically, and the old one is removed.
+How it works: `public/manifest.webmanifest` describes the app, `public/sw.js` is the service worker, and `src/pwa-update/` (a self-contained piece, see its README) registers it and shows "New version available, tap to reload" (production builds only). Every built file is precached, so after one online visit the app opens offline, and photos you imported are already on the device. Each deploy gets a new cache version automatically, and the old one is removed.
 
 The installed app runs full screen, with the wallpaper under the iPhone status bar. iOS reads that setting when the app is added to the Home Screen, so after an update that changes it, delete the app and add it again.
 

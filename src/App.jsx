@@ -16,7 +16,8 @@ import { samplePhotos } from './tour/samplePhotos.js'
 import useTour from './tour/useTour.js'
 import GetCalendarButton from './GetCalendarButton.jsx'
 import TileStyleToggle, { initialGlassTiles } from './TileStyleToggle.jsx'
-import UpdatePrompt from './pwa/UpdatePrompt.jsx'
+import { UpdatePrompt } from './pwa-update/index.js'
+import UpdateButton from './UpdateButton.jsx'
 import { LibraryHint, SettingsMenu, Toast, rememberWallpaperEdges, usePhotoLibrary, useWallpaper } from './photo-library/index.js'
 
 /** Height (px) of the bottom row of buttons when it is one line. */
@@ -191,7 +192,7 @@ export default function App() {
         </div>
       </div>
       {exportOpen && <ExportPage photos={calendarPhotos} year={calView.year} month={calView.month} onClose={() => setExportOpen(false)} />}
-      <UpdatePrompt />
+      <UpdatePrompt className="update-prompt" renderButton={button => <UpdateButton {...button} />} />
       {/* Three blue butterflies that follow the cursor, from Write-With-Nature (src/cursor-butterflies) */}
       <CursorButterflies count={BUTTERFLIES} />
       {tour.open && <Tour onClose={onTourClose} />}
