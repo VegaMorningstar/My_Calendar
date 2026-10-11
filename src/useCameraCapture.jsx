@@ -10,7 +10,7 @@
  * Either way the picture goes to `onFiles`, which is the same import as any other photo, so its capture date decides the day: the
  * date written in the photo by the camera, or else the moment it came back, which is now.
  */
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import CameraDialog from './CameraDialog.jsx'
 import PhoneCamera from './PhoneCamera.jsx'
@@ -33,6 +33,12 @@ export default function useCameraCapture(onFiles) {
     else input.current?.click() // no camera access from the page: the phone's own camera app
   }
   const closeDialog = useCallback(() => setDialog(null), [])
+  // The cursor butterflies keep out of the camera: `pc-camera-open` on the root element hides their canvas (camera.css)
+  useEffect(() => {
+    if (!dialog) return
+    document.documentElement.classList.add('pc-camera-open')
+    return () => document.documentElement.classList.remove('pc-camera-open')
+  }, [dialog])
   // Called from a tap, which the phone requires before it will open its camera app
   const useCameraApp = () => { input.current?.click(); setDialog(null) }
 

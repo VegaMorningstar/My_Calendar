@@ -79,3 +79,6 @@
 @media (max-width: 700px) and (max-height: 560px) {
   .cam-polaroid { --cam-max-h: calc(100dvh - 258px); }
 }
+
+/* No cursor butterflies over either camera (the class is set by useCameraCapture while one is open) */
+.pc-camera-open #cursor-butterflies-canvas { visibility: hidden; }
